@@ -29,6 +29,7 @@ public class DFA {
 			Unit u = i.next();
 			System.out.println(u + "\n");
 			System.out.println("def: " + u.getDefBoxes());
+			System.out.println("use: " + u.getUseBoxes());
 		}
 	}
 }
