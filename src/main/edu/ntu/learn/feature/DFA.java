@@ -1,4 +1,4 @@
-package edu.ntu.learn;
+package edu.ntu.learn.feature;
 
 import java.util.Iterator;
 
@@ -28,12 +28,14 @@ public class DFA {
 		while (i.hasNext()) {
 			Unit u = i.next();
 			System.out.println(u);
-			System.out.println("def: " + u.getDefBoxes());
+			System.out.println("def: " + u.getDefBoxes().get(0).getValue());
 			System.out.println("use: " + u.getUseBoxes() + "\n");
 		}
 	}
 }
 	
+// reference: https://github.com/pcpratts/soot-rb/tree/master/tutorial/guide/examples
+
 class InputBranchDependencyAnalysis extends ForwardFlowAnalysis<Unit, Object> {
 
 	public InputBranchDependencyAnalysis(DirectedGraph<Unit> graph) {
