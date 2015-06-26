@@ -1,2 +1,2 @@
 # ml-testing
-guided testing via machine learning
+guided software testing via machine learning
