@@ -27,9 +27,9 @@ public class DFA {
 		Iterator<Unit> i = g.iterator();
 		while (i.hasNext()) {
 			Unit u = i.next();
-			System.out.println(u + "\n");
+			System.out.println(u);
 			System.out.println("def: " + u.getDefBoxes());
-			System.out.println("use: " + u.getUseBoxes());
+			System.out.println("use: " + u.getUseBoxes() + "\n");
 		}
 	}
 }
