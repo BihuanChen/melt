@@ -15,6 +15,6 @@
 	<classpathentry kind="lib" path="lib/org.eclipse.text_3.5.300.v20130515-1451.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/weka.jar" sourcepath="lib/weka-src.jar"/>
-	<classpathentry kind="lib" path="lib/soot-2.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/soot-trunk.jar" sourcepath="lib/sootsources-trunk.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
