@@ -1,32 +1,39 @@
 package edu.ntu.learn.feature;
 
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 import soot.Unit;
+import soot.Value;
 import soot.toolkits.graph.DirectedGraph;
-import soot.toolkits.scalar.FlowSet;
 
 public class InputBranchDependencyWrapper {
 	
-	private HashMap<Unit, List<?>> branchToInputs;
+	private HashMap<Unit, HashMap<Value, HashSet<Value>>> branchToInputsBefore;
+	private HashMap<Unit, HashMap<Value, HashSet<Value>>> branchToInputsAfter;
 	
 	public InputBranchDependencyWrapper (DirectedGraph<Unit> graph) {
 		InputBranchDependencyAnalysis analysis = new InputBranchDependencyAnalysis(graph);
-		branchToInputs = new HashMap<Unit, List<?>>();
+		branchToInputsBefore = new HashMap<Unit, HashMap<Value, HashSet<Value>>>();
+		branchToInputsAfter = new HashMap<Unit, HashMap<Value, HashSet<Value>>>();
 		
 		Iterator<Unit> ui = graph.iterator();
 		while (ui.hasNext()) {
 			Unit u = ui.next();
-			FlowSet<?> set = (FlowSet<?>) analysis.getFlowAfter(u);
-			branchToInputs.put(u, Collections.unmodifiableList(set.toList()));
+			HashMap<Value, HashSet<Value>> mapBefore = analysis.getFlowBefore(u);
+			HashMap<Value, HashSet<Value>> mapAfter = analysis.getFlowAfter(u);
+			branchToInputsBefore.put(u, mapBefore);
+			branchToInputsAfter.put(u, mapAfter);
 		}
 	}
 
-	public List<?> getInputBranchDependency(Unit u) {
-		return branchToInputs.get(u);
+	public HashMap<Value, HashSet<Value>> getInputBranchDependencyBefore(Unit u) {
+		return branchToInputsBefore.get(u);
+	}
+	
+	public HashMap<Value, HashSet<Value>> getInputBranchDependencyAfter(Unit u) {
+		return branchToInputsAfter.get(u);
 	}
 	
 }

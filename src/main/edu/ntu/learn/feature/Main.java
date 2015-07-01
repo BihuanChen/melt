@@ -8,6 +8,7 @@ import soot.BodyTransformer;
 import soot.PackManager;
 import soot.Transform;
 import soot.Unit;
+import soot.jimple.DefinitionStmt;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
@@ -23,10 +24,9 @@ public class Main {
 				Iterator<Unit> i = g.iterator();
 				while (i.hasNext()) {
 					Unit u = i.next();
-					System.out.println(u);
-					//w.getInputBranchDependency(u);
-					System.out.println("def: " + u.getDefBoxes());
-					System.out.println("use: " + u.getUseBoxes() + "\n");
+					if (u instanceof DefinitionStmt) {
+						System.out.println(u);
+					}
 				}
 			}
 			
