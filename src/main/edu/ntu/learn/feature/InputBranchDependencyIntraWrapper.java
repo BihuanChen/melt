@@ -8,13 +8,13 @@ import soot.Unit;
 import soot.Value;
 import soot.toolkits.graph.DirectedGraph;
 
-public class InputBranchDependencyWrapper {
+public class InputBranchDependencyIntraWrapper {
 	
 	private HashMap<Unit, HashMap<Value, HashSet<Value>>> localsToInputsDependencyBefore;
 	private HashMap<Unit, HashMap<Value, HashSet<Value>>> localsToInputsDependencyAfter;
 		
-	public InputBranchDependencyWrapper (DirectedGraph<Unit> graph) {
-		InputBranchDependencyAnalysis analysis = new InputBranchDependencyAnalysis(graph);
+	public InputBranchDependencyIntraWrapper (DirectedGraph<Unit> graph) {
+		InputBranchDependencyIntraAnalysis analysis = new InputBranchDependencyIntraAnalysis(graph);
 		
 		localsToInputsDependencyBefore = new HashMap<Unit, HashMap<Value, HashSet<Value>>>();
 		localsToInputsDependencyAfter = new HashMap<Unit, HashMap<Value, HashSet<Value>>>();

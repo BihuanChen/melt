@@ -20,11 +20,11 @@ import soot.toolkits.scalar.ForwardFlowAnalysis;
  * @author huan
  *
  */
-public class InputBranchDependencyAnalysis extends ForwardFlowAnalysis<Unit, HashMap<Value, HashSet<Value>>> {
+public class InputBranchDependencyIntraAnalysis extends ForwardFlowAnalysis<Unit, HashMap<Value, HashSet<Value>>> {
 	
 	private LinkedHashMap<Unit, HashSet<Value>> branchesToInputsDependency;
 	
-	public InputBranchDependencyAnalysis(DirectedGraph<Unit> graph) {
+	public InputBranchDependencyIntraAnalysis(DirectedGraph<Unit> graph) {
 		super(graph);
 		branchesToInputsDependency = new LinkedHashMap<Unit, HashSet<Value>>();
 		doAnalysis();

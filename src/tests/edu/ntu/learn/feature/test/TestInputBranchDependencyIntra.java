@@ -1,6 +1,6 @@
 package edu.ntu.learn.feature.test;
 
-public class TestInputBranchDependency {
+public class TestInputBranchDependencyIntra {
 
 	public void test1(int x, int y, int z) {
 		int a = x + 1, b = y + 1, c = x + y + 1;
@@ -38,7 +38,7 @@ public class TestInputBranchDependency {
 	}
 	
 	public static void main(String[] args) {
-		new TestInputBranchDependency().test1(1, 1, 1);
+		new TestInputBranchDependencyIntra().test1(1, 1, 1);
 	}
 
 }
