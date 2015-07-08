@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import soot.Body;
 import soot.BodyTransformer;
@@ -66,15 +65,18 @@ public class Main {
 
 			@Override
 			protected void internalTransform(String phaseName, Map<String, String> options) {
-				IFDSTabulationProblem<Unit, Pair<Value, Set<Value>>, SootMethod, InterproceduralCFG<Unit, SootMethod>> problem = new InputBranchDependencyInterAnalysis(new JimpleBasedInterproceduralCFG());
-				IFDSSolver<Unit, Pair<Value, Set<Value>>, SootMethod, InterproceduralCFG<Unit,SootMethod>> solver = new IFDSSolver<Unit, Pair<Value,Set<Value>>, SootMethod, InterproceduralCFG<Unit,SootMethod>>(problem);
+				IFDSTabulationProblem<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit, SootMethod>> problem = new InputBranchDependencyInterAnalysis(new JimpleBasedInterproceduralCFG());
+				IFDSSolver<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit,SootMethod>> solver = new IFDSSolver<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit,SootMethod>>(problem);
 				solver.solve();
-				Unit u = Scene.v().getMainMethod().getActiveBody().getUnits().getFirst();
-				u = Scene.v().getMainMethod().getActiveBody().getUnits().getSuccOf(u);
-				u = Scene.v().getMainMethod().getActiveBody().getUnits().getSuccOf(u);
-				System.err.println(u);
-				for(Pair<Value, Set<Value>> p: solver.ifdsResultsAt(u)) {
-					System.err.println(p);
+				SootMethod m = Scene.v().getMethod("<edu.ntu.learn.feature.test.TestInputBranchDependencyInter: void m1(int,int,int)>");
+				Iterator<Unit> i = m.getActiveBody().getUnits().iterator();
+				while (i.hasNext()) { 
+					Unit u = i.next();
+					System.err.println(u);
+					for(Pair<Value, Value> p: solver.ifdsResultsAt(u)) {
+						System.err.println(p);
+					}
+					System.err.println();
 				}
 			}
 

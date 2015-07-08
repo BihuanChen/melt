@@ -16,11 +16,13 @@ public class TestInputBranchDependencyInter {
 		}
 	}
 	
+	public static void entryPointMain(int x, int y, int z) {
+		int a = x + y, b = y + z;
+		m1(a, b, 0);
+	}
+	
 	public static void main(String[] args) {
-		String s1 = args[0], s2 = args[1];
-		//String s3 = s1 + s2;
-		//String s4 = "dummy";
-		//String s5 = s1 + s4;
+		entryPointMain(1, 1, 1);
 	}
 
 }
