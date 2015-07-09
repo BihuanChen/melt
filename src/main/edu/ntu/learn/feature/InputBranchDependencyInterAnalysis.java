@@ -2,7 +2,9 @@ package edu.ntu.learn.feature;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ import soot.Value;
 import soot.ValueBox;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
+import soot.jimple.IfStmt;
 import soot.jimple.Jimple;
 import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
@@ -33,12 +36,21 @@ import soot.jimple.internal.JimpleLocal;
 import soot.jimple.toolkits.ide.DefaultJimpleIFDSTabulationProblem;
 import soot.toolkits.scalar.Pair;
 
+/**
+ * identify the set of input parameters that each variable (and branch) depends on
+ * @author huan
+ *
+ */
 public class InputBranchDependencyInterAnalysis extends DefaultJimpleIFDSTabulationProblem<Pair<Value, Value>, InterproceduralCFG<Unit,SootMethod>> {
 
-	private String entryPoint = "<edu.ntu.learn.feature.test.TestInputBranchDependencyInter: void entryPointMain(int,int,int)>";
+	private String entryPoint;
 	
-	public InputBranchDependencyInterAnalysis(InterproceduralCFG<Unit, SootMethod> icfg) {
+	private LinkedHashMap<Unit, HashSet<Value>> branchesToInputsDependency;
+	
+	public InputBranchDependencyInterAnalysis(InterproceduralCFG<Unit, SootMethod> icfg, String entryPoint) {
 		super(icfg);
+		this.entryPoint = entryPoint;
+		this.branchesToInputsDependency = new LinkedHashMap<Unit, HashSet<Value>>();
 	}
 
 	@Override
@@ -46,11 +58,30 @@ public class InputBranchDependencyInterAnalysis extends DefaultJimpleIFDSTabulat
 		return new FlowFunctions<Unit, Pair<Value, Value>, SootMethod>() {
 
 			@Override
-			public FlowFunction<Pair<Value, Value>> getNormalFlowFunction(Unit curr, Unit succ) {
-				if (!(curr instanceof DefinitionStmt) || interproceduralCFG().getMethodOf(curr) == Scene.v().getMainMethod()) {
+			public FlowFunction<Pair<Value, Value>> getNormalFlowFunction(final Unit curr, Unit succ) {
+				if ((!(curr instanceof DefinitionStmt) && !(curr instanceof IfStmt)) || interproceduralCFG().getMethodOf(curr) == Scene.v().getMainMethod()) {
 					return Identity.v();
 				}
-					
+				if (curr instanceof IfStmt) {
+					final IfStmt ifStmt = (IfStmt) curr;
+					return new FlowFunction<Pair<Value,Value>>() {
+						@Override
+						public Set<Pair<Value, Value>> computeTargets(Pair<Value, Value> source) {
+							Iterator<ValueBox> i = ifStmt.getCondition().getUseBoxes().iterator();
+							while (i.hasNext()) {
+								Value v = i.next().getValue();
+								if (source.getO1().equivTo(v)) {
+									if (branchesToInputsDependency.get(curr) == null) {
+										branchesToInputsDependency.put(curr, new HashSet<Value>());
+									}
+									branchesToInputsDependency.get(curr).add(source.getO2());
+								}
+							}
+							return Collections.singleton(source);
+						}
+					};
+				}
+				
 				final DefinitionStmt stmt = (DefinitionStmt) curr;
 				return new FlowFunction<Pair<Value, Value>>() {
 					@Override
@@ -169,6 +200,18 @@ public class InputBranchDependencyInterAnalysis extends DefaultJimpleIFDSTabulat
 	@Override
 	protected Pair<Value, Value> createZeroValue() {
 		return new Pair<Value, Value>(new JimpleLocal("<<zero>>", NullType.v()), new JimpleLocal("<<zero>>", NullType.v()));
+	}
+
+	public String getEntryPoint() {
+		return entryPoint;
+	}
+
+	public void setEntryPoint(String entryPoint) {
+		this.entryPoint = entryPoint;
+	}
+
+	public LinkedHashMap<Unit, HashSet<Value>> getBranchesToInputsDependency() {
+		return branchesToInputsDependency;
 	}
 
 }

@@ -1,6 +1,5 @@
 package edu.ntu.learn.feature;
 
-import heros.IFDSTabulationProblem;
 import heros.InterproceduralCFG;
 import heros.solver.IFDSSolver;
 
@@ -60,23 +59,34 @@ public class Main {
 		soot.Main.main(args);
 	}
 	
-	public static void runInter(String[] args) {
+	public static void runInter(String[] args, final String entryPoint) {
 		PackManager.v().getPack("wjtp").add(new Transform("wjtp.ibda", new SceneTransformer() {
 
 			@Override
 			protected void internalTransform(String phaseName, Map<String, String> options) {
-				IFDSTabulationProblem<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit, SootMethod>> problem = new InputBranchDependencyInterAnalysis(new JimpleBasedInterproceduralCFG());
+				InputBranchDependencyInterAnalysis problem = new InputBranchDependencyInterAnalysis(new JimpleBasedInterproceduralCFG(), entryPoint);
 				IFDSSolver<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit,SootMethod>> solver = new IFDSSolver<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit,SootMethod>>(problem);
 				solver.solve();
-				SootMethod m = Scene.v().getMethod("<edu.ntu.learn.feature.test.TestInputBranchDependencyInter: void m1(int,int,int)>");
-				Iterator<Unit> i = m.getActiveBody().getUnits().iterator();
-				while (i.hasNext()) { 
-					Unit u = i.next();
-					System.err.println(u);
-					for(Pair<Value, Value> p: solver.ifdsResultsAt(u)) {
-						System.err.println(p);
+				if (debug) {
+					SootMethod m = Scene.v().getMethod("<edu.ntu.learn.feature.test.TestInputBranchDependencyInter: void m1(int,int,int)>");
+					Iterator<Unit> i = m.getActiveBody().getUnits().iterator();
+					while (i.hasNext()) { 
+						Unit u = i.next();
+						System.err.println(u);
+						for(Pair<Value, Value> p: solver.ifdsResultsAt(u)) {
+							System.err.println(p);
+						}
+						System.err.println();
 					}
-					System.err.println();
+				} else {
+					branchesToInputsDependency.putAll(problem.getBranchesToInputsDependency());
+					Iterator<Unit> i = branchesToInputsDependency.keySet().iterator();
+					while (i.hasNext()) {
+						Unit u = i.next();
+						System.out.println(u);
+						System.out.println(u.getJavaSourceStartLineNumber());
+						System.out.println(branchesToInputsDependency.get(u) + "\n");
+					}
 				}
 			}
 
@@ -96,7 +106,7 @@ public class Main {
 		intraOptions[7] = "edu.ntu.learn.feature.test.TestInputBranchDependencyIntra";
 		//Main.runIntra(intraOptions);
 		
-		String[] interOptions = new String[14];
+		String[] interOptions = new String[15];
 		interOptions[0] = "-cp";
 		interOptions[1] = "build/tests/";
 		interOptions[2] = "-pp";
@@ -104,14 +114,15 @@ public class Main {
 		interOptions[4] = "J";
 		interOptions[5] = "-keep-line-number";
 		interOptions[6] = "-coffi";
-		interOptions[7] = "-w";
-		interOptions[8] = "-p";
-		interOptions[9] = "cg.spark";
-		interOptions[10] = "on";
-		interOptions[11] = "-main-class";
-		interOptions[12] = "edu.ntu.learn.feature.test.TestInputBranchDependencyInter";
-		interOptions[13] = "edu.ntu.learn.feature.test.TestInputBranchDependencyInter";
-		Main.runInter(interOptions);
+		interOptions[7] = "-app";
+		interOptions[8] = "-w";
+		interOptions[9] = "-p";
+		interOptions[10] = "cg.spark";
+		interOptions[11] = "on";
+		interOptions[12] = "-main-class";
+		interOptions[13] = "edu.ntu.learn.feature.test.TestInputBranchDependencyInter1";
+		interOptions[14] = "edu.ntu.learn.feature.test.TestInputBranchDependencyInter1";
+		Main.runInter(interOptions, "<edu.ntu.learn.feature.test.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
 	}
 
 }
