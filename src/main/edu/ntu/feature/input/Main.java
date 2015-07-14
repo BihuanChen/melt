@@ -1,4 +1,4 @@
-package edu.ntu.learn.feature;
+package edu.ntu.feature.input;
 
 import heros.InterproceduralCFG;
 import heros.solver.IFDSSolver;
@@ -68,7 +68,7 @@ public class Main {
 				IFDSSolver<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit,SootMethod>> solver = new IFDSSolver<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit,SootMethod>>(problem);
 				solver.solve();
 				if (debug) {
-					SootMethod m = Scene.v().getMethod("<edu.ntu.learn.feature.test.TestInputBranchDependencyInter: void m1(int,int,int)>");
+					SootMethod m = Scene.v().getMethod("<edu.ntu.feature.input.test.TestInputBranchDependencyInter: void m1(int,int,int)>");
 					Iterator<Unit> i = m.getActiveBody().getUnits().iterator();
 					while (i.hasNext()) { 
 						Unit u = i.next();
@@ -103,7 +103,7 @@ public class Main {
 		intraOptions[4] = "J";
 		intraOptions[5] = "-keep-line-number";
 		intraOptions[6] = "-coffi";
-		intraOptions[7] = "edu.ntu.learn.feature.test.TestInputBranchDependencyIntra";
+		intraOptions[7] = "edu.ntu.feature.input.test.TestInputBranchDependencyIntra";
 		//Main.runIntra(intraOptions);
 		
 		String[] interOptions = new String[15];
@@ -120,9 +120,9 @@ public class Main {
 		interOptions[10] = "cg.spark";
 		interOptions[11] = "on";
 		interOptions[12] = "-main-class";
-		interOptions[13] = "edu.ntu.learn.feature.test.TestInputBranchDependencyInter1";
-		interOptions[14] = "edu.ntu.learn.feature.test.TestInputBranchDependencyInter1";
-		Main.runInter(interOptions, "<edu.ntu.learn.feature.test.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
+		interOptions[13] = "edu.ntu.feature.input.test.TestInputBranchDependencyInter1";
+		interOptions[14] = "edu.ntu.feature.input.test.TestInputBranchDependencyInter1";
+		Main.runInter(interOptions, "<edu.ntu.feature.input.test.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
 	}
 
 }

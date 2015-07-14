@@ -1,4 +1,4 @@
-package edu.ntu.instrument.branch.test2;
+package edu.ntu.instrument.test2;
 
 public class TestHybrid {
 	

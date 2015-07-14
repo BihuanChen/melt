@@ -1,4 +1,4 @@
-package edu.ntu.instrument.branch.test1;
+package edu.ntu.instrument.test1;
 
 public class TestIfStatement {
 

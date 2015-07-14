@@ -1,7 +1,9 @@
-package edu.ntu.instrument.branch.test1;
+package edu.ntu.instrument.test1;
 
 public class TestSwitchStatement {
 
+	// instrumentation for switch statements is implemented but not integrated into the framework
+	
 	public void test1 (int x) {
 		switch (x) {
 			case 5 :

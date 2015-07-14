@@ -2,7 +2,6 @@ package edu.ntu.instrument;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.dom.AST;
@@ -10,6 +9,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -31,7 +30,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
-public class BranchInstrumentor {
+public class Instrumentor {
 	
 	/**
 	 * loop a project directory to get and instrument files recursively
@@ -67,26 +66,25 @@ public class BranchInstrumentor {
 		final AST ast = cu.getAST();
 		final ASTRewrite rewriter = ASTRewrite.create(ast);
 		
-		final String fileName = cu.getPackage().getName() + "." + file.getName();
+		final String className = cu.getPackage().getName() + "." + file.getName().substring(0, file.getName().length() - 5);
 		
 		cu.recordModifications();
 		cu.accept(new ASTVisitor() {
 
 			private String methodName = null;
 			
-			@SuppressWarnings("unchecked")
 			@Override
 			public boolean visit(ConditionalExpression conditionalExpression) {			
 				int lineNum = cu.getLineNumber(conditionalExpression.getStartPosition());
-				Expression expression = conditionalExpression.getExpression();
+				/*Expression expression = conditionalExpression.getExpression();
 						
 				IfStatement ifStatement = ast.newIfStatement();
 				ifStatement.setExpression((Expression)(rewriter.createCopyTarget(expression)));
 				Block thenBlock = ast.newBlock();
-				thenBlock.statements().add(createCounterStmt(fileName + " @ " + methodName + " @ " + lineNum + " @ " + expression));
+				thenBlock.statements().add(createCounterStmt(className + " @ " + methodName + " @ " + lineNum + " @ " + expression));
 				ifStatement.setThenStatement(thenBlock);
 				Block elseBlock = ast.newBlock();
-				elseBlock.statements().add(createCounterStmt(fileName + " @ " + methodName + " @ " + lineNum + " @ " + "!(" + expression + ")"));
+				elseBlock.statements().add(createCounterStmt(className + " @ " + methodName + " @ " + lineNum + " @ " + "!(" + expression + ")"));
 				ifStatement.setElseStatement(elseBlock);
 				
 				ASTNode parent = conditionalExpression.getParent().getParent();
@@ -105,14 +103,15 @@ public class BranchInstrumentor {
 					listRewrite.insertAfter(ifStatement, child, null);
 				} else {
 					System.err.println("error");
-				}
+				}*/
+				System.err.println("conditional expression is not supported (" + className + " @ " + lineNum + ")");
 				return super.visit(conditionalExpression);
 			}
 			
 			@Override
 			public boolean visit(SwitchStatement switchStatement) {
 				int lineNum = cu.getLineNumber(switchStatement.getStartPosition());
-				Expression expression = switchStatement.getExpression();
+				/*Expression expression = switchStatement.getExpression();
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
 				List<?> stmts = switchStatement.statements();
@@ -126,14 +125,14 @@ public class BranchInstrumentor {
 						if (switchCase.isDefault()) {
 							hasDefault = true;
 							if (fullCondition != null) {
-								listRewrite.insertAfter(createCounterStmt(fileName + " @ " + methodName + " @ " + lineNum + " @ " + fullCondition), switchCase, null);
+								listRewrite.insertAfter(createCounterStmt(className + " @ " + methodName + " @ " + lineNum + " @ " + fullCondition), switchCase, null);
 							}
 						} else {
 							partCondition = partCondition == null ? expression + " == " + switchCase.getExpression() : partCondition + " || " + expression + " == " + switchCase.getExpression();
 							fullCondition = fullCondition == null ? expression + " != " + switchCase.getExpression() : fullCondition + " && " + expression + " != " + switchCase.getExpression();
 						}
 					} else if (partCondition != null) {
-						listRewrite.insertBefore(createCounterStmt(fileName + " @ " + methodName + " @ " + lineNum + " @ " + partCondition), stmt, null);
+						listRewrite.insertBefore(createCounterStmt(className + " @ " + methodName + " @ " + lineNum + " @ " + partCondition), stmt, null);
 						partCondition = null;
 					}
 				}
@@ -142,28 +141,28 @@ public class BranchInstrumentor {
 					SwitchCase newDefault = ast.newSwitchCase();
 					newDefault.setExpression(null);
 					listRewrite.insertLast(newDefault, null);
-					listRewrite.insertLast(createCounterStmt(fileName + " @ " + methodName + " @ " + lineNum + " @ " + fullCondition), null);
+					listRewrite.insertLast(createCounterStmt(className + " @ " + methodName + " @ " + lineNum + " @ " + fullCondition), null);
 					listRewrite.insertLast(ast.newBreakStatement(), null);
-				}
-				
+				}*/
+				System.err.println("switch statement is not supported (" + className + " @ " + lineNum + ")");
 				return super.visit(switchStatement);
 			}
 			
 			@Override
 			public boolean visit(ForStatement forStatement) {
-				visit(forStatement, forStatement.getExpression(), forStatement.getBody(), forStatement.getParent());
+				visit(forStatement, forStatement.getExpression(), forStatement.getBody(), forStatement.getParent(), "for");
 				return super.visit(forStatement);
 			}
 			
 			@Override
 			public boolean visit(WhileStatement whileStatement) {
-				visit(whileStatement, whileStatement.getExpression(), whileStatement.getBody(), whileStatement.getParent());
+				visit(whileStatement, whileStatement.getExpression(), whileStatement.getBody(), whileStatement.getParent(), "while");
 				return super.visit(whileStatement);
 			}
 			
 			@Override
 			public boolean visit(DoStatement doStatement) {
-				visit(doStatement, doStatement.getExpression(), doStatement.getBody(), doStatement.getParent());
+				visit(doStatement, doStatement.getExpression(), doStatement.getBody(), doStatement.getParent(), "do");
 				return super.visit(doStatement);
 			}
 			
@@ -173,35 +172,40 @@ public class BranchInstrumentor {
 				Expression expression = ifStatement.getExpression();
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(ifStatement.getThenStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(fileName + " @ " + methodName + " @ " + lineNum + " @ " + expression), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), "if", true), null);
 
 				listRewrite = rewriter.getListRewrite(ifStatement.getElseStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(fileName + " @ " + methodName + " @ " + lineNum + " @ " + "!(" + expression + ")"), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), "if", false), null);
 				
 				return super.visit(ifStatement);
 			}
 			
 			@SuppressWarnings("unchecked")
-			private Statement createCounterStmt(String id) {
+			private Statement createCounterStmt(String className, String methodName, int lineNumber, String expression, String type, boolean branch) {
 				// add the branch predicate
-				PredicateCounter.branchPredicates.add(id);
-				int index = PredicateCounter.branchPredicates.size() - 1;
+				if (branch) {
+					Predicate predicate = new Predicate(className, methodName, lineNumber, expression, type);
+					Instance.predicates.add(predicate);
+				}
+				int index = Instance.predicates.size() - 1;
 				// create the counter statement
 				MethodInvocation newInvocation = ast.newMethodInvocation();
-				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "ntu", "instrument"}), ast.newSimpleName("PredicateCounter"));
+				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "ntu", "instrument"}), ast.newSimpleName("Instance"));
 				newInvocation.setExpression(qualifiedName);
-				newInvocation.setName(ast.newSimpleName("incBranchPredicateCounters"));
-				NumberLiteral literal = ast.newNumberLiteral(String.valueOf(index));
-				newInvocation.arguments().add(literal);
+				newInvocation.setName(ast.newSimpleName("incPredicateCounter"));
+				NumberLiteral literal1 = ast.newNumberLiteral(String.valueOf(index));
+				newInvocation.arguments().add(literal1);
+				BooleanLiteral literal2 = ast.newBooleanLiteral(branch);
+				newInvocation.arguments().add(literal2);
 				Statement newStatement = ast.newExpressionStatement(newInvocation);
 				return newStatement;
 			}
 			
-			private void visit(Statement statement, Expression expression, Statement body, ASTNode parent) {	
+			private void visit(Statement statement, Expression expression, Statement body, ASTNode parent, String type) {	
 				int lineNum = cu.getLineNumber(statement.getStartPosition());
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(body, Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(fileName + " @ " + methodName + " @ " + lineNum + " @ " + expression), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), type, true), null);
 				
 				if (parent instanceof SwitchStatement) {
 					listRewrite = rewriter.getListRewrite(parent, SwitchStatement.STATEMENTS_PROPERTY);
@@ -210,7 +214,7 @@ public class BranchInstrumentor {
 				} else {
 					System.err.println("error");
 				}
-				listRewrite.insertAfter(createCounterStmt(fileName + " @ " + methodName + " @ " + lineNum + " @ " + "!(" + expression + ")"), statement, null);
+				listRewrite.insertAfter(createCounterStmt(className, methodName, lineNum, expression.toString(), type, false), statement, null);
 			}
 			
 			@Override
@@ -231,6 +235,7 @@ public class BranchInstrumentor {
 		FileUtils.write(file, document.get());
 	}
 	
+	
 	/**
 	 * loop a project directory to get and format files recursively
 	 * @param root
@@ -245,7 +250,7 @@ public class BranchInstrumentor {
 				formatFile(f);
 			}
 			if (f.isDirectory()) {
-				instrumentFilesInDir(f);
+				formatFilesInDir(f);
 			}
 		}
 	}
@@ -309,13 +314,13 @@ public class BranchInstrumentor {
 	
 	public static void main(String[] args) {
 		try {
-			BranchInstrumentor bi = new BranchInstrumentor();
-			File project = new File("/home/bhchen/workspace/jpf-v6/ml-testing/src/tests/edu/ntu/instrument/branch/test2");
-			
+			Instrumentor bi = new Instrumentor();
+			File project = new File("/Users/huan/Workspace/ml-testing/src/tests/edu/ntu/instrument/test2");
+
 			bi.formatFilesInDir(project);
 			bi.instrumentFilesInDir(project);
 			
-			PredicateCounter.printBranchPredicates();
+			Instance.printPredicates();
 		} catch (IOException | MalformedTreeException | BadLocationException e) {
 			e.printStackTrace();
 		}

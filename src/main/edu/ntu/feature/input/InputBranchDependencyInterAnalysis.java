@@ -1,4 +1,4 @@
-package edu.ntu.learn.feature;
+package edu.ntu.feature.input;
 
 import java.util.ArrayList;
 import java.util.Collections;
