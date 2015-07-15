@@ -1,4 +1,4 @@
-package edu.ntu.feature.input.test;
+package edu.ntu.feature.input.test1;
 
 public class TestInputBranchDependencyInter1 {
 
@@ -6,14 +6,26 @@ public class TestInputBranchDependencyInter1 {
 		int a = x + 1, b = y + 1, c = x + y + 1;
 		
 		if (p) {
-			if (a > 0 && b > 0) { System.out.println("x, y"); }
-			if (a > 0 || c > 0) { System.out.println("x, y"); }
-			if (b > 0 && c > 0) { System.out.println("x, y"); }
+			if (a > 0 && b > 0) {
+				System.out.println("x, y");
+			}
+			if (a > 0 || c > 0) {
+				System.out.println("x, y");
+			}
+			if (b > 0 && c > 0) {
+				System.out.println("x, y");
+			}
 		} else {
 			x = 1; a = x + 1;
-			if (a > 0 && b > 0) { System.out.println("y"); }
-			if (a > 0 || c > 0) { System.out.println("x, y"); }
-			if (b > 0 && c > 0) { System.out.println("x, y"); }
+			if (a > 0 && b > 0) {
+				System.out.println("y");
+			}
+			if (a > 0 || c > 0) {
+				System.out.println("x, y");
+			}
+			if (b > 0 && c > 0) {
+				System.out.println("x, y");
+			}
 		}
 		
 		//TestInputBranchDependencyInter2.max(a, b);
@@ -27,7 +39,7 @@ public class TestInputBranchDependencyInter1 {
 	}
 	
 	public static void main(String[] args) {
-		entryPointMain(1, 1, 1, true);
+		entryPointMain(1, 2, 3, true);
 	}
 
 }

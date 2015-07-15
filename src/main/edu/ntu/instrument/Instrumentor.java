@@ -2,6 +2,8 @@ package edu.ntu.instrument;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.dom.AST;
@@ -30,8 +32,24 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
-public class Instrumentor {
+public class Instrumentor implements Serializable {
 	
+	private static final long serialVersionUID = 6585501767998527830L;
+	
+	private ArrayList<Predicate> predicates;
+	
+	public Instrumentor() {
+		predicates = new ArrayList<Predicate>();
+	}
+
+	public ArrayList<Predicate> getPredicates() {
+		return predicates;
+	}
+
+	public void setPredicates(ArrayList<Predicate> predicates) {
+		this.predicates = predicates;
+	}
+
 	/**
 	 * loop a project directory to get and instrument files recursively
 	 * @param root
@@ -102,9 +120,9 @@ public class Instrumentor {
 					ListRewrite listRewrite = rewriter.getListRewrite(parent, Block.STATEMENTS_PROPERTY);
 					listRewrite.insertAfter(ifStatement, child, null);
 				} else {
-					System.err.println("error");
+					System.err.println(""[ml-testing] " + switch statement nested in unknown statements");
 				}*/
-				System.err.println("conditional expression is not supported (" + className + " @ " + lineNum + ")");
+				System.err.println("[ml-testing] conditional expression is not supported (" + className + " @ " + lineNum + ")");
 				return super.visit(conditionalExpression);
 			}
 			
@@ -144,7 +162,7 @@ public class Instrumentor {
 					listRewrite.insertLast(createCounterStmt(className + " @ " + methodName + " @ " + lineNum + " @ " + fullCondition), null);
 					listRewrite.insertLast(ast.newBreakStatement(), null);
 				}*/
-				System.err.println("switch statement is not supported (" + className + " @ " + lineNum + ")");
+				System.err.println("[ml-testing] switch statement is not supported (" + className + " @ " + lineNum + ")");
 				return super.visit(switchStatement);
 			}
 			
@@ -185,12 +203,12 @@ public class Instrumentor {
 				// add the branch predicate
 				if (branch) {
 					Predicate predicate = new Predicate(className, methodName, lineNumber, expression, type);
-					Instance.predicates.add(predicate);
+					predicates.add(predicate);
 				}
-				int index = Instance.predicates.size() - 1;
+				int index = predicates.size() - 1;
 				// create the counter statement
 				MethodInvocation newInvocation = ast.newMethodInvocation();
-				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "ntu", "instrument"}), ast.newSimpleName("Instance"));
+				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "ntu", "instrument"}), ast.newSimpleName("PInstance"));
 				newInvocation.setExpression(qualifiedName);
 				newInvocation.setName(ast.newSimpleName("incPredicateCounter"));
 				NumberLiteral literal1 = ast.newNumberLiteral(String.valueOf(index));
@@ -212,7 +230,7 @@ public class Instrumentor {
 				} else if (parent instanceof Block) {
 					listRewrite = rewriter.getListRewrite(parent, Block.STATEMENTS_PROPERTY);
 				} else {
-					System.err.println("error");
+					System.err.println("[ml-testing] loop nested in unknown statements");
 				}
 				listRewrite.insertAfter(createCounterStmt(className, methodName, lineNum, expression.toString(), type, false), statement, null);
 			}
@@ -314,13 +332,16 @@ public class Instrumentor {
 	
 	public static void main(String[] args) {
 		try {
-			Instrumentor bi = new Instrumentor();
-			File project = new File("/Users/huan/Workspace/ml-testing/src/tests/edu/ntu/instrument/test2");
-
-			bi.formatFilesInDir(project);
-			bi.instrumentFilesInDir(project);
+			File project = new File("src/tests/edu/ntu/instrument/test2/");
+			Instrumentor instrumentor = new Instrumentor();
+			instrumentor.formatFilesInDir(project);
+			instrumentor.instrumentFilesInDir(project);
 			
-			Instance.printPredicates();
+			ArrayList<Predicate> pList = instrumentor.getPredicates();
+			int size = pList.size();
+			for (int i = 0; i < size; i++) {
+				System.out.println("[ml-testing] " + pList.get(i));
+			}
 		} catch (IOException | MalformedTreeException | BadLocationException e) {
 			e.printStackTrace();
 		}

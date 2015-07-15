@@ -1,4 +1,4 @@
-package edu.ntu.feature.input.test;
+package edu.ntu.feature.input.test1;
 
 public class TestInputBranchDependencyInter2 {
 

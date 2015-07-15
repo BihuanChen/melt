@@ -2,9 +2,9 @@ package edu.ntu.feature.input;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,12 +45,12 @@ public class InputBranchDependencyInterAnalysis extends DefaultJimpleIFDSTabulat
 
 	private String entryPoint;
 	
-	private LinkedHashMap<Unit, HashSet<Value>> branchesToInputsDependency;
+	private LinkedHashMap<String, HashSet<Integer>> branchesToInputsDependency;
 	
 	public InputBranchDependencyInterAnalysis(InterproceduralCFG<Unit, SootMethod> icfg, String entryPoint) {
 		super(icfg);
 		this.entryPoint = entryPoint;
-		this.branchesToInputsDependency = new LinkedHashMap<Unit, HashSet<Value>>();
+		this.branchesToInputsDependency = new LinkedHashMap<String, HashSet<Integer>>();
 	}
 
 	@Override
@@ -64,6 +64,7 @@ public class InputBranchDependencyInterAnalysis extends DefaultJimpleIFDSTabulat
 				}
 				if (curr instanceof IfStmt) {
 					final IfStmt ifStmt = (IfStmt) curr;
+					final String id = interproceduralCFG().getMethodOf(ifStmt).getDeclaringClass().toString() + " " + ifStmt.getJavaSourceStartLineNumber();
 					return new FlowFunction<Pair<Value,Value>>() {
 						@Override
 						public Set<Pair<Value, Value>> computeTargets(Pair<Value, Value> source) {
@@ -71,10 +72,10 @@ public class InputBranchDependencyInterAnalysis extends DefaultJimpleIFDSTabulat
 							while (i.hasNext()) {
 								Value v = i.next().getValue();
 								if (source.getO1().equivTo(v)) {
-									if (branchesToInputsDependency.get(curr) == null) {
-										branchesToInputsDependency.put(curr, new HashSet<Value>());
+									if (branchesToInputsDependency.get(id) == null) {
+										branchesToInputsDependency.put(id, new HashSet<Integer>());
 									}
-									branchesToInputsDependency.get(curr).add(source.getO2());
+									branchesToInputsDependency.get(id).add(((ParameterRef)source.getO2()).getIndex());
 								}
 							}
 							return Collections.singleton(source);
@@ -210,7 +211,7 @@ public class InputBranchDependencyInterAnalysis extends DefaultJimpleIFDSTabulat
 		this.entryPoint = entryPoint;
 	}
 
-	public LinkedHashMap<Unit, HashSet<Value>> getBranchesToInputsDependency() {
+	public LinkedHashMap<String, HashSet<Integer>> getBranchesToInputsDependency() {
 		return branchesToInputsDependency;
 	}
 
