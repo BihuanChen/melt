@@ -22,7 +22,7 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import soot.toolkits.scalar.Pair;
 
-public class DependencyAnalysis {
+public class DependencyAnalyzer {
 	
 	private static boolean debug = false;
 	
@@ -125,7 +125,7 @@ public class DependencyAnalysis {
 	
 	public static void main(String[] args) {
 		//DependencyAnalysis.doIntraAnalysis("src/tests/", "edu.ntu.feature.input.test2.TestInputBranchDependencyIntra");
-		DependencyAnalysis.doInterAnalysis("src/tests/", "edu.ntu.feature.input.test1.TestInputBranchDependencyInter1", "<edu.ntu.feature.input.test1.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
+		DependencyAnalyzer.doInterAnalysis("src/tests/", "edu.ntu.feature.input.test1.TestInputBranchDependencyInter1", "<edu.ntu.feature.input.test1.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
 	}
 
 }

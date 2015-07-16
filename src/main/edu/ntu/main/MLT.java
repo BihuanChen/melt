@@ -13,13 +13,13 @@ import java.util.LinkedHashMap;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 
-import edu.ntu.feature.input.DependencyAnalysis;
+import edu.ntu.feature.input.DependencyAnalyzer;
 import edu.ntu.feature.input.test1.TestInputBranchDependencyInter1;
-import edu.ntu.instrument.Instrumentor;
-import edu.ntu.instrument.PInstance;
+import edu.ntu.instrument.Instrumenter;
 import edu.ntu.instrument.Predicate;
+import edu.ntu.learn.Profile;
 
-public class MLTesting {
+public class MLT {
 
 	private static String projectPath = "src/tests/edu/ntu/feature/input/test1/";
 	private static String classPath = "src/tests/";
@@ -29,16 +29,16 @@ public class MLTesting {
 	public static void preparePredicates() throws MalformedTreeException, IOException, BadLocationException {
 		long t1 = System.currentTimeMillis();
 		File project = new File(projectPath);
-		Instrumentor instrumentor = new Instrumentor();
-		instrumentor.formatFilesInDir(project);
+		Instrumenter instrumenter = new Instrumenter();
+		instrumenter.formatFilesInDir(project);
 		
 		long t2 = System.currentTimeMillis();
 		String entryPoint = "<" + mainClass + ": " + entryPointMethod + ">";
-		LinkedHashMap<String, HashSet<Integer>> dependency = DependencyAnalysis.doInterAnalysis(classPath, mainClass, entryPoint);
+		LinkedHashMap<String, HashSet<Integer>> dependency = DependencyAnalyzer.doInterAnalysis(classPath, mainClass, entryPoint);
 		
 		long t3 = System.currentTimeMillis();
-		instrumentor.instrumentFilesInDir(project);
-		ArrayList<Predicate> predicates = instrumentor.getPredicates();
+		instrumenter.instrumentFilesInDir(project);
+		ArrayList<Predicate> predicates = instrumenter.getPredicates();
 		
 		long t4 = System.currentTimeMillis();
 		int size = predicates.size();
@@ -55,7 +55,7 @@ public class MLTesting {
 		
 		long t5 = System.currentTimeMillis();
 		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("predicates.out")));
-		oout.writeObject(instrumentor);
+		oout.writeObject(instrumenter);
 		oout.close();
 		
 		long t6 = System.currentTimeMillis();
@@ -68,24 +68,26 @@ public class MLTesting {
 	public static void runTests() throws IOException, ClassNotFoundException {
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
-		PInstance.predicates.addAll(((Instrumentor)oin.readObject()).getPredicates());
+		Profile.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
-		PInstance.printPredicates();
+		Profile.printPredicates();
 		
 		long t2 = System.currentTimeMillis();
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 		
 		System.out.println();
 		TestInputBranchDependencyInter1.main(null);
-		PInstance.printPredicates();
+		Profile.printPredicates();
+		Profile.printExecutedPridicates();
 		System.out.println();
-		PInstance.resetPredicatesCounters();
-		PInstance.printPredicates();
+		Profile.resetPredicatesCounters();
+		Profile.printPredicates();
+		Profile.printExecutedPridicates();
 	}
 	
 	public static void main(String[] args) throws MalformedTreeException, IOException, BadLocationException, ClassNotFoundException {
-		MLTesting.preparePredicates();
-		//MLTesting.runTests();
+		//MLT.preparePredicates();
+		MLT.runTests();
 	}
 
 }

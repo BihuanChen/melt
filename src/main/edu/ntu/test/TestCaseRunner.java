@@ -1,8 +1,7 @@
 package edu.ntu.test;
 
-public class Tester {
+public class TestCaseRunner {
 
-	
 	public static void main(String[] args) {
 
 	}

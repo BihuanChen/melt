@@ -32,13 +32,13 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
-public class Instrumentor implements Serializable {
+public class Instrumenter implements Serializable {
 	
 	private static final long serialVersionUID = 6585501767998527830L;
 	
 	private ArrayList<Predicate> predicates;
 	
-	public Instrumentor() {
+	public Instrumenter() {
 		predicates = new ArrayList<Predicate>();
 	}
 
@@ -208,7 +208,7 @@ public class Instrumentor implements Serializable {
 				int index = predicates.size() - 1;
 				// create the counter statement
 				MethodInvocation newInvocation = ast.newMethodInvocation();
-				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "ntu", "instrument"}), ast.newSimpleName("PInstance"));
+				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "ntu", "learn"}), ast.newSimpleName("Profile"));
 				newInvocation.setExpression(qualifiedName);
 				newInvocation.setName(ast.newSimpleName("incPredicateCounter"));
 				NumberLiteral literal1 = ast.newNumberLiteral(String.valueOf(index));
@@ -333,11 +333,11 @@ public class Instrumentor implements Serializable {
 	public static void main(String[] args) {
 		try {
 			File project = new File("src/tests/edu/ntu/instrument/test2/");
-			Instrumentor instrumentor = new Instrumentor();
-			instrumentor.formatFilesInDir(project);
-			instrumentor.instrumentFilesInDir(project);
+			Instrumenter instrumenter = new Instrumenter();
+			instrumenter.formatFilesInDir(project);
+			instrumenter.instrumentFilesInDir(project);
 			
-			ArrayList<Predicate> pList = instrumentor.getPredicates();
+			ArrayList<Predicate> pList = instrumenter.getPredicates();
 			int size = pList.size();
 			for (int i = 0; i < size; i++) {
 				System.out.println("[ml-testing] " + pList.get(i));
