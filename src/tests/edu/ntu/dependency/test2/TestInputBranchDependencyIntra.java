@@ -1,4 +1,4 @@
-package edu.ntu.feature.input.test2;
+package edu.ntu.dependency.test2;
 
 public class TestInputBranchDependencyIntra {
 

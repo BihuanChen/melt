@@ -1,4 +1,4 @@
-package edu.ntu.feature.input;
+package edu.ntu.dependency;
 
 import java.util.HashMap;
 import java.util.HashSet;

@@ -13,17 +13,17 @@ import java.util.LinkedHashMap;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 
-import edu.ntu.feature.input.DependencyAnalyzer;
-import edu.ntu.feature.input.test1.TestInputBranchDependencyInter1;
+import edu.ntu.dependency.DependencyAnalyzer;
+import edu.ntu.dependency.test1.TestInputBranchDependencyInter1;
 import edu.ntu.instrument.Instrumenter;
 import edu.ntu.instrument.Predicate;
 import edu.ntu.learn.Profile;
 
 public class MLT {
 
-	private static String projectPath = "src/tests/edu/ntu/feature/input/test1/";
+	private static String projectPath = "src/tests/edu/ntu/dependency/test1/";
 	private static String classPath = "src/tests/";
-	private static String mainClass = "edu.ntu.feature.input.test1.TestInputBranchDependencyInter1";
+	private static String mainClass = "edu.ntu.dependency.test1.TestInputBranchDependencyInter1";
 	private static String entryPointMethod = "void entryPointMain(int,int,int,boolean)";
 	
 	public static void preparePredicates() throws MalformedTreeException, IOException, BadLocationException {

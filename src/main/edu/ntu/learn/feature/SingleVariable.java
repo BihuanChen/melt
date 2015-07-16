@@ -1,4 +1,4 @@
-package edu.ntu.feature.template;
+package edu.ntu.learn.feature;
 
 public class SingleVariable {
 
