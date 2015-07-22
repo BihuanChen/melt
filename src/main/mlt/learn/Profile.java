@@ -7,19 +7,13 @@ import mlt.instrument.Predicate;
 public class Profile {
 	
 	public static ArrayList<Predicate> predicates = new ArrayList<Predicate>();
-	public static ArrayList<Integer> executedPredicates = new ArrayList<Integer>();
+	public static ArrayList<Pair> executedPredicates = new ArrayList<Pair>();
 	
-	public static void incPredicateCounter(int index, boolean branch) {
-		predicates.get(index).incCounter(branch);
-		executedPredicates.add(index);
+	public static void add(int index, boolean value) {
+		executedPredicates.add(new Pair(index, value));
 	}
 	
-	public static void resetPredicatesCounters() {
-		int size = executedPredicates.size();
-		for (int i = 0; i < size; i++) {
-			int index = executedPredicates.get(i);
-			predicates.get(index).resetCounters();
-		}
+	public static void clear() {
 		executedPredicates.clear();
 	}
 	
@@ -32,11 +26,15 @@ public class Profile {
 	
 	public static void printExecutedPridicates() {
 		int size = executedPredicates.size();
-		System.out.print("[ml-testing] predicates no.");
-		for (int i = 0; i < size; i++) {
-			System.out.print(" " + executedPredicates.get(i));
+		if (size > 0) {
+			System.out.print("[ml-testing] predicates");
+			for (int i = 0; i < size; i++) {
+				System.out.print(" " + executedPredicates.get(i).getPredicateIndex() + " (" + executedPredicates.get(i).isPredicateValue() + ")");
+			}
+			System.out.println(" executed");
+		} else {
+			System.out.println("[ml-testing] no predicates executed");
 		}
-		System.out.println(" executed");
 	}
 
 }

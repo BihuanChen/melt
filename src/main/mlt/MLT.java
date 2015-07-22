@@ -80,7 +80,7 @@ public class MLT {
 		Profile.printPredicates();
 		Profile.printExecutedPridicates();
 		System.out.println();
-		Profile.resetPredicatesCounters();
+		Profile.clear();;
 		Profile.printPredicates();
 		Profile.printExecutedPridicates();
 	}

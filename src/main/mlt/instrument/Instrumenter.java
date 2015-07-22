@@ -210,7 +210,7 @@ public class Instrumenter implements Serializable {
 				MethodInvocation newInvocation = ast.newMethodInvocation();
 				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"mlt", "learn"}), ast.newSimpleName("Profile"));
 				newInvocation.setExpression(qualifiedName);
-				newInvocation.setName(ast.newSimpleName("incPredicateCounter"));
+				newInvocation.setName(ast.newSimpleName("add"));
 				NumberLiteral literal1 = ast.newNumberLiteral(String.valueOf(index));
 				newInvocation.arguments().add(literal1);
 				BooleanLiteral literal2 = ast.newBooleanLiteral(branch);
