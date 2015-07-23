@@ -208,7 +208,7 @@ public class Instrumenter implements Serializable {
 				int index = predicates.size() - 1;
 				// create the counter statement
 				MethodInvocation newInvocation = ast.newMethodInvocation();
-				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"mlt", "learn"}), ast.newSimpleName("Profile"));
+				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"mlt", "test"}), ast.newSimpleName("Profiles"));
 				newInvocation.setExpression(qualifiedName);
 				newInvocation.setName(ast.newSimpleName("add"));
 				NumberLiteral literal1 = ast.newNumberLiteral(String.valueOf(index));

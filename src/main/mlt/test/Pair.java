@@ -1,4 +1,4 @@
-package mlt.learn;
+package mlt.test;
 
 public class Pair {
 

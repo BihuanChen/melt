@@ -14,7 +14,7 @@ import mlt.dependency.DependencyAnalyzer;
 import mlt.dependency.test1.TestInputBranchDependencyInter1;
 import mlt.instrument.Instrumenter;
 import mlt.instrument.Predicate;
-import mlt.learn.Profile;
+import mlt.test.Profiles;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -25,6 +25,8 @@ public class MLT {
 	private static String classPath = "src/tests/";
 	private static String mainClass = "mlt.dependency.test1.TestInputBranchDependencyInter1";
 	private static String entryPointMethod = "void entryPointMain(int,int,int,boolean)";
+	
+	private static boolean debug = true;
 	
 	public static void preparePredicates() throws MalformedTreeException, IOException, BadLocationException {
 		long t1 = System.currentTimeMillis();
@@ -68,21 +70,23 @@ public class MLT {
 	public static void runTests() throws IOException, ClassNotFoundException {
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
-		Profile.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
-		Profile.printPredicates();
+		if (debug) {
+			Profiles.printPredicates();
+		}
 		
 		long t2 = System.currentTimeMillis();
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 		
 		System.out.println();
 		TestInputBranchDependencyInter1.main(null);
-		Profile.printPredicates();
-		Profile.printExecutedPridicates();
+		Profiles.printPredicates();
+		Profiles.printExecutedPridicates();
 		System.out.println();
-		Profile.clear();;
-		Profile.printPredicates();
-		Profile.printExecutedPridicates();
+		Profiles.executedPredicates.clear();
+		Profiles.printPredicates();
+		Profiles.printExecutedPridicates();
 	}
 	
 	public static void main(String[] args) throws MalformedTreeException, IOException, BadLocationException, ClassNotFoundException {
