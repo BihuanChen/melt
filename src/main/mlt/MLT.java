@@ -11,23 +11,22 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import mlt.dependency.DependencyAnalyzer;
-import mlt.dependency.test1.TestInputBranchDependencyInter1;
 import mlt.instrument.Instrumenter;
 import mlt.instrument.Predicate;
+import mlt.learn.ProfileAnalyzer;
 import mlt.test.Profiles;
+import mlt.test.TestCaseRunner;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 
 public class MLT {
 
-	private static String projectPath = "src/tests/mlt/dependency/test1/";
+	private static String projectPath = "src/tests/mlt/learn/test1/";
 	private static String classPath = "src/tests/";
-	private static String mainClass = "mlt.dependency.test1.TestInputBranchDependencyInter1";
-	private static String entryPointMethod = "void entryPointMain(int,int,int,boolean)";
-	
-	private static boolean debug = true;
-	
+	private static String mainClass = "mlt.learn.test1.TestAnalyzer";
+	private static String entryPointMethod = "void test1(int,int,int)";
+		
 	public static void preparePredicates() throws MalformedTreeException, IOException, BadLocationException {
 		long t1 = System.currentTimeMillis();
 		File project = new File(projectPath);
@@ -72,21 +71,56 @@ public class MLT {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
-		if (debug) {
-			Profiles.printPredicates();
-		}
+		Profiles.printPredicates();
 		
 		long t2 = System.currentTimeMillis();
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
+
+		String className = mainClass;
+		String methodName = entryPointMethod.substring(entryPointMethod.indexOf(" ") + 1, entryPointMethod.indexOf("("));
+		String[] clsStr = entryPointMethod.substring(entryPointMethod.indexOf("(") + 1, entryPointMethod.indexOf(")")).split(",");
+		int size = clsStr.length;
+		@SuppressWarnings("rawtypes")
+		Class[] cls = new Class[size];
+		for (int i = 0; i < size; i++) {
+			if (clsStr[i].equals("int")) {
+				cls[i] = int.class;
+			} else if (clsStr[i].equals("long")) {
+				cls[i] = long.class;
+			} else if (clsStr[i].equals("boolean")) {
+				cls[i] = boolean.class;
+			} else if (clsStr[i].equals("float")) {
+				cls[i] = float.class;
+			} else if (clsStr[i].equals("double")) {
+				cls[i] = double.class;
+			} else {
+				System.err.println("[ml-testing] unsupported input type");
+			}
+		}
+
+		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
+		Object[] testInput1 = new Object[]{1, 1, 1};
+		TestCaseRunner runner = new TestCaseRunner(className, methodName, cls);
+		runner.run(testInput1);
+		Profiles.testInputs.add(testInput1);
+		analyzer.update();
+		analyzer.print();
 		System.out.println();
-		TestInputBranchDependencyInter1.main(null);
-		Profiles.printPredicates();
-		Profiles.printExecutedPridicates();
+		
+		Object[] testInput2 = new Object[]{-1, 1, 1};
+		runner.run(testInput2);
+		Profiles.testInputs.add(testInput2);
+		analyzer.update();
+		analyzer.print();
 		System.out.println();
-		Profiles.executedPredicates.clear();
-		Profiles.printPredicates();
-		Profiles.printExecutedPridicates();
+
+		Object[] testInput3 = new Object[]{-1, 1, 1};
+		runner.run(testInput3);
+		Profiles.testInputs.add(testInput3);
+		analyzer.update();
+		analyzer.print();
+		System.out.println();
 	}
 	
 	public static void main(String[] args) throws MalformedTreeException, IOException, BadLocationException, ClassNotFoundException {
