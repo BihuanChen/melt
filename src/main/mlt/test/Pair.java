@@ -3,7 +3,7 @@ package mlt.test;
 public class Pair {
 
 	private int predicateIndex;
-	private boolean predicateValue;
+	private boolean predicateValue; // either the true or false branch
 	
 	public Pair(int predicateIndex, boolean predicateValue) {
 		this.predicateIndex = predicateIndex;

@@ -13,6 +13,7 @@ public class ProfileAnalyzer {
 		root = new PredicateNode();
 	}
 
+	// TODO loop branches
 	public void update() {
 		int size = Profiles.executedPredicates.size();
 		if (size == 0) { return; }
@@ -22,18 +23,6 @@ public class ProfileAnalyzer {
 		for (int i = 0; i < size; i++) {
 			Pair p = Profiles.executedPredicates.get(i);
 			current.addTestInput(testInputIndex);
-			
-			// independent branches
-			int b1 = current.getPredicate();
-			int b2 = current.getParent().getPredicate();
-			if (isDependent(b1, b2)) {
-				if (current.getParent().getChild_t() == null) {
-					current.getParent().setChild_t(current);
-				}
-				if (current.getParent().getChild_f() == null) {
-					current.getParent().setChild_f(current);
-				}
-			}
 			
 			if (current.getPredicate() == -1) {
 				current.setPredicate(p.getPredicateIndex());
@@ -56,10 +45,6 @@ public class ProfileAnalyzer {
 		}
 		current.addTestInput(testInputIndex);
 		Profiles.executedPredicates.clear();
-	}
-	
-	private boolean isDependent(int b1, int b2) {
-		return false;
 	}
 
 	public void print() {
