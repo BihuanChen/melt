@@ -25,7 +25,7 @@ public class MLT {
 	private static String projectPath = "src/tests/mlt/learn/test1/";
 	private static String classPath = "src/tests/";
 	private static String mainClass = "mlt.learn.test1.TestAnalyzer";
-	private static String entryPointMethod = "void test1(int,int,int)";
+	private static String entryPointMethod = "void test(int,int,int)";
 		
 	public static void preparePredicates() throws MalformedTreeException, IOException, BadLocationException {
 		long t1 = System.currentTimeMillis();
@@ -98,28 +98,80 @@ public class MLT {
 			}
 		}
 
+		test1(className, methodName, cls);
+	}
+	
+	public static void test1(String className, String methodName, @SuppressWarnings("rawtypes") Class[] cls) {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
-		Object[] testInput1 = new Object[]{1, 1, 1};
+		Object[] testInput1 = new Object[]{-1, 2, 1};
 		TestCaseRunner runner = new TestCaseRunner(className, methodName, cls);
 		runner.run(testInput1);
 		Profiles.testInputs.add(testInput1);
+		Profiles.printExecutedPridicates();
 		analyzer.update();
-		analyzer.print();
+		analyzer.printNodes();
 		System.out.println();
 		
-		Object[] testInput2 = new Object[]{-1, 1, 1};
+		Object[] testInput2 = new Object[]{1, 1, -1};
 		runner.run(testInput2);
 		Profiles.testInputs.add(testInput2);
+		Profiles.printExecutedPridicates();
 		analyzer.update();
-		analyzer.print();
+		analyzer.printNodes();
 		System.out.println();
 
-		Object[] testInput3 = new Object[]{-1, 1, 1};
+		Object[] testInput3 = new Object[]{1, 1, 1};
 		runner.run(testInput3);
 		Profiles.testInputs.add(testInput3);
+		Profiles.printExecutedPridicates();
 		analyzer.update();
-		analyzer.print();
+		analyzer.printNodes();
+		System.out.println();
+		
+		Object[] testInput4 = new Object[]{-1, -1, 1};
+		runner.run(testInput4);
+		Profiles.testInputs.add(testInput4);
+		Profiles.printExecutedPridicates();
+		analyzer.update();
+		analyzer.printNodes();
+		System.out.println();
+	}
+	
+	public static void test2(String className, String methodName, @SuppressWarnings("rawtypes") Class[] cls) {
+		ProfileAnalyzer analyzer = new ProfileAnalyzer();
+		
+		Object[] testInput1 = new Object[]{-1, 1, 1};
+		TestCaseRunner runner = new TestCaseRunner(className, methodName, cls);
+		runner.run(testInput1);
+		Profiles.testInputs.add(testInput1);
+		Profiles.printExecutedPridicates();
+		analyzer.update();
+		analyzer.printNodes();
+		System.out.println();
+		
+		Object[] testInput2 = new Object[]{2, -1, 1};
+		runner.run(testInput2);
+		Profiles.testInputs.add(testInput2);
+		Profiles.printExecutedPridicates();
+		analyzer.update();
+		analyzer.printNodes();
+		System.out.println();
+
+		Object[] testInput3 = new Object[]{2, 2, 1};
+		runner.run(testInput3);
+		Profiles.testInputs.add(testInput3);
+		Profiles.printExecutedPridicates();
+		analyzer.update();
+		analyzer.printNodes();
+		System.out.println();
+		
+		Object[] testInput4 = new Object[]{3, 3, -1};
+		runner.run(testInput4);
+		Profiles.testInputs.add(testInput4);
+		Profiles.printExecutedPridicates();
+		analyzer.update();
+		analyzer.printNodes();
 		System.out.println();
 	}
 	
