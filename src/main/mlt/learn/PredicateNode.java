@@ -1,18 +1,21 @@
 package mlt.learn;
 
+import java.util.ArrayList;
+
 public class PredicateNode {
 
 	private int predicate; // -1 represents a leaf node
+	private int level; // the distance to the root node
 	
-	private PredicateArc trueBranch;
-	private PredicateArc falseBranch;
+	private PredicateArc sourceTrueBranch;
+	private PredicateArc sourceFalseBranch;
+	
+	private ArrayList<PredicateArc> targetTrueBranches;
+	private ArrayList<PredicateArc> targetFalseBranches;
 	
 	public PredicateNode() {
 		this.predicate = -1;
-	}
-
-	public PredicateNode(int predicate) {
-		this.predicate = predicate;
+		this.level = -1;
 	}
 
 	public int getPredicate() {
@@ -22,27 +25,58 @@ public class PredicateNode {
 	public void setPredicate(int predicate) {
 		this.predicate = predicate;
 	}
-
-	public PredicateArc getTrueBranch() {
-		return trueBranch;
+	
+	public int getLevel() {
+		return level;
 	}
 
-	public void setTrueBranch(PredicateArc trueBranch) {
-		this.trueBranch = trueBranch;
+	public void setLevel(int level) {
+		this.level = level;
 	}
 
-	public PredicateArc getFalseBranch() {
-		return falseBranch;
+	public PredicateArc getSourceTrueBranch() {
+		return sourceTrueBranch;
 	}
 
-	public void setFalseBranch(PredicateArc falseBranch) {
-		this.falseBranch = falseBranch;
+	public void setSourceTrueBranch(PredicateArc sourceTrueBranch) {
+		this.sourceTrueBranch = sourceTrueBranch;
+	}
+
+	public PredicateArc getSourceFalseBranch() {
+		return sourceFalseBranch;
+	}
+
+	public void setSourceFalseBranch(PredicateArc sourceFalseBranch) {
+		this.sourceFalseBranch = sourceFalseBranch;
+	}
+
+	public ArrayList<PredicateArc> getTargetTrueBranches() {
+		return targetTrueBranches;
+	}
+
+	public void addTargetTrueBranch(PredicateArc targetTrueBranch) {
+		if (targetTrueBranches == null) {
+			targetTrueBranches = new ArrayList<PredicateArc>();
+		}
+		targetTrueBranches.add(targetTrueBranch);
+	}
+
+	public ArrayList<PredicateArc> getTargetFalseBranches() {
+		return targetFalseBranches;
+	}
+
+	public void addTargetFalseBranch(PredicateArc targetFalseBranch) {
+		if (targetFalseBranches == null) {
+			targetFalseBranches = new ArrayList<PredicateArc>();
+		}
+		targetFalseBranches.add(targetFalseBranch);
 	}
 
 	@Override
 	public String toString() {
-		return "PredicateNode [ predicate = " + predicate + ", trueBranch = "
-				+ trueBranch + ", falseBranch = " + falseBranch + " ]";
+		return "PredicateNode [ predicate = " + predicate + ", level = " + level + 
+				", sourceTrueBranch = " + sourceTrueBranch + ", sourceFalseBranch = " + sourceFalseBranch + 
+				", targetTrueBranches = " + targetTrueBranches + ", targetFalseBranches = " + targetFalseBranches + " ]";
 	}
 
 }
