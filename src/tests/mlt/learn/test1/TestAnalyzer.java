@@ -3,7 +3,7 @@ package mlt.learn.test1;
 public class TestAnalyzer {
 
 	public void test(int a, int b, int c) {
-		test1(a, b, c);
+		test2(a, b, c);
 	}
 	
 	public void test1(int a, int b, int c) {

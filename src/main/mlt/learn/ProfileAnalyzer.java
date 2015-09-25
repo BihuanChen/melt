@@ -1,6 +1,8 @@
 package mlt.learn;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Stack;
 
 import mlt.test.Pair;
@@ -9,12 +11,21 @@ import mlt.test.Profiles;
 public class ProfileAnalyzer {
 
 	private PredicateNode root;
-	private LinkedList<PredicateNode> nodes;
+	private ArrayList<PredicateNode> nodes;
+	private int height;
+	
+	private HashMap<Integer, HashSet<Integer>> leveledNodes; // the level of the nodes is the key	
+	private HashMap<Integer, HashSet<Integer>> predicatedNodes; // the corresponding predicate is the key
 	
 	public ProfileAnalyzer() {
 		root = new PredicateNode();
-		nodes = new LinkedList<PredicateNode>();
+		root.setLevel(0);
+		nodes = new ArrayList<PredicateNode>();
 		nodes.add(root);
+		height = 0;
+		
+		leveledNodes = new HashMap<Integer, HashSet<Integer>>();
+		predicatedNodes = new HashMap<Integer, HashSet<Integer>>();
 	}
 
 	public void update() {
@@ -33,6 +44,8 @@ public class ProfileAnalyzer {
 			// set the predicate index if not yet set
 			if (current.getPredicate() == -1) {
 				current.setPredicate(index);
+				addToLeveledNodes(current.getLevel(), nodes.size() - 1);
+				addToPredicatedNodes(current.getPredicate(), nodes.size() - 1);
 			} else if (current.getPredicate() != p.getPredicateIndex()) {
 				System.err.println("[ml-testing] error in creating the tree structure");
 			}
@@ -65,25 +78,35 @@ public class ProfileAnalyzer {
 			// set either the true branch or the false branch
 			PredicateArc branch;
 			if (value) {
-				if (current.getTrueBranch() == null) {
+				if (current.getSourceTrueBranch() == null) {
 					if (next == null) {
 						next = new PredicateNode();
+						int l = current.getLevel() + 1;
+						next.setLevel(l);
+						height = height > l ? height : l;
 						nodes.add(next);
 					}
-					current.setTrueBranch(new PredicateArc(current, next));
+					PredicateArc arc = new PredicateArc(current, next);
+					current.setSourceTrueBranch(arc);
+					next.addTargetTrueBranch(arc);
 				}
-				branch = current.getTrueBranch();
-				current = current.getTrueBranch().getTarget();
+				branch = current.getSourceTrueBranch();
+				current = current.getSourceTrueBranch().getTarget();
 			} else {
-				if (current.getFalseBranch() == null) {
+				if (current.getSourceFalseBranch() == null) {
 					if (next == null) {
 						next = new PredicateNode();
+						int l = current.getLevel() + 1;
+						next.setLevel(l);
+						height = height > l ? height : l;
 						nodes.add(next);
 					}
-					current.setFalseBranch(new PredicateArc(current, next));
+					PredicateArc arc = new PredicateArc(current, next);
+					current.setSourceFalseBranch(arc);
+					next.addTargetFalseBranch(arc);
 				}
-				branch = current.getFalseBranch();
-				current = current.getFalseBranch().getTarget();
+				branch = current.getSourceFalseBranch();
+				current = current.getSourceFalseBranch().getTarget();
 			}
 			
 			// avoid associating a test input to a loop branch for multiple times
@@ -92,6 +115,8 @@ public class ProfileAnalyzer {
 			}
 		}
 		Profiles.executedPredicates.clear();
+		System.out.println(leveledNodes);
+		System.out.println(predicatedNodes);
 	}
 	
 	// TODO find a target branch
@@ -106,4 +131,18 @@ public class ProfileAnalyzer {
 		}
 	}
 
+	private void addToLeveledNodes(int level, int index) {
+		if (leveledNodes.get(level) == null) {
+			leveledNodes.put(level, new HashSet<Integer>());
+		}
+		leveledNodes.get(level).add(index);
+	}
+	
+	private void addToPredicatedNodes(int predicate, int index) {
+		if (predicatedNodes.get(predicate) == null) {
+			predicatedNodes.put(predicate, new HashSet<Integer>());
+		}
+		predicatedNodes.get(predicate).add(index);
+	}
+	
 }

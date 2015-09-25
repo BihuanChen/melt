@@ -98,7 +98,7 @@ public class MLT {
 			}
 		}
 
-		test1(className, methodName, cls);
+		test2(className, methodName, cls);
 	}
 	
 	public static void test1(String className, String methodName, @SuppressWarnings("rawtypes") Class[] cls) {
