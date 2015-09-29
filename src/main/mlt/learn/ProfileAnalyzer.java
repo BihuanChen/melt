@@ -163,7 +163,7 @@ public class ProfileAnalyzer {
 				break;
 			}
 		}
-		// TODO other heuristics (e.g., using predicatedNodes) rather than randomly
+		// TODO apply other heuristics (e.g., using predicatedNodes) rather than randomly
 		if (pSet.size() > 0) {
 			int ran = (int)Math.random() * pSet.size();
 			pSet.get(ran).incNumOfTried();
