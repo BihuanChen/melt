@@ -46,6 +46,20 @@ public class TestAnalyzer {
 		mlt.test.Profiles.add(3, false);
 	}
 	
+	public void test3(int a, int b, int c) {
+		int i = 0, j = 0;
+		do {
+			mlt.test.Profiles.add(7, true);
+			i++;
+			do {
+				mlt.test.Profiles.add(8, true);
+				j++;
+			} while (j < a);
+			mlt.test.Profiles.add(8, false);
+		} while (i < b);
+		mlt.test.Profiles.add(7, false);
+	}
+	
 	public static void main(String[] args) {
 		new TestAnalyzer().test(1, 1, 1);
 	}

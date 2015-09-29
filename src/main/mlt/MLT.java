@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import mlt.dependency.DependencyAnalyzer;
 import mlt.instrument.Instrumenter;
 import mlt.instrument.Predicate;
+import mlt.learn.PredicateNode;
 import mlt.learn.ProfileAnalyzer;
 import mlt.test.Profiles;
 import mlt.test.TestCaseRunner;
@@ -148,6 +149,8 @@ public class MLT {
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
+		PredicateNode node = analyzer.findUnexploredBranch();
+		System.out.println("[ml-testing] target branch found " + node);
 		System.out.println();
 		
 		Object[] testInput2 = new Object[]{2, -1, 1};
@@ -155,7 +158,9 @@ public class MLT {
 		Profiles.testInputs.add(testInput2);
 		Profiles.printExecutedPridicates();
 		analyzer.update();
-		analyzer.printNodes();
+		analyzer.printNodes();		
+		node = analyzer.findUnexploredBranch();
+		System.out.println("[ml-testing] target branch found " + node);
 		System.out.println();
 
 		Object[] testInput3 = new Object[]{2, 2, 1};
@@ -164,6 +169,8 @@ public class MLT {
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
+		node = analyzer.findUnexploredBranch();
+		System.out.println("[ml-testing] target branch found " + node);
 		System.out.println();
 		
 		Object[] testInput4 = new Object[]{3, 3, -1};
@@ -172,6 +179,8 @@ public class MLT {
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
+		node = analyzer.findUnexploredBranch();
+		System.out.println("[ml-testing] target branch found " + node);
 		System.out.println();
 	}
 	

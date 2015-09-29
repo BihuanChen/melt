@@ -220,7 +220,12 @@ public class Instrumenter implements Serializable {
 			}
 			
 			private void visit(Statement statement, Expression expression, Statement body, ASTNode parent, String type) {	
-				int lineNum = cu.getLineNumber(statement.getStartPosition());
+				int lineNum;
+				if (statement instanceof DoStatement) {
+					lineNum = cu.getLineNumber(((DoStatement)statement).getExpression().getStartPosition());
+				} else {
+					lineNum = cu.getLineNumber(statement.getStartPosition());
+				}
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(body, Block.STATEMENTS_PROPERTY);
 				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), type, true), null);
