@@ -13,31 +13,27 @@ import java.util.LinkedHashMap;
 import mlt.dependency.DependencyAnalyzer;
 import mlt.instrument.Instrumenter;
 import mlt.instrument.Predicate;
-import mlt.learn.ConstraintLearner;
+import mlt.learn.BranchLearner;
+import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
 import mlt.learn.ProfileAnalyzer;
 import mlt.test.Profiles;
-import mlt.test.TestCaseRunner;
+import mlt.test.TestRunner;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 
 public class MLT {
-
-	private static String projectPath = "src/tests/mlt/learn/test1/";
-	private static String classPath = "src/tests/";
-	private static String mainClass = "mlt.learn.test1.TestAnalyzer";
-	private static String entryPointMethod = "void test(int,int,int)";
 		
 	public static void preparePredicates() throws MalformedTreeException, IOException, BadLocationException {
 		long t1 = System.currentTimeMillis();
-		File project = new File(projectPath);
+		File project = new File(Config.PROJECTPATH);
 		Instrumenter instrumenter = new Instrumenter();
 		instrumenter.formatFilesInDir(project);
 		
 		long t2 = System.currentTimeMillis();
-		String entryPoint = "<" + mainClass + ": " + entryPointMethod + ">";
-		LinkedHashMap<String, HashSet<Integer>> dependency = DependencyAnalyzer.doInterAnalysis(classPath, mainClass, entryPoint);
+		String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRY_METHOD + ">";
+		LinkedHashMap<String, HashSet<Integer>> dependency = DependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
 		
 		long t3 = System.currentTimeMillis();
 		instrumenter.instrumentFilesInDir(project);
@@ -78,9 +74,9 @@ public class MLT {
 		long t2 = System.currentTimeMillis();
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 
-		String className = mainClass;
-		String methodName = entryPointMethod.substring(entryPointMethod.indexOf(" ") + 1, entryPointMethod.indexOf("("));
-		String[] clsStr = entryPointMethod.substring(entryPointMethod.indexOf("(") + 1, entryPointMethod.indexOf(")")).split(",");
+		String className = Config.MAINCLASS;
+		String methodName = Config.ENTRY_METHOD.substring(Config.ENTRY_METHOD.indexOf(" ") + 1, Config.ENTRY_METHOD.indexOf("("));
+		String[] clsStr = Config.ENTRY_METHOD.substring(Config.ENTRY_METHOD.indexOf("(") + 1, Config.ENTRY_METHOD.indexOf(")")).split(",");
 		int size = clsStr.length;
 		@SuppressWarnings("rawtypes")
 		Class[] cls = new Class[size];
@@ -107,7 +103,7 @@ public class MLT {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
 		Object[] testInput1 = new Object[]{-1, 2, 1};
-		TestCaseRunner runner = new TestCaseRunner(className, methodName, cls);
+		TestRunner runner = new TestRunner(className, methodName, cls);
 		runner.run(testInput1);
 		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPridicates();
@@ -144,7 +140,7 @@ public class MLT {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
 		Object[] testInput1 = new Object[]{-1, 1, 1};
-		TestCaseRunner runner = new TestCaseRunner(className, methodName, cls);
+		TestRunner runner = new TestRunner(className, methodName, cls);
 		runner.run(testInput1);
 		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPridicates();
@@ -152,7 +148,12 @@ public class MLT {
 		analyzer.printNodes();
 		PredicateNode node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
+		PathLearner pl = new PathLearner();
+		pl.findSourceNodes(node);
+		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
+		System.out.println("[ml-testing] prefix branches found " + pl.getBranches());
 		System.out.println();
+		
 		
 		Object[] testInput2 = new Object[]{2, -1, 1};
 		runner.run(testInput2);
@@ -162,6 +163,10 @@ public class MLT {
 		analyzer.printNodes();		
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
+		pl = new PathLearner();
+		pl.findSourceNodes(node);
+		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
+		System.out.println("[ml-testing] prefix branches found " + pl.getBranches());
 		System.out.println();
 		
 		Object[] testInput3 = new Object[]{2, 2, 1};
@@ -172,10 +177,13 @@ public class MLT {
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
+		pl = new PathLearner();
+		pl.findSourceNodes(node);
+		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
+		System.out.println("[ml-testing] prefix branches found " + pl.getBranches());
 		System.out.println();
-		
-		
-		ConstraintLearner learner = analyzer.getNodes().get(3).getLearner();
+				
+		BranchLearner learner = analyzer.getNodes().get(3).getLearner();
 		learner.buildInstancesAndClassifier(3);
 		System.out.println();
 		learner.classifiyInstance(new Object[]{3, 1, 4});
@@ -194,7 +202,13 @@ public class MLT {
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
+		pl = new PathLearner();
+		pl.findSourceNodes(node);
+		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
+		System.out.println("[ml-testing] prefix branches found " + pl.getBranches());
 		System.out.println();
+		
+		System.out.println(pl.isValidTest(new Object[]{3, 1, -4}));
 	}
 	
 	public static void main(String[] args) throws Exception {

@@ -17,7 +17,7 @@ public class PredicateNode {
 	
 	private int numOfTried;
 	
-	private ConstraintLearner learner;
+	private BranchLearner learner;
 	
 	public PredicateNode() {
 		this.predicate = -1;
@@ -87,16 +87,16 @@ public class PredicateNode {
 		this.numOfTried++;
 	}
 
-	public ConstraintLearner getLearner() {
+	public BranchLearner getLearner() {
 		if (learner == null && Profiles.predicates.get(predicate).getDepInputs() != null) {
 			String type = Profiles.predicates.get(predicate).getType();
 			if (type.equals("if")) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null) {
-					learner = new ConstraintLearner(this);
+					learner = new BranchLearner(this);
 				}
 			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
 				if (sourceTrueBranch != null && sourceTrueBranch.getTests().size() != sourceFalseBranch.getTests().size()) {
-					learner = new ConstraintLearner(this);
+					learner = new BranchLearner(this);
 				}
 			} else {
 				System.err.println("[ml-testing] unknown conditional statement");

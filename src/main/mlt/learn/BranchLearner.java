@@ -17,14 +17,14 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.unsupervised.attribute.Remove;
 
-public class ConstraintLearner {
+public class BranchLearner {
 
 	private PredicateNode node;
 
 	private Instances instances;
 	private FilteredClassifier classifier;
 			
-	public ConstraintLearner(PredicateNode node) {
+	public BranchLearner(PredicateNode node) {
 		this.node = node;
 		
 		classifier = new FilteredClassifier();
@@ -111,23 +111,23 @@ public class ConstraintLearner {
 		}
 	}
 	
-	public double classifiyInstance(Object[] values) throws Exception {
-		int size = values.length;
+	public double classifiyInstance(Object[] test) throws Exception {
+		int size = test.length;
 		Instance instance = new Instance(size + 1);
 		instance.setDataset(instances);
 		for (int i = 0; i < size; i++) {
-			instance.setValue(i + 1, (double)(int)values[i]);
-		}		
+			instance.setValue(i + 1, (double)(int)test[i]);
+		}
 		return classifier.classifyInstance(instance);
 	}
 	
-	private void createInstance(Object[] values, String branch) {
-		int size = values.length;
+	private void createInstance(Object[] test, String branch) {
+		int size = test.length;
 		Instance instance = new Instance(size + 1);
 		instance.setDataset(instances);
 		instance.setClassValue(branch);
 		for (int i = 0; i < size; i++) {
-			instance.setValue(i + 1, (double)(int)values[i]);
+			instance.setValue(i + 1, (double)(int)test[i]);
 		}
 		// add to instances after setting attribute values
 		instances.add(instance);
