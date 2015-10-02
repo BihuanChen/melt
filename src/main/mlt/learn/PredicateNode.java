@@ -2,6 +2,8 @@ package mlt.learn;
 
 import java.util.ArrayList;
 
+import mlt.test.Profiles;
+
 public class PredicateNode {
 
 	private int predicate; // -1 represents a leaf node
@@ -14,6 +16,8 @@ public class PredicateNode {
 	private ArrayList<PredicateArc> targetFalseBranches;
 	
 	private int numOfTried;
+	
+	private ConstraintLearner learner;
 	
 	public PredicateNode() {
 		this.predicate = -1;
@@ -81,6 +85,24 @@ public class PredicateNode {
 
 	public void incNumOfTried() {
 		this.numOfTried++;
+	}
+
+	public ConstraintLearner getLearner() {
+		if (learner == null && Profiles.predicates.get(predicate).getDepInputs() != null) {
+			String type = Profiles.predicates.get(predicate).getType();
+			if (type.equals("if")) {
+				if (sourceTrueBranch != null && sourceFalseBranch != null) {
+					learner = new ConstraintLearner(this);
+				}
+			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
+				if (sourceTrueBranch != null && sourceTrueBranch.getTests().size() != sourceFalseBranch.getTests().size()) {
+					learner = new ConstraintLearner(this);
+				}
+			} else {
+				System.err.println("[ml-testing] unknown conditional statement");
+			}
+		}
+		return learner;
 	}
 
 	@Override

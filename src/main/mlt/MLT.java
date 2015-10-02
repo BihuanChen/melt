@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import mlt.dependency.DependencyAnalyzer;
 import mlt.instrument.Instrumenter;
 import mlt.instrument.Predicate;
+import mlt.learn.ConstraintLearner;
 import mlt.learn.PredicateNode;
 import mlt.learn.ProfileAnalyzer;
 import mlt.test.Profiles;
@@ -67,7 +68,7 @@ public class MLT {
 		System.out.println("[ml-testing] predicates serialized in " + (t6 - t5) + " ms");
 	}
 	
-	public static void runTests() throws IOException, ClassNotFoundException {
+	public static void runTests() throws Exception {
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
@@ -108,7 +109,7 @@ public class MLT {
 		Object[] testInput1 = new Object[]{-1, 2, 1};
 		TestCaseRunner runner = new TestCaseRunner(className, methodName, cls);
 		runner.run(testInput1);
-		Profiles.testInputs.add(testInput1);
+		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
@@ -116,7 +117,7 @@ public class MLT {
 		
 		Object[] testInput2 = new Object[]{1, 1, -1};
 		runner.run(testInput2);
-		Profiles.testInputs.add(testInput2);
+		Profiles.tests.add(testInput2);
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
@@ -124,7 +125,7 @@ public class MLT {
 
 		Object[] testInput3 = new Object[]{1, 1, 1};
 		runner.run(testInput3);
-		Profiles.testInputs.add(testInput3);
+		Profiles.tests.add(testInput3);
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
@@ -132,20 +133,20 @@ public class MLT {
 		
 		Object[] testInput4 = new Object[]{-1, -1, 1};
 		runner.run(testInput4);
-		Profiles.testInputs.add(testInput4);
+		Profiles.tests.add(testInput4);
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
 		System.out.println();
 	}
 	
-	public static void test2(String className, String methodName, @SuppressWarnings("rawtypes") Class[] cls) {
+	public static void test2(String className, String methodName, @SuppressWarnings("rawtypes") Class[] cls) throws Exception {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
 		Object[] testInput1 = new Object[]{-1, 1, 1};
 		TestCaseRunner runner = new TestCaseRunner(className, methodName, cls);
 		runner.run(testInput1);
-		Profiles.testInputs.add(testInput1);
+		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
@@ -155,17 +156,17 @@ public class MLT {
 		
 		Object[] testInput2 = new Object[]{2, -1, 1};
 		runner.run(testInput2);
-		Profiles.testInputs.add(testInput2);
+		Profiles.tests.add(testInput2);
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();		
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
 		System.out.println();
-
+		
 		Object[] testInput3 = new Object[]{2, 2, 1};
 		runner.run(testInput3);
-		Profiles.testInputs.add(testInput3);
+		Profiles.tests.add(testInput3);
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
@@ -173,9 +174,21 @@ public class MLT {
 		System.out.println("[ml-testing] target branch found " + node);
 		System.out.println();
 		
+		
+		ConstraintLearner learner = analyzer.getNodes().get(3).getLearner();
+		learner.buildInstancesAndClassifier(3);
+		System.out.println();
+		learner.classifiyInstance(new Object[]{3, 1, 4});
+		System.out.println();
+		
+		learner = analyzer.getNodes().get(3).getLearner();
+		learner.buildInstancesAndClassifier(3);
+		System.out.println();
+		
+		
 		Object[] testInput4 = new Object[]{3, 3, -1};
 		runner.run(testInput4);
-		Profiles.testInputs.add(testInput4);
+		Profiles.tests.add(testInput4);
 		Profiles.printExecutedPridicates();
 		analyzer.update();
 		analyzer.printNodes();
@@ -184,7 +197,7 @@ public class MLT {
 		System.out.println();
 	}
 	
-	public static void main(String[] args) throws MalformedTreeException, IOException, BadLocationException, ClassNotFoundException {
+	public static void main(String[] args) throws Exception {
 		//MLT.preparePredicates();
 		MLT.runTests();
 	}

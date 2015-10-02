@@ -6,11 +6,14 @@ public class PredicateArc {
 
 	private PredicateNode source;
 	private PredicateNode target;
-	private ArrayList<Integer> testInputs;
+	private ArrayList<Integer> tests;
+	
+	private int oldSize;
 	
 	public PredicateArc(PredicateNode source, PredicateNode target) {
 		this.source = source;
 		this.target = target;
+		this.oldSize = 0;
 	}
 
 	public PredicateNode getSource() {
@@ -29,22 +32,29 @@ public class PredicateArc {
 		this.target = target;
 	}
 	
-	public ArrayList<Integer> getTestInputs() {
-		return testInputs;
+	public ArrayList<Integer> getTests() {
+		return tests;
 	}
 	
-	public void addTestInput(int index) {
-		if (testInputs == null) {
-			testInputs = new ArrayList<Integer>();
+	public void addTest(int index) {
+		if (tests == null) {
+			tests = new ArrayList<Integer>();
 		}
-		testInputs.add(index);
+		tests.add(index);
+	}
+
+	public int getOldSize() {
+		return oldSize;
+	}
+
+	public void setOldSize(int oldSize) {
+		this.oldSize = oldSize;
 	}
 
 	@Override
 	public String toString() {
-		return "PredicateArc [ source = " + source.getPredicate()
-				+ ", target = " + target.getPredicate()
-				+ ", testInputs = " + testInputs + " ]";
+		return "PredicateArc [ source = " + source.getPredicate() + ", target = " + target.getPredicate()
+				+ ", oldSize = " + oldSize + ", tests = " + tests + " ]";
 	}
 	
 }

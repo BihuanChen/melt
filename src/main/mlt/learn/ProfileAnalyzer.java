@@ -6,10 +6,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Stack;
 
+import mlt.Config;
 import mlt.test.Pair;
 import mlt.test.Profiles;
-
-enum Mode {RANDOM, SYSTEMATIC} // find an unexplored branch either randomly or systematically
 
 public class ProfileAnalyzer {
 
@@ -18,9 +17,6 @@ public class ProfileAnalyzer {
 	
 	private HashMap<Integer, HashSet<Integer>> leveledNodes; // the level of the nodes is the key	
 	private HashMap<Integer, HashSet<Integer>> predicatedNodes; // the corresponding predicate is the key
-	
-	private static Mode mode = Mode.SYSTEMATIC;
-	private static int maxNumOfTried = 3; // the maximum number of trying to cover an unexplored branch
 	
 	public ProfileAnalyzer() {
 		root = new PredicateNode();
@@ -35,7 +31,7 @@ public class ProfileAnalyzer {
 	public void update() {
 		int size = Profiles.executedPredicates.size();
 		if (size == 0) { return; }
-		int testInputIndex = Profiles.testInputs.size() - 1;
+		int testIndex = Profiles.tests.size() - 1;
 		
 		PredicateNode current = root;
 		Stack<PredicateNode> loopBranchStack = new Stack<PredicateNode>();
@@ -112,9 +108,9 @@ public class ProfileAnalyzer {
 			}
 			
 			// avoid associating a test input to a loop branch for multiple times
-			if (branch.getTestInputs() == null || branch.getTestInputs().get(branch.getTestInputs().size() - 1) != testInputIndex) {
+			if (branch.getTests() == null || branch.getTests().get(branch.getTests().size() - 1) != testIndex) {
 				if (!(Profiles.predicates.get(branch.getSource().getPredicate()).getType().equals("do") && value && isOneIterationDoLoop(i, size))) {
-					branch.addTestInput(testInputIndex);
+					branch.addTest(testIndex);
 				}
 			}
 		}
@@ -122,7 +118,7 @@ public class ProfileAnalyzer {
 	}
 	
 	public PredicateNode findUnexploredBranch() {
-		if (mode == Mode.RANDOM) {
+		if (Config.MODE == Config.Mode.RANDOM) {
 			return random();
 		} else { // mode == Mode.SYSTEMATIC
 			return systematic();
@@ -144,14 +140,14 @@ public class ProfileAnalyzer {
 			Iterator<Integer> iterator = leveledNodes.get(i).iterator();
 			while (iterator.hasNext()) {
 				PredicateNode node = nodes.get(iterator.next());
-				if (node.getNumOfTried() <= maxNumOfTried) {
+				if (Profiles.predicates.get(node.getPredicate()).getDepInputs() != null && node.getNumOfTried() <= Config.MAX_ATTEMPTS) {
 					String type = Profiles.predicates.get(node.getPredicate()).getType();
 					if (type.equals("if")) {
 						if (node.getSourceTrueBranch() == null || node.getSourceFalseBranch() == null) {
 							pSet.add(node);
 						}
 					} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
-						if (node.getSourceTrueBranch() == null || node.getSourceTrueBranch().getTestInputs().size() == node.getSourceFalseBranch().getTestInputs().size()) {
+						if (node.getSourceTrueBranch() == null || node.getSourceTrueBranch().getTests().size() == node.getSourceFalseBranch().getTests().size()) {
 							pSet.add(node);
 						}
 					} else {
@@ -205,6 +201,22 @@ public class ProfileAnalyzer {
 			}
 		}
 		return true;
+	}
+
+	public PredicateNode getRoot() {
+		return root;
+	}
+
+	public void setRoot(PredicateNode root) {
+		this.root = root;
+	}
+
+	public ArrayList<PredicateNode> getNodes() {
+		return nodes;
+	}
+
+	public void setNodes(ArrayList<PredicateNode> nodes) {
+		this.nodes = nodes;
 	}
 	
 }

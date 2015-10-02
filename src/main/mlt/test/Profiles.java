@@ -9,7 +9,7 @@ public class Profiles {
 	public static ArrayList<Predicate> predicates = new ArrayList<Predicate>();
 
 	public static ArrayList<Pair> executedPredicates = new ArrayList<Pair>();
-	public static ArrayList<Object[]> testInputs = new ArrayList<Object[]>();
+	public static ArrayList<Object[]> tests = new ArrayList<Object[]>();
 
 	// for instrumentation
 	public static void add(int index, boolean value) {
@@ -32,11 +32,11 @@ public class Profiles {
 		System.out.println(" executed");
 	}
 	
-	public static void printTestInputs() {
-		int size = testInputs.size();
-		System.out.println("[ml-testing] test inputs");
+	public static void printTests() {
+		int size = tests.size();
+		System.out.println("[ml-testing] tests");
 		for (int i = 0; i < size; i++) {
-			System.out.println("[ml-testing] " + testInputs.get(i));
+			System.out.println("[ml-testing] " + tests.get(i));
 		}
 	}
 
