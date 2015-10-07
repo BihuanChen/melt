@@ -74,36 +74,14 @@ public class MLT {
 		long t2 = System.currentTimeMillis();
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 
-		String className = Config.MAINCLASS;
-		String methodName = Config.ENTRY_METHOD.substring(Config.ENTRY_METHOD.indexOf(" ") + 1, Config.ENTRY_METHOD.indexOf("("));
-		String[] clsStr = Config.ENTRY_METHOD.substring(Config.ENTRY_METHOD.indexOf("(") + 1, Config.ENTRY_METHOD.indexOf(")")).split(",");
-		int size = clsStr.length;
-		@SuppressWarnings("rawtypes")
-		Class[] cls = new Class[size];
-		for (int i = 0; i < size; i++) {
-			if (clsStr[i].equals("int")) {
-				cls[i] = int.class;
-			} else if (clsStr[i].equals("long")) {
-				cls[i] = long.class;
-			} else if (clsStr[i].equals("boolean")) {
-				cls[i] = boolean.class;
-			} else if (clsStr[i].equals("float")) {
-				cls[i] = float.class;
-			} else if (clsStr[i].equals("double")) {
-				cls[i] = double.class;
-			} else {
-				System.err.println("[ml-testing] unsupported input type");
-			}
-		}
-
-		test2(className, methodName, cls);
+		test2();
 	}
 	
-	public static void test1(String className, String methodName, @SuppressWarnings("rawtypes") Class[] cls) {
+	public static void test1() {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
 		Object[] testInput1 = new Object[]{-1, 2, 1};
-		TestRunner runner = new TestRunner(className, methodName, cls);
+		TestRunner runner = new TestRunner(Config.MAINCLASS, Config.METHOD_NAME, Config.CLS);
 		runner.run(testInput1);
 		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPridicates();
@@ -136,11 +114,11 @@ public class MLT {
 		System.out.println();
 	}
 	
-	public static void test2(String className, String methodName, @SuppressWarnings("rawtypes") Class[] cls) throws Exception {
+	public static void test2() throws Exception {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
 		Object[] testInput1 = new Object[]{-1, 1, 1};
-		TestRunner runner = new TestRunner(className, methodName, cls);
+		TestRunner runner = new TestRunner(Config.MAINCLASS, Config.METHOD_NAME, Config.CLS);
 		runner.run(testInput1);
 		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPridicates();
@@ -184,13 +162,13 @@ public class MLT {
 		System.out.println();
 				
 		BranchLearner learner = analyzer.getNodes().get(3).getLearner();
-		learner.buildInstancesAndClassifier(3);
+		learner.buildInstancesAndClassifier();
 		System.out.println();
 		learner.classifiyInstance(new Object[]{3, 1, 4});
 		System.out.println();
 		
 		learner = analyzer.getNodes().get(3).getLearner();
-		learner.buildInstancesAndClassifier(3);
+		learner.buildInstancesAndClassifier();
 		System.out.println();
 		
 		
