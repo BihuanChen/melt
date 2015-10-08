@@ -23,7 +23,7 @@ public class Profiles {
 		}
 	}
 	
-	public static void printExecutedPridicates() {
+	public static void printExecutedPredicates() {
 		int size = executedPredicates.size();
 		System.out.print("[ml-testing] predicates");
 		for (int i = 0; i < size; i++) {

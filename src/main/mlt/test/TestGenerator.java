@@ -1,7 +1,6 @@
 package mlt.test;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Random;
 
 import mlt.Config;
@@ -15,31 +14,11 @@ public class TestGenerator {
 		this.pathLearner = pathLearner;
 	}
 	
-	public HashSet<Object[]> generate(@SuppressWarnings("rawtypes") Class[] cls) throws Exception {
+	public HashSet<Object[]> generate() throws Exception {
 		HashSet<Object[]> tests = new HashSet<Object[]>();
 		while (true) {
-			// randomly generate a test case
-			int size = cls.length;
-			Object[] test = new Object[size];
-			for (int i = 0; i < size; i++) {
-				if (cls[i] == byte.class) {
-					test[i] = (byte) new Random().nextInt(1 << 8);
-				} else if (cls[i] == short.class) {
-					test[i] = (short) new Random().nextInt(1 << 16);
-				} else if (cls[i] == int.class) {
-					test[i] = new Random().nextInt();
-				} else if (cls[i] == long.class) {
-					test[i] = new Random().nextLong();
-				} else if (cls[i] == float.class) {
-					test[i] = new Random().nextFloat() * Float.MAX_VALUE * 2.0f - Float.MAX_VALUE;
-				} else if (cls[i] == double.class) {
-					test[i] = new Random().nextDouble() * Double.MAX_VALUE * 2.0 - Double.MAX_VALUE;
-				} else if (cls[i] == boolean.class) {
-					test[i] = new Random().nextBoolean();
-				}
-			}
-			// check if the test case is valid
-			if (pathLearner == null || pathLearner.isValidTest(test)) {
+			Object[] test = generateRandom();
+			if (test != null) {
 				tests.add(test);
 				if (tests.size() == Config.TESTS_SIZE) {
 					return tests;
@@ -48,15 +27,32 @@ public class TestGenerator {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
-		HashSet<Object[]> tests = new TestGenerator(null).generate(new Class[]{byte.class, short.class, int.class, long.class, boolean.class, float.class, double.class});
-		Iterator<Object[]> i = tests.iterator();
-		while (i.hasNext()) {
-			Object[] obj = i.next();
-			for(int j = 0; j < obj.length; j++) {
-				System.out.print(obj[j] + " ");
+	private Object[] generateRandom() throws Exception {
+		// randomly generate a test case
+		int size = Config.CLS.length;
+		Object[] test = new Object[size];
+		for (int i = 0; i < size; i++) {
+			if (Config.CLS[i] == byte.class) {
+				test[i] = (byte) new Random().nextInt(1 << 8);
+			} else if (Config.CLS[i] == short.class) {
+				test[i] = (short) new Random().nextInt(1 << 16);
+			} else if (Config.CLS[i] == int.class) {
+				test[i] = new Random().nextInt();
+			} else if (Config.CLS[i] == long.class) {
+				test[i] = new Random().nextLong();
+			} else if (Config.CLS[i] == float.class) {
+				test[i] = new Random().nextBoolean() ? new Random().nextFloat() * Float.MAX_VALUE : new Random().nextFloat() * -Float.MAX_VALUE;
+			} else if (Config.CLS[i] == double.class) {
+				test[i] = new Random().nextBoolean() ? new Random().nextDouble() * Double.MAX_VALUE : new Random().nextDouble() * -Double.MAX_VALUE;
+			} else if (Config.CLS[i] == boolean.class) {
+				test[i] = new Random().nextBoolean();
 			}
-			System.out.println();
+		}
+		// check if the test case is valid
+		if (pathLearner == null || pathLearner.isValidTest(test)) {
+			return test;
+		} else {
+			return null;
 		}
 	}
 
