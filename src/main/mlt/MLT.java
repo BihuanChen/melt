@@ -85,14 +85,18 @@ public class MLT {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		HashSet<Object[]> tests = new TestGenerator(null).generate();
 		Iterator<Object[]> iterator = tests.iterator();
-		//while (iterator.hasNext()) {
+		while (iterator.hasNext()) {
 			Object[] test = iterator.next();
+			for (int i = 0; i < test.length; i++) {
+				System.out.print(test[i] + " ");
+			}
+			System.out.println();
 			runner.run(test);
 			Profiles.tests.add(test);
 			analyzer.update();
 			analyzer.printNodes();
 			System.out.println();
-		//}
+		}
 		
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 	}

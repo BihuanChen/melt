@@ -13,7 +13,7 @@ public class Config {
 	public static String SOURCEPATH = "src/tests/mlt/learn/test1/";
 	public static String CLASSPATH = "src/tests/";
 	public static String CLASS_NAME = "mlt.learn.test1.TestAnalyzer";
-	public static String ENTRY_METHOD = "void test(int,int,int)";
+	public static String ENTRY_METHOD = "void test(byte,byte,byte)";
 	
 	public static String METHOD_NAME = Config.ENTRY_METHOD.substring(Config.ENTRY_METHOD.indexOf(" ") + 1, Config.ENTRY_METHOD.indexOf("("));
 	@SuppressWarnings("rawtypes")
