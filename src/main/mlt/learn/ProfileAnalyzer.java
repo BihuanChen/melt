@@ -169,6 +169,17 @@ public class ProfileAnalyzer {
 		}
 	}
 	
+	public void coverage(PredicateNode target) {
+		if (target == null) {
+			return;
+		}
+		System.out.println("[ml-testing] target branch " + (target.isCovered() ? "covered" : "not covered"));
+		
+		
+		System.out.println("[ml-testing] overall coverage ");
+		System.out.println("[ml-testing] detailed coverage " + "\n");
+	}
+	
 	public void printNodes() {
 		for (int i = 0; i < nodes.size(); i++) {
 			PredicateNode node = nodes.get(i);

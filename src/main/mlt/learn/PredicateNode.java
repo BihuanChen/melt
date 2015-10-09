@@ -19,6 +19,8 @@ public class PredicateNode {
 	
 	private BranchLearner learner;
 	
+	private boolean covered = false;
+	
 	public PredicateNode() {
 		this.predicate = -1;
 		this.level = -1;
@@ -103,6 +105,24 @@ public class PredicateNode {
 			}
 		}
 		return learner;
+	}
+	
+	public boolean isCovered() {
+		if (!covered) {
+			String type = Profiles.predicates.get(predicate).getType();
+			if (type.equals("if")) {
+				if (sourceTrueBranch != null && sourceFalseBranch != null) {
+					covered = true;
+				}
+			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
+				if (sourceTrueBranch != null && sourceTrueBranch.getTests().size() != sourceFalseBranch.getTests().size()) {
+					covered = true;
+				}
+			} else {
+				System.err.println("[ml-testing] unknown conditional statement");
+			}
+		}
+		return covered;
 	}
 
 	@Override

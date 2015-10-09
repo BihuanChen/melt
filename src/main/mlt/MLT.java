@@ -84,6 +84,7 @@ public class MLT {
 		TestRunner runner = new TestRunner();
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		PathLearner learner = null;
+		PredicateNode targetNode = null;
 		
 		long testTime = 0;
 		
@@ -105,16 +106,17 @@ public class MLT {
 				analyzer.update();
 			}
 			analyzer.printNodes();
+			analyzer.coverage(targetNode);
 			// find an partially explored branch to be covered
-			PredicateNode node = analyzer.findUnexploredBranch();
-			System.out.println("[ml-testing] target branch found " + node);
-			if (node == null) {
-				System.out.println();
+			targetNode = analyzer.findUnexploredBranch();
+			if (targetNode == null) {
+				System.out.println("[ml-testing] target branch not found \n");
 				break;
 			}
+			System.out.println("[ml-testing] target branch found " + targetNode);
 			// update the classification models from the current node to the root node
 			learner = new PathLearner();
-			learner.findSourceNodes(node);
+			learner.findSourceNodes(targetNode);
 			System.out.println("[ml-testing] prefix nodes found " + learner.getNodes());
 			System.out.println("[ml-testing] prefix branches found " + learner.getBranches() + "\n");
 		}
