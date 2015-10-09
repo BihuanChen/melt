@@ -140,7 +140,7 @@ public class ProfileAnalyzer {
 			Iterator<Integer> iterator = leveledNodes.get(i).iterator();
 			while (iterator.hasNext()) {
 				PredicateNode node = nodes.get(iterator.next());
-				if (Profiles.predicates.get(node.getPredicate()).getDepInputs() != null && node.getNumOfTried() < Config.MAX_ATTEMPTS) {
+				if (Profiles.predicates.get(node.getPredicate()).getDepInputs() != null && node.getAttempts() < Config.MAX_ATTEMPTS) {
 					String type = Profiles.predicates.get(node.getPredicate()).getType();
 					if (type.equals("if")) {
 						if (node.getSourceTrueBranch() == null || node.getSourceFalseBranch() == null) {
@@ -162,7 +162,7 @@ public class ProfileAnalyzer {
 		// TODO apply other heuristics (e.g., using predicatedNodes) rather than randomly
 		if (pSet.size() > 0) {
 			int ran = (int)Math.random() * pSet.size();
-			pSet.get(ran).incNumOfTried();
+			pSet.get(ran).incAttempts();
 			return pSet.get(ran);
 		} else {
 			return null;

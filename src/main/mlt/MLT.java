@@ -36,8 +36,8 @@ public class MLT {
 
 		// analyze inputs-branch dependency
 		long t2 = System.currentTimeMillis();
-		String entryPoint = "<" + Config.CLASS_NAME + ": " + Config.ENTRY_METHOD + ">";
-		LinkedHashMap<String, HashSet<Integer>> dependency = DependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.CLASS_NAME, entryPoint);
+		String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
+		LinkedHashMap<String, HashSet<Integer>> dependency = DependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
 	
 		// instrument the source code
 		long t3 = System.currentTimeMillis();
@@ -72,18 +72,20 @@ public class MLT {
 	}
 	
 	public static void run() throws Exception {
-		// deserialize the predicates
+		// serialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
 		//Profiles.printPredicates();
 		
-		// running random tests initially
+		// running ml-testing
 		long t2 = System.currentTimeMillis();
 		TestRunner runner = new TestRunner();
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		PathLearner learner = null;
+		
+		long testTime = 0;
 		
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
@@ -96,7 +98,9 @@ public class MLT {
 				//	System.out.print(" " + test[i]);
 				//}
 				//System.out.println();
+				long t = System.currentTimeMillis();
 				runner.run(test);
+				testTime += System.currentTimeMillis() - t;
 				Profiles.tests.add(test);
 				analyzer.update();
 			}
@@ -105,6 +109,7 @@ public class MLT {
 			PredicateNode node = analyzer.findUnexploredBranch();
 			System.out.println("[ml-testing] target branch found " + node);
 			if (node == null) {
+				System.out.println();
 				break;
 			}
 			// update the classification models from the current node to the root node
@@ -114,7 +119,10 @@ public class MLT {
 			System.out.println("[ml-testing] prefix branches found " + learner.getBranches() + "\n");
 		}
 		
+		long t3 = System.currentTimeMillis();
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
+		System.out.println("[ml-testing] ml-testing in  " + (t3 - t2) + " ms");
+		System.out.println("[ml-testing] tests run in " + testTime + " ms");
 	}
 	
 	public static void test() throws Exception {
@@ -187,10 +195,12 @@ public class MLT {
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 		
+		
 		System.out.println("[ml-testing] valid test ? " + pl.isValidTest(new Object[]{3, 1, -4}));
 	}
 	
 	public static void main(String[] args) throws Exception {
+		Config.loadProperties("src/tests/mlt/learn/test1/TestAnalyzer.mlt");
 		//MLT.prepare();
 		MLT.run();
 	}

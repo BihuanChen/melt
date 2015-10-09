@@ -28,13 +28,13 @@ public class BranchLearner {
 		this.node = node;
 		
 		classifier = new FilteredClassifier();
-		if (Config.CMODEL == Config.Model.J48) {
+		if (Config.MODEL == Config.Model.J48) {
 			J48 j48 = new J48();
 			classifier.setClassifier(j48);
-		} else if (Config.CMODEL == Config.Model.NAIVEBAYES) {
+		} else if (Config.MODEL == Config.Model.NAIVEBAYES) {
 			NaiveBayes nb = new NaiveBayes();
 			classifier.setClassifier(nb);
-		} else if (Config.CMODEL == Config.Model.LIBSVM) {
+		} else if (Config.MODEL == Config.Model.LIBSVM) {
 			LibSVM svm = new LibSVM();
 			classifier.setClassifier(svm);
 		} else { //model == Model.RandomForest

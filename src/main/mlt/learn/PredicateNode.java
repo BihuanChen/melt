@@ -15,14 +15,14 @@ public class PredicateNode {
 	private ArrayList<PredicateArc> targetTrueBranches;
 	private ArrayList<PredicateArc> targetFalseBranches;
 	
-	private int numOfTried;
+	private int attempts;
 	
 	private BranchLearner learner;
 	
 	public PredicateNode() {
 		this.predicate = -1;
 		this.level = -1;
-		this.numOfTried = 0;
+		this.attempts = 0;
 	}
 
 	public int getPredicate() {
@@ -79,12 +79,12 @@ public class PredicateNode {
 		targetFalseBranches.add(targetFalseBranch);
 	}
 
-	public int getNumOfTried() {
-		return numOfTried;
+	public int getAttempts() {
+		return attempts;
 	}
 
-	public void incNumOfTried() {
-		this.numOfTried++;
+	public void incAttempts() {
+		this.attempts++;
 	}
 
 	public BranchLearner getLearner() {
@@ -107,7 +107,7 @@ public class PredicateNode {
 
 	@Override
 	public String toString() {
-		return "PredicateNode [ predicate = " + predicate + ", level = " + level + ", numOfTried = " + numOfTried + 
+		return "PredicateNode [ predicate = " + predicate + ", level = " + level + ", attempts = " + attempts + 
 				", sourceTrueBranch = " + sourceTrueBranch + ", sourceFalseBranch = " + sourceFalseBranch + 
 				", targetTrueBranches = " + targetTrueBranches + ", targetFalseBranches = " + targetFalseBranches + " ]";
 	}
