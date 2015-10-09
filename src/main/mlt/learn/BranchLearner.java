@@ -113,7 +113,7 @@ public class BranchLearner {
 			}
 			// build the classifier if new tests data are available
 			classifier.buildClassifier(instances);
-			System.out.println(instances);
+			//System.out.println("[ml-testing] instances \n" + instances + "\n");
 		}
 	}
 	

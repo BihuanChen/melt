@@ -21,6 +21,7 @@ public class Profiles {
 		for (int i = 0; i < size; i++) {
 			System.out.println("[ml-testing] " + predicates.get(i));
 		}
+		System.out.println();
 	}
 	
 	public static void printExecutedPredicates() {
@@ -38,6 +39,7 @@ public class Profiles {
 		for (int i = 0; i < size; i++) {
 			System.out.println("[ml-testing] " + tests.get(i));
 		}
+		System.out.println();
 	}
 
 }

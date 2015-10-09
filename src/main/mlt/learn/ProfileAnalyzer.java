@@ -140,7 +140,7 @@ public class ProfileAnalyzer {
 			Iterator<Integer> iterator = leveledNodes.get(i).iterator();
 			while (iterator.hasNext()) {
 				PredicateNode node = nodes.get(iterator.next());
-				if (Profiles.predicates.get(node.getPredicate()).getDepInputs() != null && node.getNumOfTried() <= Config.MAX_ATTEMPTS) {
+				if (Profiles.predicates.get(node.getPredicate()).getDepInputs() != null && node.getNumOfTried() < Config.MAX_ATTEMPTS) {
 					String type = Profiles.predicates.get(node.getPredicate()).getType();
 					if (type.equals("if")) {
 						if (node.getSourceTrueBranch() == null || node.getSourceFalseBranch() == null) {
@@ -174,6 +174,7 @@ public class ProfileAnalyzer {
 			PredicateNode node = nodes.get(i);
 			System.out.println("[ml-testing] " + node);
 		}
+		System.out.println();
 	}
 
 	private void addToLeveledNodes(int level, int index) {

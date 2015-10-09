@@ -83,38 +83,50 @@ public class MLT {
 		long t2 = System.currentTimeMillis();
 		TestRunner runner = new TestRunner();
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
-		HashSet<Object[]> tests = new TestGenerator(null).generate();
-		Iterator<Object[]> iterator = tests.iterator();
-		while (iterator.hasNext()) {
-			Object[] test = iterator.next();
-			for (int i = 0; i < test.length; i++) {
-				System.out.print(test[i] + " ");
+		PathLearner learner = null;
+		
+		while (true) {
+			// generate and run tests, and analyze the branch profiles
+			HashSet<Object[]> tests = new TestGenerator(learner).generate();
+			Iterator<Object[]> iterator = tests.iterator();
+			while (iterator.hasNext()) {
+				Object[] test = iterator.next();
+				//System.out.print("[ml-testing] test inputs are");
+				//for (int i = 0; i < test.length; i++) {
+				//	System.out.print(" " + test[i]);
+				//}
+				//System.out.println();
+				runner.run(test);
+				Profiles.tests.add(test);
+				analyzer.update();
 			}
-			System.out.println();
-			runner.run(test);
-			Profiles.tests.add(test);
-			analyzer.update();
 			analyzer.printNodes();
-			System.out.println();
+			// find an partially explored branch to be covered
+			PredicateNode node = analyzer.findUnexploredBranch();
+			System.out.println("[ml-testing] target branch found " + node);
+			if (node == null) {
+				break;
+			}
+			// update the classification models from the current node to the root node
+			learner = new PathLearner();
+			learner.findSourceNodes(node);
+			System.out.println("[ml-testing] prefix nodes found " + learner.getNodes());
+			System.out.println("[ml-testing] prefix branches found " + learner.getBranches() + "\n");
 		}
 		
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 	}
 	
 	public static void test() throws Exception {
-		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
 		Profiles.printPredicates();
 		
-		long t2 = System.currentTimeMillis();
-		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
-
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		TestRunner runner = new TestRunner();
 		
-		Object[] testInput1 = new Object[]{-1, 1, 1};
+		Object[] testInput1 = new Object[]{(byte)-1, (byte)1, (byte)1};
 		runner.run(testInput1);
 		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPredicates();
@@ -125,10 +137,9 @@ public class MLT {
 		PathLearner pl = new PathLearner();
 		pl.findSourceNodes(node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
-		System.out.println("[ml-testing] prefix branches found " + pl.getBranches());
-		System.out.println();
+		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 				
-		Object[] testInput2 = new Object[]{2, -1, 1};
+		Object[] testInput2 = new Object[]{(byte)2, (byte)-1, (byte)1};
 		runner.run(testInput2);
 		Profiles.tests.add(testInput2);
 		Profiles.printExecutedPredicates();
@@ -139,10 +150,9 @@ public class MLT {
 		pl = new PathLearner();
 		pl.findSourceNodes(node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
-		System.out.println("[ml-testing] prefix branches found " + pl.getBranches());
-		System.out.println();
+		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 		
-		Object[] testInput3 = new Object[]{2, 2, 1};
+		Object[] testInput3 = new Object[]{(byte)2, (byte)2, (byte)1};
 		runner.run(testInput3);
 		Profiles.tests.add(testInput3);
 		Profiles.printExecutedPredicates();
@@ -153,21 +163,18 @@ public class MLT {
 		pl = new PathLearner();
 		pl.findSourceNodes(node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
-		System.out.println("[ml-testing] prefix branches found " + pl.getBranches());
-		System.out.println();
+		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 				
+		
 		BranchLearner learner = analyzer.getNodes().get(3).getLearner();
 		learner.buildInstancesAndClassifier();
-		System.out.println();
 		learner.classifiyInstance(new Object[]{3, 1, 4});
-		System.out.println();
-		
+
 		learner = analyzer.getNodes().get(3).getLearner();
 		learner.buildInstancesAndClassifier();
-		System.out.println();
+
 		
-		
-		Object[] testInput4 = new Object[]{3, 3, -1};
+		Object[] testInput4 = new Object[]{(byte)3, (byte)3, (byte)-1};
 		runner.run(testInput4);
 		Profiles.tests.add(testInput4);
 		Profiles.printExecutedPredicates();
@@ -178,10 +185,9 @@ public class MLT {
 		pl = new PathLearner();
 		pl.findSourceNodes(node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
-		System.out.println("[ml-testing] prefix branches found " + pl.getBranches());
-		System.out.println();
+		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 		
-		System.out.println(pl.isValidTest(new Object[]{3, 1, -4}));
+		System.out.println("[ml-testing] valid test ? " + pl.isValidTest(new Object[]{3, 1, -4}));
 	}
 	
 	public static void main(String[] args) throws Exception {
