@@ -170,14 +170,27 @@ public class ProfileAnalyzer {
 	}
 	
 	public void coverage(PredicateNode target) {
-		if (target == null) {
-			return;
+		if (target != null) {
+			System.out.println("[ml-testing] target branch " + (target.isCovered() ? "covered" : "not covered"));;
 		}
-		System.out.println("[ml-testing] target branch " + (target.isCovered() ? "covered" : "not covered"));
-		
-		
-		System.out.println("[ml-testing] overall coverage ");
-		System.out.println("[ml-testing] detailed coverage " + "\n");
+		Iterator<Integer> iterator1 = predicatedNodes.keySet().iterator();
+		int pn = 0;
+		while (iterator1.hasNext()) {
+			Integer predicate = iterator1.next();
+			HashSet<Integer> ns = predicatedNodes.get(predicate);
+			Iterator<Integer> iterator2 = ns.iterator();
+			int cn = 0;
+			while (iterator2.hasNext()) {
+				if (nodes.get(iterator2.next()).isCovered()) {
+					cn++;
+				}
+			}
+			if (cn != 0) {
+				pn++;
+			}
+			System.out.println("[ml-testing] coverage for predicate(" + predicate + ") achieved " + cn + " / " + ns.size());
+		}
+		System.out.println("[ml-testing] overall coverage achieved " + pn + " / " + predicatedNodes.size() + " / " + Profiles.predicates.size() + "\n");
 	}
 	
 	public void printNodes() {

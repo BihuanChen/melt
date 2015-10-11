@@ -33,17 +33,17 @@ public class TestGenerator {
 		Object[] test = new Object[size];
 		for (int i = 0; i < size; i++) {
 			if (Config.CLS[i] == byte.class) {
-				test[i] = (byte) new Random().nextInt(1 << 8);
+				test[i] = (byte) new Random().nextInt(Config.MAX_BYTE - Config.MIN_BYTE + 1) + Config.MIN_BYTE;
 			} else if (Config.CLS[i] == short.class) {
-				test[i] = (short) new Random().nextInt(1 << 16);
+				test[i] = (short) new Random().nextInt(Config.MAX_SHORT - Config.MIN_SHORT + 1) + Config.MIN_SHORT;
 			} else if (Config.CLS[i] == int.class) {
-				test[i] = new Random().nextInt();
+				test[i] = new Random().nextInt(Config.MAX_INT - Config.MIN_INT + 1) + Config.MIN_INT;
 			} else if (Config.CLS[i] == long.class) {
-				test[i] = new Random().nextLong();
+				test[i] = (long) new Random().nextDouble() * (Config.MAX_LONG - Config.MIN_LONG + 1) + Config.MIN_LONG;
 			} else if (Config.CLS[i] == float.class) {
-				test[i] = new Random().nextBoolean() ? new Random().nextFloat() * Float.MAX_VALUE : new Random().nextFloat() * -Float.MAX_VALUE;
+				test[i] = new Random().nextFloat() * (Config.MAX_FLOAT - Config.MIN_FLOAT) + Config.MIN_FLOAT;
 			} else if (Config.CLS[i] == double.class) {
-				test[i] = new Random().nextBoolean() ? new Random().nextDouble() * Double.MAX_VALUE : new Random().nextDouble() * -Double.MAX_VALUE;
+				test[i] = new Random().nextDouble() * (Config.MAX_DOUBLE - Config.MIN_DOUBLE) + Config.MIN_DOUBLE;
 			} else if (Config.CLS[i] == boolean.class) {
 				test[i] = new Random().nextBoolean();
 			}

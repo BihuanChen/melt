@@ -123,7 +123,56 @@ public class MLT {
 		
 		long t3 = System.currentTimeMillis();
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
-		System.out.println("[ml-testing] ml-testing in  " + (t3 - t2) + " ms");
+		System.out.println("[ml-testing] ml-testing in " + (t3 - t2) + " ms");
+		System.out.println("[ml-testing] tests run in " + testTime + " ms");
+	}
+	
+	public static void runRandom() throws Exception {
+		// parameter
+		long timeout = 400;
+		
+		// serialize the predicates
+		long t1 = System.currentTimeMillis();
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
+		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+		oin.close();
+		//Profiles.printPredicates();
+		
+		// running random testing
+		long t2 = System.currentTimeMillis();
+		TestRunner runner = new TestRunner();
+		ProfileAnalyzer analyzer = new ProfileAnalyzer();
+
+		long testTime = 0;
+		
+		long endTime = t2 + timeout;
+		while (true) {
+			// generate and run tests, and analyze the branch profiles
+			HashSet<Object[]> tests = new TestGenerator(null).generate();
+			Iterator<Object[]> iterator = tests.iterator();
+			while (iterator.hasNext()) {
+				Object[] test = iterator.next();
+				//System.out.print("[ml-testing] test inputs are");
+				//for (int i = 0; i < test.length; i++) {
+				//	System.out.print(" " + test[i]);
+				//}
+				//System.out.println();
+				long t = System.currentTimeMillis();
+				runner.run(test);
+				testTime += System.currentTimeMillis() - t;
+				Profiles.tests.add(test);
+				analyzer.update();
+			}
+			analyzer.printNodes();
+			analyzer.coverage(null);
+			if (System.currentTimeMillis() > endTime) {
+				break;
+			}
+		}
+		
+		long t3 = System.currentTimeMillis();
+		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
+		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms");
 		System.out.println("[ml-testing] tests run in " + testTime + " ms");
 	}
 	
@@ -204,7 +253,7 @@ public class MLT {
 	public static void main(String[] args) throws Exception {
 		Config.loadProperties("src/tests/mlt/learn/test1/TestAnalyzer.mlt");
 		//MLT.prepare();
-		MLT.run();
+		//MLT.runRandom();
 	}
 
 }

@@ -26,6 +26,20 @@ public class Config {
 	@SuppressWarnings("rawtypes")
 	public static Class[] CLS = null;
 	
+	// lower and upper bounds on integer and real variables
+	public static byte MIN_BYTE = -100;
+	public static byte MAX_BYTE = 100;
+	public static short MIN_SHORT = -100;
+	public static short MAX_SHORT = 100;
+	public static int MIN_INT = -100;
+	public static int MAX_INT = 100;
+	public static long MIN_LONG = -100;
+	public static long MAX_LONG = 100;
+	public static float MIN_FLOAT = -8;
+	public static float MAX_FLOAT = 7;
+	public static double MIN_DOUBLE = -8;
+	public static double MAX_DOUBLE = 7;
+	
 	public static void loadProperties(String file) throws IOException {
 		// load configuration
 		Properties prop = new Properties();
@@ -100,8 +114,98 @@ public class Config {
 		if (p != null) {
 			TESTS_SIZE = Integer.valueOf(p);
 		}
-		System.out.println("[ml-testing] tests.size = " + TESTS_SIZE + "\n");
+		System.out.println("[ml-testing] tests.size = " + TESTS_SIZE);
 		
+		p = prop.getProperty("min.byte");
+		if (p != null) {
+			MIN_BYTE = Byte.valueOf(p);
+		}
+		p = prop.getProperty("max.byte");
+		if (p != null) {
+			MAX_BYTE = Byte.valueOf(p);
+		}
+		if (MAX_BYTE < MIN_BYTE) {
+			System.err.println("[ml-testing] illegal lower and upper bounds on byte variables");
+			System.exit(0);
+		}
+		System.out.println("[ml-testing] min.byte = " + MIN_BYTE);
+		System.out.println("[ml-testing] max.byte = " + MAX_BYTE);
+		
+		p = prop.getProperty("min.short");
+		if (p != null) {
+			MIN_SHORT = Short.valueOf(p);
+		}
+		p = prop.getProperty("max.short");
+		if (p != null) {
+			MAX_SHORT = Short.valueOf(p);
+		}
+		if (MAX_SHORT < MIN_SHORT) {
+			System.err.println("[ml-testing] illegal lower and upper bounds on short variables");
+			System.exit(0);
+		}
+		System.out.println("[ml-testing] min.short = " + MIN_SHORT);
+		System.out.println("[ml-testing] max.short = " + MAX_SHORT);
+		
+		p = prop.getProperty("min.int");
+		if (p != null) {
+			MIN_INT = Integer.valueOf(p);
+		}
+		p = prop.getProperty("max.int");
+		if (p != null) {
+			MAX_INT = Integer.valueOf(p);
+		}
+		if (MAX_INT < MIN_INT) {
+			System.err.println("[ml-testing] illegal lower and upper bounds on integer variables");
+			System.exit(0);
+		}
+		System.out.println("[ml-testing] min.int = " + MIN_INT);
+		System.out.println("[ml-testing] max.int = " + MAX_INT);
+		
+		p = prop.getProperty("min.long");
+		if (p != null) {
+			MIN_LONG = Long.valueOf(p);
+		}
+		p = prop.getProperty("max.long");
+		if (p != null) {
+			MAX_LONG = Long.valueOf(p);
+		}
+		if (MAX_LONG < MIN_LONG) {
+			System.err.println("[ml-testing] illegal lower and upper bounds on long variables");
+			System.exit(0);
+		}
+		System.out.println("[ml-testing] min.long = " + MIN_LONG);
+		System.out.println("[ml-testing] max.long = " + MAX_LONG);
+		
+		p = prop.getProperty("min.float");
+		if (p != null) {
+			MIN_FLOAT = Float.valueOf(p);
+		}
+		p = prop.getProperty("max.float");
+		if (p != null) {
+			MAX_FLOAT = Float.valueOf(p);
+		}
+		if (MAX_FLOAT < MIN_FLOAT) {
+			System.err.println("[ml-testing] illegal lower and upper bounds on float variables");
+			System.exit(0);
+		}
+		System.out.println("[ml-testing] min.float = " + MIN_FLOAT);
+		System.out.println("[ml-testing] max.float = " + MAX_FLOAT);
+		
+		p = prop.getProperty("min.double");
+		if (p != null) {
+			MIN_DOUBLE = Double.valueOf(p);
+		}
+		p = prop.getProperty("max.double");
+		if (p != null) {
+			MAX_DOUBLE = Double.valueOf(p);
+		}
+		if (MAX_DOUBLE < MIN_DOUBLE) {
+			System.err.println("[ml-testing] illegal lower and upper bounds on double variables");
+			System.exit(0);
+		}
+		System.out.println("[ml-testing] min.double = " + MIN_DOUBLE);
+		System.out.println("[ml-testing] max.double = " + MAX_DOUBLE + "\n");
+
 		fis.close();
 		
 		// derive the reflection information to run test cases
