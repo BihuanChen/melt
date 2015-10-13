@@ -54,7 +54,7 @@ public class PredicateArc {
 	@Override
 	public String toString() {
 		return "PredicateArc [ source = " + source.getPredicate() + ", target = " + target.getPredicate()
-				+ ", oldSize = " + oldSize + ", tests = " + tests + " ]";
+				+ ", oldSize = " + oldSize + " ]";// ", tests = " + tests + " ]";
 	}
 	
 }

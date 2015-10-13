@@ -96,7 +96,8 @@ public class DependencyAnalyzer {
 				IFDSSolver<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit,SootMethod>> solver = new IFDSSolver<Unit, Pair<Value, Value>, SootMethod, InterproceduralCFG<Unit,SootMethod>>(problem);
 				solver.solve();
 				if (debug) {
-					SootMethod m = Scene.v().getMethod("<mlt.dependency.test1.TestInputBranchDependencyInter1: void m1(int,int,int)>");
+					//SootMethod m = Scene.v().getMethod("<mlt.dependency.test1.TestInputBranchDependencyInter1: void m1(int,int,int)>");
+					SootMethod m = Scene.v().getMethod("<dt.original.Median: int driver(int,int,int,int)>");
 					Iterator<Unit> i = m.getActiveBody().getUnits().iterator();
 					while (i.hasNext()) { 
 						Unit u = i.next();
@@ -125,7 +126,8 @@ public class DependencyAnalyzer {
 	
 	public static void main(String[] args) {
 		//DependencyAnalyzer.doIntraAnalysis("src/tests/", "mlt.dependency.test2.TestInputBranchDependencyIntra");
-		DependencyAnalyzer.doInterAnalysis("src/tests/", "mlt.dependency.test1.TestInputBranchDependencyInter1", "<mlt.dependency.test1.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
+		//DependencyAnalyzer.doInterAnalysis("src/tests/", "mlt.dependency.test1.TestInputBranchDependencyInter1", "<mlt.dependency.test1.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
+		DependencyAnalyzer.doInterAnalysis("src/examples/", "dt.original.Median", "<dt.original.Median: int driver(int,int,int,int)>");
 	}
 
 }

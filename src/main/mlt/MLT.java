@@ -54,13 +54,13 @@ public class MLT {
 			if (set != null) {
 				p.setDepInputs(set);				
 			} else {
-				System.err.println("[ml-testing] inputs-branch dependency not found");
+				System.err.println("[ml-testing] inputs-branch dependency not found " + p.getExpression());
 			}
 		}
 		
 		// serialize the predicates
 		long t5 = System.currentTimeMillis();
-		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("predicates.out")));
+		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("predicates.pred")));
 		oout.writeObject(instrumenter);
 		oout.close();
 		
@@ -74,7 +74,7 @@ public class MLT {
 	public static void run() throws Exception {
 		// serialize the predicates
 		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
 		//Profiles.printPredicates();
@@ -87,7 +87,8 @@ public class MLT {
 		PredicateNode targetNode = null;
 		
 		long testTime = 0;
-		
+		int count = 0;
+
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
 			HashSet<Object[]> tests = new TestGenerator(learner).generate();
@@ -105,7 +106,8 @@ public class MLT {
 				Profiles.tests.add(test);
 				analyzer.update();
 			}
-			analyzer.printNodes();
+			System.out.println("[ml-testing] the " + (++count) + " th set of tests");
+			//analyzer.printNodes();
 			analyzer.coverage(targetNode);
 			// find an partially explored branch to be covered
 			targetNode = analyzer.findUnexploredBranch();
@@ -129,11 +131,11 @@ public class MLT {
 	
 	public static void runRandom() throws Exception {
 		// parameter
-		long timeout = 400;
+		long timeout = 3500;
 		
 		// serialize the predicates
 		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
 		//Profiles.printPredicates();
@@ -144,7 +146,8 @@ public class MLT {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 
 		long testTime = 0;
-		
+		int count = 0;
+
 		long endTime = t2 + timeout;
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
@@ -163,7 +166,8 @@ public class MLT {
 				Profiles.tests.add(test);
 				analyzer.update();
 			}
-			analyzer.printNodes();
+			System.out.println("[ml-testing] the " + (++count) + " th set of tests");
+			//analyzer.printNodes();
 			analyzer.coverage(null);
 			if (System.currentTimeMillis() > endTime) {
 				break;
@@ -177,7 +181,7 @@ public class MLT {
 	}
 	
 	public static void test() throws Exception {
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.out")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
 		Profiles.printPredicates();
@@ -251,9 +255,9 @@ public class MLT {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.loadProperties("src/tests/mlt/learn/test1/TestAnalyzer.mlt");
+		Config.loadProperties("src/examples/dt/original/Fisher.mlt");
 		//MLT.prepare();
-		//MLT.runRandom();
+		MLT.run();
 	}
 
 }

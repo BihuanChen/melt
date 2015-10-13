@@ -33,13 +33,13 @@ public class TestGenerator {
 		Object[] test = new Object[size];
 		for (int i = 0; i < size; i++) {
 			if (Config.CLS[i] == byte.class) {
-				test[i] = (byte) new Random().nextInt(Config.MAX_BYTE - Config.MIN_BYTE + 1) + Config.MIN_BYTE;
+				test[i] = (byte) (new Random().nextInt(Config.MAX_BYTE - Config.MIN_BYTE + 1) + Config.MIN_BYTE);
 			} else if (Config.CLS[i] == short.class) {
-				test[i] = (short) new Random().nextInt(Config.MAX_SHORT - Config.MIN_SHORT + 1) + Config.MIN_SHORT;
+				test[i] = (short) (new Random().nextInt(Config.MAX_SHORT - Config.MIN_SHORT + 1) + Config.MIN_SHORT);
 			} else if (Config.CLS[i] == int.class) {
 				test[i] = new Random().nextInt(Config.MAX_INT - Config.MIN_INT + 1) + Config.MIN_INT;
 			} else if (Config.CLS[i] == long.class) {
-				test[i] = (long) new Random().nextDouble() * (Config.MAX_LONG - Config.MIN_LONG + 1) + Config.MIN_LONG;
+				test[i] = (long) (new Random().nextDouble() * (Config.MAX_LONG - Config.MIN_LONG + 1) + Config.MIN_LONG);
 			} else if (Config.CLS[i] == float.class) {
 				test[i] = new Random().nextFloat() * (Config.MAX_FLOAT - Config.MIN_FLOAT) + Config.MIN_FLOAT;
 			} else if (Config.CLS[i] == double.class) {

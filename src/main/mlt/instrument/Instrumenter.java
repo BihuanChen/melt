@@ -58,12 +58,11 @@ public class Instrumenter implements Serializable {
 	 * @throws BadLocationException
 	 */
 	public void instrumentFilesInDir(File root) throws IOException, MalformedTreeException, BadLocationException {
-		File[] files = root.listFiles();	 
-		for (File f : files) {
-			if (f.isFile()) {
-				instrumentFile(f);
-			}
-			if (f.isDirectory()) {
+		if (root.isFile()) {
+			instrumentFile(root);
+		} else {
+			File[] files = root.listFiles();	 
+			for (File f : files) {
 				instrumentFilesInDir(f);
 			}
 		}
@@ -267,12 +266,11 @@ public class Instrumenter implements Serializable {
 	 * @throws BadLocationException
 	 */
 	public void formatFilesInDir(File root) throws IOException, MalformedTreeException, BadLocationException {
-		File[] files = root.listFiles();	 
-		for (File f : files) {
-			if (f.isFile()) {
-				formatFile(f);
-			}
-			if (f.isDirectory()) {
+		if (root.isFile()) {
+			formatFile(root);
+		} else {
+			File[] files = root.listFiles();	 
+			for (File f : files) {
 				formatFilesInDir(f);
 			}
 		}

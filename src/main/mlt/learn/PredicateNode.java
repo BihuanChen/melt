@@ -1,6 +1,7 @@
 package mlt.learn;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import mlt.test.Profiles;
 
@@ -97,7 +98,7 @@ public class PredicateNode {
 					learner = new BranchLearner(this);
 				}
 			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
-				if (sourceTrueBranch != null && sourceTrueBranch.getTests().size() != sourceFalseBranch.getTests().size()) {
+				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
 					learner = new BranchLearner(this);
 				}
 			} else {
@@ -115,7 +116,7 @@ public class PredicateNode {
 					covered = true;
 				}
 			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
-				if (sourceTrueBranch != null && sourceTrueBranch.getTests().size() != sourceFalseBranch.getTests().size()) {
+				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
 					covered = true;
 				}
 			} else {
@@ -125,6 +126,18 @@ public class PredicateNode {
 		return covered;
 	}
 
+	private boolean isLoopBodyNotExecuted() {
+		ArrayList<Integer> tTests = sourceTrueBranch.getTests();
+		Iterator<Integer> iterator = sourceFalseBranch.getTests().iterator();
+		while (iterator.hasNext()) {
+			Integer i = iterator.next();
+			if (!tTests.contains(i)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	public String toString() {
 		return "PredicateNode [ predicate = " + predicate + ", level = " + level + ", attempts = " + attempts + 

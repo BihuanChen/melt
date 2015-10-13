@@ -141,17 +141,8 @@ public class ProfileAnalyzer {
 			while (iterator.hasNext()) {
 				PredicateNode node = nodes.get(iterator.next());
 				if (Profiles.predicates.get(node.getPredicate()).getDepInputs() != null && node.getAttempts() < Config.MAX_ATTEMPTS) {
-					String type = Profiles.predicates.get(node.getPredicate()).getType();
-					if (type.equals("if")) {
-						if (node.getSourceTrueBranch() == null || node.getSourceFalseBranch() == null) {
-							pSet.add(node);
-						}
-					} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
-						if (node.getSourceTrueBranch() == null || node.getSourceTrueBranch().getTests().size() == node.getSourceFalseBranch().getTests().size()) {
-							pSet.add(node);
-						}
-					} else {
-						System.err.println("[ml-testing] unknown conditional statement");
+					if (!node.isCovered()) {
+						pSet.add(node);
 					}
 				}
 			}

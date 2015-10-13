@@ -1,0 +1,14 @@
+sourcepath = src/examples/dt/original/Median.java
+classpath = src/examples/
+mainclass = dt.original.Median
+entrymethod = int driver(int,int,int,int)
+
+exploration.mode = systematic
+classification.model = randomforest
+max.attempts = 3
+tests.size = 10
+
+min.int = -10000
+max.int = 10000
+
+#problem with array in taint analysis
