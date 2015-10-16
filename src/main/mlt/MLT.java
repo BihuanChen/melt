@@ -131,7 +131,7 @@ public class MLT {
 	
 	public static void runRandom() throws Exception {
 		// parameter
-		long timeout = 3500;
+		long timeout = 28000;
 		
 		// serialize the predicates
 		long t1 = System.currentTimeMillis();
@@ -227,7 +227,7 @@ public class MLT {
 		pl.findSourceNodes(node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
-				
+
 		
 		BranchLearner learner = analyzer.getNodes().get(3).getLearner();
 		learner.buildInstancesAndClassifier();
@@ -255,9 +255,9 @@ public class MLT {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.loadProperties("src/examples/dt/original/Fisher.mlt");
+		Config.loadProperties("src/examples/dt/original/Bessj.mlt");
 		//MLT.prepare();
-		MLT.run();
+		MLT.runRandom();
 	}
 
 }
