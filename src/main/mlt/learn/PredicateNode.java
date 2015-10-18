@@ -1,6 +1,7 @@
 package mlt.learn;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import mlt.test.Profiles;
@@ -94,7 +95,7 @@ public class PredicateNode {
 		if (learner == null && Profiles.predicates.get(predicate).getDepInputs() != null) {
 			String type = Profiles.predicates.get(predicate).getType();
 			if (type.equals("if")) {
-				if (sourceTrueBranch != null && sourceFalseBranch != null) {
+				if (sourceTrueBranch != null && sourceFalseBranch != null && isIfConditionLearnable()) {
 					learner = new BranchLearner(this);
 				}
 			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
@@ -127,7 +128,7 @@ public class PredicateNode {
 	}
 
 	private boolean isLoopBodyNotExecuted() {
-		ArrayList<Integer> tTests = sourceTrueBranch.getTests();
+		HashSet<Integer> tTests = new HashSet<Integer>(sourceTrueBranch.getTests());
 		Iterator<Integer> iterator = sourceFalseBranch.getTests().iterator();
 		while (iterator.hasNext()) {
 			Integer i = iterator.next();
@@ -136,6 +137,18 @@ public class PredicateNode {
 			}
 		}
 		return false;
+	}
+	
+	private boolean isIfConditionLearnable() {
+		ArrayList<Integer> tt = new ArrayList<Integer>(sourceTrueBranch.getTests());
+		ArrayList<Integer> ft = new ArrayList<Integer>(sourceFalseBranch.getTests());
+		
+		int ttSize = tt.size();
+		int ftSize = ft.size();
+		tt.retainAll(ft);
+		int size = tt.size();
+		
+		return size != ttSize && size != ftSize;
 	}
 	
 	@Override

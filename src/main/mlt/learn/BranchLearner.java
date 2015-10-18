@@ -2,7 +2,6 @@ package mlt.learn;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 import mlt.Config;
 import mlt.test.Profiles;
@@ -79,9 +78,9 @@ public class BranchLearner {
 		// get new tests data
 		PredicateArc tb = node.getSourceTrueBranch();
 		PredicateArc fb = node.getSourceFalseBranch();
-		List<Integer> tTests = tb.getTests().subList(tb.getOldSize(), tb.getTests().size());
+		HashSet<Integer> tTests = new HashSet<Integer>(tb.getTests().subList(tb.getOldSize(), tb.getTests().size()));
 		tb.setOldSize(tb.getTests().size());
-		List<Integer> fTests = fb.getTests().subList(fb.getOldSize(), fb.getTests().size());
+		HashSet<Integer> fTests = new HashSet<Integer>(fb.getTests().subList(fb.getOldSize(), fb.getTests().size()));
 		fb.setOldSize(fb.getTests().size());
 		boolean changed = tTests.size() == 0 && fTests.size() == 0 ? false : true;
 		// load new tests data
@@ -90,7 +89,12 @@ public class BranchLearner {
 			if (type.equals("if")) {
 				Iterator<Integer> iterator = tTests.iterator();
 				while (iterator.hasNext()) {
-					createInstance(Profiles.tests.get(iterator.next()), "T");
+					Integer i = iterator.next();
+					if (!fTests.contains(i)) {
+						createInstance(Profiles.tests.get(i), "T");
+					} else {
+						fTests.remove(i);
+					}
 				}
 				iterator = fTests.iterator();
 				while (iterator.hasNext()) {

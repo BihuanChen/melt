@@ -108,7 +108,7 @@ public class MLT {
 			}
 			System.out.println("[ml-testing] the " + (++count) + " th set of tests");
 			//analyzer.printNodes();
-			analyzer.coverage(targetNode);
+			analyzer.coverage(targetNode);			
 			// find an partially explored branch to be covered
 			targetNode = analyzer.findUnexploredBranch();
 			if (targetNode == null) {
@@ -257,7 +257,7 @@ public class MLT {
 	public static void main(String[] args) throws Exception {
 		Config.loadProperties("src/examples/dt/original/Bessj.mlt");
 		//MLT.prepare();
-		MLT.runRandom();
+		MLT.run();
 	}
 
 }
