@@ -39,12 +39,16 @@ public class TestGenerator {
 		int k = 10;
 		HashSet<Object[]> tests = new HashSet<Object[]>(Config.TESTS_SIZE);
 		while (true) {
-			// generate the k candidate tests
+			// generate the k valid candidate tests
 			ArrayList<Object[]> candidates = new ArrayList<Object[]>(k);
 			double[] minDist = new double[k];
-			for (int i = 0; i < k; i++) {
-				candidates.add(test());
-				minDist[i] = Double.MAX_VALUE;
+			for (int i = 0; i < k; ) {
+				Object[] t = test();
+				if (pathLearner == null || pathLearner.isValidTest(t)) { 
+					candidates.add(test());
+					minDist[i] = Double.MAX_VALUE;
+					i++;
+				}
 			}
 			// compute the minimum distances
 			int size = Profiles.tests.size();
@@ -73,13 +77,10 @@ public class TestGenerator {
 					index = i;
 				}
 			}
-			// check if the test is valid
-			Object[] test = candidates.get(index);
-			if (pathLearner == null || pathLearner.isValidTest(test)) {
-				tests.add(test);
-				if (tests.size() == Config.TESTS_SIZE) {
-					return tests;
-				}
+			// add to the set of tests
+			tests.add(candidates.get(index));
+			if (tests.size() == Config.TESTS_SIZE) {
+				return tests;
 			}			
 		}
 	}

@@ -131,7 +131,7 @@ public class MLT {
 	
 	public static void runRandom() throws Exception {
 		// parameter
-		long timeout = 28000;
+		long timeout = 17500;
 		
 		// serialize the predicates
 		long t1 = System.currentTimeMillis();
