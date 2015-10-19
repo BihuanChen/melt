@@ -53,7 +53,7 @@ public class PathLearner {
 		}
 		int size = nodes.size();
 		for (int i = 0 ; i < size; i++) {
-			BranchLearner learner = nodes.get(i).getLearner();
+			TwoBranchesLearner learner = nodes.get(i).getTwoBranchesLearner();
 			if (learner != null) {
 				learner.buildInstancesAndClassifier();
 				double c = learner.classifiyInstance(test);

@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import mlt.dependency.DependencyAnalyzer;
 import mlt.instrument.Instrumenter;
 import mlt.instrument.Predicate;
-import mlt.learn.BranchLearner;
+import mlt.learn.TwoBranchesLearner;
 import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
 import mlt.learn.ProfileAnalyzer;
@@ -229,11 +229,11 @@ public class MLT {
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 
 		
-		BranchLearner learner = analyzer.getNodes().get(3).getLearner();
+		TwoBranchesLearner learner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		learner.buildInstancesAndClassifier();
 		learner.classifiyInstance(new Object[]{3, 1, 4});
 
-		learner = analyzer.getNodes().get(3).getLearner();
+		learner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		learner.buildInstancesAndClassifier();
 
 		

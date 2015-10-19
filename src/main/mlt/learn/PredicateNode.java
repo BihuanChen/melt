@@ -19,7 +19,7 @@ public class PredicateNode {
 	
 	private int attempts;
 	
-	private BranchLearner learner;
+	private TwoBranchesLearner twoBranchesLearner;
 	
 	private boolean covered = false;
 	
@@ -91,22 +91,22 @@ public class PredicateNode {
 		this.attempts++;
 	}
 
-	public BranchLearner getLearner() {
-		if (learner == null && Profiles.predicates.get(predicate).getDepInputs() != null) {
+	public TwoBranchesLearner getTwoBranchesLearner() throws Exception {
+		if (twoBranchesLearner == null && Profiles.predicates.get(predicate).getDepInputs() != null) {
 			String type = Profiles.predicates.get(predicate).getType();
 			if (type.equals("if")) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null && isIfConditionLearnable()) {
-					learner = new BranchLearner(this);
+					twoBranchesLearner = new TwoBranchesLearner(this);
 				}
 			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
-					learner = new BranchLearner(this);
+					twoBranchesLearner = new TwoBranchesLearner(this);
 				}
 			} else {
 				System.err.println("[ml-testing] unknown conditional statement");
 			}
 		}
-		return learner;
+		return twoBranchesLearner;
 	}
 	
 	public boolean isCovered() {

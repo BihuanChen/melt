@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import mlt.Config;
 import mlt.test.Profiles;
+import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.functions.LibSVM;
 import weka.classifiers.meta.FilteredClassifier;
@@ -14,19 +15,21 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.Utils;
 import weka.filters.unsupervised.attribute.Remove;
 
-public class BranchLearner {
+public class TwoBranchesLearner {
 
 	private PredicateNode node;
 
 	private Instances instances;
 	private FilteredClassifier classifier;
 			
-	public BranchLearner(PredicateNode node) {
+	public TwoBranchesLearner(PredicateNode node) throws Exception {
 		this.node = node;
 		
 		classifier = new FilteredClassifier();
+		String[] options;
 		if (Config.MODEL == Config.Model.J48) {
 			J48 j48 = new J48();
 			classifier.setClassifier(j48);
@@ -35,6 +38,8 @@ public class BranchLearner {
 			classifier.setClassifier(nb);
 		} else if (Config.MODEL == Config.Model.LIBSVM) {
 			LibSVM svm = new LibSVM();
+			options = Utils.splitOptions("-K 1"); // polynomial
+			svm.setOptions(options);
 			classifier.setClassifier(svm);
 		} else { //model == Model.RandomForest
 			RandomForest rf = new RandomForest();
@@ -117,7 +122,7 @@ public class BranchLearner {
 			}
 			// build the classifier if new tests data are available
 			classifier.buildClassifier(instances);
-			//System.out.println("[ml-testing] instances \n" + instances + "\n");
+			//System.out.println("[ml-testing] instances \n" + instances + "\n");			
 		}
 	}
 	
@@ -165,6 +170,10 @@ public class BranchLearner {
 		} else {// if (obj instanceof Double) {
 			return (double)obj;
 		}
+	}
+
+	public Classifier getClassifier() {
+		return classifier.getClassifier();
 	}
 
 }
