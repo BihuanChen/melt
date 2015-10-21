@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import mlt.dependency.DependencyAnalyzer;
 import mlt.instrument.Instrumenter;
 import mlt.instrument.Predicate;
+import mlt.learn.OneBranchLearner;
 import mlt.learn.TwoBranchesLearner;
 import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
@@ -77,7 +78,7 @@ public class MLT {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
-		//Profiles.printPredicates();
+		Profiles.printPredicates();
 		
 		// running ml-testing
 		long t2 = System.currentTimeMillis();
@@ -117,8 +118,7 @@ public class MLT {
 			}
 			System.out.println("[ml-testing] target branch found " + targetNode);
 			// update the classification models from the current node to the root node
-			learner = new PathLearner();
-			learner.findSourceNodes(targetNode);
+			learner = new PathLearner(targetNode);
 			System.out.println("[ml-testing] prefix nodes found " + learner.getNodes());
 			System.out.println("[ml-testing] prefix branches found " + learner.getBranches() + "\n");
 		}
@@ -197,8 +197,7 @@ public class MLT {
 		analyzer.printNodes();
 		PredicateNode node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
-		PathLearner pl = new PathLearner();
-		pl.findSourceNodes(node);
+		PathLearner pl = new PathLearner(node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 				
@@ -207,11 +206,10 @@ public class MLT {
 		Profiles.tests.add(testInput2);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
-		analyzer.printNodes();		
+		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
-		pl = new PathLearner();
-		pl.findSourceNodes(node);
+		pl = new PathLearner(node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 		
@@ -223,18 +221,16 @@ public class MLT {
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
-		pl = new PathLearner();
-		pl.findSourceNodes(node);
+		pl = new PathLearner(node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 
 		
-		TwoBranchesLearner learner = analyzer.getNodes().get(3).getTwoBranchesLearner();
-		learner.buildInstancesAndClassifier();
-		learner.classifiyInstance(new Object[]{3, 1, 4});
-
-		learner = analyzer.getNodes().get(3).getTwoBranchesLearner();
-		learner.buildInstancesAndClassifier();
+		TwoBranchesLearner twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
+		twoLearner.buildInstancesAndClassifier();
+		twoLearner.classifiyInstance(new Object[]{3, 1, 4});
+		twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
+		twoLearner.buildInstancesAndClassifier();
 
 		
 		Object[] testInput4 = new Object[]{(byte)3, (byte)3, (byte)-1};
@@ -245,17 +241,21 @@ public class MLT {
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
-		pl = new PathLearner();
-		pl.findSourceNodes(node);
+		pl = new PathLearner(node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
+
 		
+		System.out.println("[ml-testing] valid test ? " + pl.isValidTest(new Object[]{3, 3, -1}));
 		
-		System.out.println("[ml-testing] valid test ? " + pl.isValidTest(new Object[]{3, 1, -4}));
+		OneBranchLearner oneLearner = node.getOneBranchLearner();
+		oneLearner.buildInstancesAndClassifier();
+		System.out.println(oneLearner.classifiyInstance(new Object[]{3, 3, -1}));
+		System.out.println(oneLearner.classifiyInstance(new Object[]{3, 1, -1}));
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.loadProperties("src/examples/dt/original/Bessj.mlt");
+		Config.loadProperties("src/examples/dt/original/Fisher.mlt");
 		//MLT.prepare();
 		MLT.run();
 	}

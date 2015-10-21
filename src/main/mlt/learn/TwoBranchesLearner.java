@@ -27,6 +27,9 @@ public class TwoBranchesLearner {
 			
 	public TwoBranchesLearner(PredicateNode node) throws Exception {
 		this.node = node;
+		this.node.getSourceTrueBranch().setOldSize(0);
+		this.node.getSourceFalseBranch().setOldSize(0);
+		this.node.setOneBranchLearner(null);
 		
 		classifier = new FilteredClassifier();
 		String[] options;

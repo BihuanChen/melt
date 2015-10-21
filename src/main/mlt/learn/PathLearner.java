@@ -5,10 +5,16 @@ import java.util.Iterator;
 
 public class PathLearner {
 
+	PredicateNode target;
 	ArrayList<PredicateNode> nodes;
 	ArrayList<Boolean> branches;
+
+	public PathLearner(PredicateNode target) {
+		this.target = target;
+		this.findSourceNodes(target);
+	}
 	
-	public void findSourceNodes(PredicateNode node) {
+	private void findSourceNodes(PredicateNode node) {
 		if (node.getLevel() > 0) {
 			PredicateNode pn = findSourceNode(node);
 			if (pn == null) {
@@ -48,21 +54,27 @@ public class PathLearner {
 	}
 
 	public boolean isValidTest(Object[] test) throws Exception {
-		if (nodes == null) {
-			return true;
-		}
-		int size = nodes.size();
-		for (int i = 0 ; i < size; i++) {
-			TwoBranchesLearner learner = nodes.get(i).getTwoBranchesLearner();
-			if (learner != null) {
-				learner.buildInstancesAndClassifier();
-				double c = learner.classifiyInstance(test);
-				if ((c == 0.0 && branches.get(i)) || (c == 1.0 && !branches.get(i))) {
-					return false;
+		if (nodes != null) {
+			int size = nodes.size();
+			for (int i = 0 ; i < size; i++) {
+				TwoBranchesLearner learner = nodes.get(i).getTwoBranchesLearner();
+				if (learner != null) {
+					learner.buildInstancesAndClassifier();
+					double c = learner.classifiyInstance(test);
+					if ((c == 0.0 && branches.get(i)) || (c == 1.0 && !branches.get(i))) {
+						return false;
+					}
 				}
 			}
 		}
-		return true;
+		OneBranchLearner learner = target.getOneBranchLearner();
+		learner.buildInstancesAndClassifier();
+		if ( Double.isNaN(learner.classifiyInstance(test)) ) {
+			return true;
+		} else {
+			System.err.println("error in generation");
+			return false;
+		}
 	}
 	
 	public ArrayList<PredicateNode> getNodes() {

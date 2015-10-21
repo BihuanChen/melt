@@ -20,6 +20,7 @@ public class PredicateNode {
 	private int attempts;
 	
 	private TwoBranchesLearner twoBranchesLearner;
+	private OneBranchLearner oneBranchLearner;
 	
 	private boolean covered = false;
 	
@@ -109,6 +110,17 @@ public class PredicateNode {
 		return twoBranchesLearner;
 	}
 	
+	public OneBranchLearner getOneBranchLearner() throws Exception {
+		if (!covered && oneBranchLearner == null) {
+			oneBranchLearner = new OneBranchLearner(this);
+		}
+		return oneBranchLearner;
+	}
+
+	public void setOneBranchLearner(OneBranchLearner oneBranchLearner) {
+		this.oneBranchLearner = oneBranchLearner;
+	}
+
 	public boolean isCovered() {
 		if (!covered) {
 			String type = Profiles.predicates.get(predicate).getType();

@@ -27,7 +27,7 @@ public class OneBranchLearner {
 		
 		classifier = new FilteredClassifier();
 		LibSVM svm = new LibSVM();
-		String[] options = Utils.splitOptions("-S 2 -K 1 -G 0.2"); // one-class svm, polynomial
+		String[] options = Utils.splitOptions("-S 2 -K 3 -D 3 -G 0.1 -R 0.0 -N 0.5 -M 40.0 -C 1.0 -E 0.001 -P 0.1 -seed 1"); // one-class svm, sigmoid
 		svm.setOptions(options);
 		classifier.setClassifier(svm);
 		
@@ -80,20 +80,13 @@ public class OneBranchLearner {
 		boolean changed = (tTests != null && tTests.size() != 0) || (fTests != null && fTests.size() != 0);
 		// load new tests data
 		if (changed) {
-			String type = Profiles.predicates.get(node.getPredicate()).getType();
-			if (type.equals("if")) {
-				Iterator<Integer> iterator = tTests != null ? tTests.iterator() : fTests.iterator();
-				while (iterator.hasNext()) {
-					createInstance(Profiles.tests.get(iterator.next()));
-				}
-			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
-				
-			} else {
-				System.err.println("[ml-testing] unknown conditional statement");
+			Iterator<Integer> iterator = tTests != null ? tTests.iterator() : fTests.iterator();
+			while (iterator.hasNext()) {
+				createInstance(Profiles.tests.get(iterator.next()));
 			}
 			// build the classifier if new tests data are available
 			classifier.buildClassifier(instances);
-			//System.out.println("[ml-testing] instances \n" + instances + "\n");			
+			System.out.println("[ml-testing] instances \n" + instances + "\n");			
 		}
 	}
 	
