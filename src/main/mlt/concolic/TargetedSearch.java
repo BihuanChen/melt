@@ -18,8 +18,6 @@
 package mlt.concolic;
 
 import gov.nasa.jpf.Config;
-import gov.nasa.jpf.jdart.JDart;
-import gov.nasa.jpf.jdart.constraints.InternalConstraintsTree;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.vm.VM;
 
@@ -42,9 +40,9 @@ public class TargetedSearch extends Search {
 				depth--;
 				notifyStateBacktracked();
 				// get the new test inputs
-				InternalConstraintsTree tree = JDart.getConcolicExplorer(config).getCurrentAnalysis().getInternalConstraintsTree();
-				System.out.println(tree.findValuations("features.nested.Input.foo(Input.java:23)"));
-				System.out.println(tree.getBranchConstraints());
+				//InternalConstraintsTree tree = JDart.getConcolicExplorer(config).getCurrentAnalysis().getInternalConstraintsTree();
+				//System.out.println(tree.findValuations("features.nested.Input.foo(Input.java:23)"));
+				//System.out.println(tree.getBranchConstraints());
 				break;
 			}
 			if (forward()) {

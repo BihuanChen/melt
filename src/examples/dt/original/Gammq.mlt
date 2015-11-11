@@ -1,7 +1,7 @@
 sourcepath = src/examples/dt/original/Gammq.java
 classpath = src/examples/
 mainclass = dt.original.Gammq
-entrymethod = double exe(double,double)
+entrymethod = double exe(a:double,x:double)
 
 exploration.mode = systematic
 classification.model = randomforest

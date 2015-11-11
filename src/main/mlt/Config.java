@@ -25,6 +25,7 @@ public class Config {
 	public static String METHOD = null;
 	@SuppressWarnings("rawtypes")
 	public static Class[] CLS = null;
+	public static String[] PARAMETERS = null;
 	
 	// lower and upper bounds on integer and real variables
 	public static byte MIN_BYTE = -100;
@@ -209,29 +210,36 @@ public class Config {
 		fis.close();
 		
 		// derive the reflection information to run test cases
+		String returnType = Config.ENTRYMETHOD.substring(0, Config.ENTRYMETHOD.indexOf(" "));
 		METHOD = Config.ENTRYMETHOD.substring(Config.ENTRYMETHOD.indexOf(" ") + 1, Config.ENTRYMETHOD.indexOf("("));
 		String[] clsStr = Config.ENTRYMETHOD.substring(Config.ENTRYMETHOD.indexOf("(") + 1, Config.ENTRYMETHOD.indexOf(")")).split(",");
 		int size = clsStr.length;
 		CLS = new Class[size];
+		PARAMETERS = new String[size];
+		ENTRYMETHOD = returnType + " " + METHOD + "(";
 		for (int i = 0; i < size; i++) {
-			if (clsStr[i].equals("byte")) {
+			String[] pair = clsStr[i].split(":");
+			if (pair[1].equals("byte")) {
 				CLS[i] = byte.class;
-			} else if (clsStr[i].equals("short")) {
+			} else if (pair[1].equals("short")) {
 				CLS[i] = short.class;
-			} else if (clsStr[i].equals("int")) {
+			} else if (pair[1].equals("int")) {
 				CLS[i] = int.class;
-			} else if (clsStr[i].equals("long")) {
+			} else if (pair[1].equals("long")) {
 				CLS[i] = long.class;
-			} else if (clsStr[i].equals("boolean")) {
+			} else if (pair[1].equals("boolean")) {
 				CLS[i] = boolean.class;
-			} else if (clsStr[i].equals("float")) {
+			} else if (pair[1].equals("float")) {
 				CLS[i] = float.class;
-			} else if (clsStr[i].equals("double")) {
+			} else if (pair[1].equals("double")) {
 				CLS[i] = double.class;
 			} else {
 				System.err.println("[ml-testing] unsupported input type " + clsStr[i]);
 			}
+			PARAMETERS[i] = pair[0];
+			ENTRYMETHOD += pair[1] + ",";
 		}
+		ENTRYMETHOD = ENTRYMETHOD.substring(0, ENTRYMETHOD.length() - 1) + ")";
 	}
 	
 }

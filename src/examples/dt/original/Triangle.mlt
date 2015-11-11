@@ -1,7 +1,7 @@
 sourcepath = src/examples/dt/original/Triangle.java
 classpath = src/examples/
 mainclass = dt.original.Triangle
-entrymethod = int exe(int,int,int)
+entrymethod = int exe(a:int,b:int,c:int)
 
 exploration.mode = systematic
 classification.model = randomforest

@@ -1,7 +1,7 @@
 sourcepath = src/examples/dt/original/Expint.java
 classpath = src/examples/
 mainclass = dt.original.Expint
-entrymethod = double exe(int,double)
+entrymethod = double exe(n:int,x:double)
 
 exploration.mode = systematic
 classification.model = randomforest

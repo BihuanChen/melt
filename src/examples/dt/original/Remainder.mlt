@@ -1,7 +1,7 @@
 sourcepath = src/examples/dt/original/Remainder.java
 classpath = src/examples/
 mainclass = dt.original.Remainder
-entrymethod = int exe(int,int)
+entrymethod = int exe(a:int,b:int)
 
 exploration.mode = systematic
 classification.model = randomforest

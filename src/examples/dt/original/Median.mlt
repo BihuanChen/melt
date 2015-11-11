@@ -1,7 +1,7 @@
 sourcepath = src/examples/dt/original/Median.java
 classpath = src/examples/
 mainclass = dt.original.Median
-entrymethod = int driver(int,int,int,int)
+entrymethod = int driver(a:int,b:int,c:int,d:int)
 
 exploration.mode = systematic
 classification.model = randomforest
