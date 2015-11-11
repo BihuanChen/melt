@@ -1,3 +1,5 @@
 /sootOutput/
 /build/
 /predicates.pred
+/libz3.dll
+/libz3java.dll

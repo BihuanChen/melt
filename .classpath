@@ -17,5 +17,16 @@
 	<classpathentry kind="lib" path="lib/weka.jar" sourcepath="lib/weka-src.jar"/>
 	<classpathentry kind="lib" path="lib/soot-trunk.jar" sourcepath="lib/sootsources-trunk.jar"/>
 	<classpathentry kind="lib" path="lib/libsvm.jar"/>
+	<classpathentry kind="lib" path="lib/jconstraints-0.9.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/jpf-annotations.jar"/>
+	<classpathentry kind="lib" path="lib/jpf-classes.jar"/>
+	<classpathentry kind="lib" path="lib/jpf-jdart-annotations.jar"/>
+	<classpathentry kind="lib" path="lib/jpf-jdart-classes.jar"/>
+	<classpathentry kind="lib" path="lib/jpf-jdart.jar"/>
+	<classpathentry kind="lib" path="lib/jpf.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-3.4-complete.jar"/>
+	<classpathentry kind="lib" path="lib/gson-2.2.4.jar"/>
+	<classpathentry kind="lib" path="lib/guava-14.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/ST-4.0.5.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
