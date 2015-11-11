@@ -1,5 +1,7 @@
 package mlt.test;
 
+import java.util.HashMap;
+
 import mlt.Config;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
@@ -34,8 +36,33 @@ public class Util {
 		return valuation;
 	}
 	
-	public static Object[] toTest(Valuation val) {
-		return null;
+	public static Object[] toTest(Valuation valuation) {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		for (Variable<?> v : valuation.getVariables()) {
+			Object value = null;
+			if (v.getResultType() == Byte.class) {
+				value = (byte)valuation.getValue(v);
+			} else if (v.getResultType() == Short.class) {
+				value = (short)valuation.getValue(v);
+			} else if (v.getResultType() == Integer.class) {
+				value = (int)valuation.getValue(v);
+			} else if (v.getResultType() == Long.class) {
+				value = (long)valuation.getValue(v);
+			} else if (v.getResultType() == Float.class) {
+				value = (float)valuation.getValue(v);
+			} else if (v.getResultType() == Double.class) {
+				value = (double)valuation.getValue(v);
+			} else if (v.getResultType() == Boolean.class) {
+				value = (boolean)valuation.getValue(v);
+			}
+			map.put(v.getName(), value);
+		}
+		int size = Config.PARAMETERS.length;
+		Object[] test = new Object[size];
+		for (int i = 0; i < size; i++) {
+			test[i] = map.get(Config.PARAMETERS[i]);
+		}
+		return test;
 	}
 	
 }

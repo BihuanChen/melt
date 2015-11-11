@@ -59,6 +59,7 @@ public class ConcolicExecution {
 
 	public void run() {
 		if (ce.hasCurrentAnalysis()) {
+			// FIXME ce.completedAnalyses have previous results
 	    	ce.completeAnalysis();
 	    }
 	    // run jpf
@@ -122,20 +123,27 @@ public class ConcolicExecution {
 	public static void main(String[] args) {
 		ConcolicExecution jdart = new ConcolicExecution("C:/Users/bhchen/workspace/testing/jdart/src/examples/features/nested/test_bar.jpf");
 		jdart.run();
-		System.out.println(jdart.getValuations("features.nested.Input.foo(Input.java:23)"));
+		ArrayList<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:23)");
+		System.out.println(vals);
 		System.out.println(jdart.getBranchConstraints());
 		jdart.statistics();
-		
+				
 		jdart.run();
-		System.out.println(jdart.getValuations("features.nested.Input.foo(Input.java:25)"));
+		vals = jdart.getValuations("features.nested.Input.foo(Input.java:25)");
+		System.out.println(vals);
 		System.out.println(jdart.getBranchConstraints());
 		jdart.statistics();
 		
 		mlt.Config.CLS = new Class[]{double.class};
 		mlt.Config.PARAMETERS = new String[]{"d"};
-		Object[] test = new Object[1];
-		test[0] = 2.5;
-		System.out.println(mlt.test.Util.toValuation(test));
+		Object[] test1 = new Object[1];
+		test1[0] = 2.5;
+		System.out.println(mlt.test.Util.toValuation(test1));
+		
+		//Object[] test2 = mlt.test.Util.toTest(vals.get(0));
+		//for (int i = 0; i < test2.length; i++) {
+		//	System.out.println(test2[i].getClass() + " " + test2[i]);
+		//}
 	}
 
 }
