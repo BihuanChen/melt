@@ -68,6 +68,7 @@ public class DependencyAnalyzer {
 		soot.Main.main(intraOptions);
 	}
 	
+	//FIXME: throws "Unknown tag in constant pool" if using java 1.8
 	public static LinkedHashMap<String, HashSet<Integer>> doInterAnalysis(String classPath, String mainClass, final String entryPoint) {
 		String[] interOptions = new String[15];
 		interOptions[0] = "-cp";
@@ -127,7 +128,8 @@ public class DependencyAnalyzer {
 	public static void main(String[] args) {
 		//DependencyAnalyzer.doIntraAnalysis("src/tests/", "mlt.dependency.test2.TestInputBranchDependencyIntra");
 		//DependencyAnalyzer.doInterAnalysis("src/tests/", "mlt.dependency.test1.TestInputBranchDependencyInter1", "<mlt.dependency.test1.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
-		DependencyAnalyzer.doInterAnalysis("src/examples/", "dt.original.Median", "<dt.original.Median: int driver(int,int,int,int)>");
+		//DependencyAnalyzer.doInterAnalysis("src/examples/", "dt.original.Median", "<dt.original.Median: int driver(int,int,int,int)>");
+		DependencyAnalyzer.doInterAnalysis("c:/Users/bhchen/workspace/testing/benchmark1-art-ce/bin/", "dt.original.Bessj", "<dt.original.Bessj: double bessj(int,double)>");
 	}
 
 }

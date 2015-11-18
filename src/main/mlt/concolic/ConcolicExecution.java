@@ -1,11 +1,19 @@
 package mlt.concolic;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.NotFoundException;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -57,9 +65,37 @@ public class ConcolicExecution {
  	    ce.configure(cc);
 	}
 
-	public void run() {
+	private void prepare(final Object[] test) throws NotFoundException, CannotCompileException, IOException {
+		String mainClass = jpfConf.getString("target");
+		final String methodName = jpfConf.getString("concolic.method");
+		ClassPool cp = ClassPool.getDefault();
+		cp.insertClassPath(jpfConf.getString("classpath").split(",")[0]);
+		CtClass cc = cp.get(mainClass);
+		if (cc.isFrozen()) {
+			cc.defrost();
+		}
+		CtMethod cm = cc.getDeclaredMethod("main");
+		cm.instrument(new ExprEditor(){
+
+			@Override
+			public void edit(MethodCall m) throws CannotCompileException {
+				if (m.getMethodName().equals(methodName)) {
+					String args = test[0].toString();
+					for (int i = 1; i < test.length; i++) {
+						args += ", " + test[i].toString();
+					}
+					m.replace("$0." + methodName + "(" + args + ");");
+				}
+			}
+			
+		});
+		cc.writeFile(jpfConf.getString("classpath").split(",")[0]);
+	}
+	
+	public void run(Object[] test) throws NotFoundException, CannotCompileException, IOException {
+		this.prepare(test);
 		if (ce.hasCurrentAnalysis()) {
-			// FIXME ce.completedAnalyses have previous results
+			// FIXME ce.completedAnalyses stores previous results
 	    	ce.completeAnalysis();
 	    }
 	    // run jpf
@@ -72,8 +108,8 @@ public class ConcolicExecution {
 	    logger.info("Profiling:\n" + SimpleProfiler.getResults());
 	}
 	
-	public ArrayList<Valuation> getValuations(String srcLoc) {
-		return ce.getCurrentAnalysis().getInternalConstraintsTree().findValuations(srcLoc);
+	public ArrayList<Valuation> getValuations(String srcLoc, int size) {
+		return ce.getCurrentAnalysis().getInternalConstraintsTree().findValuations(srcLoc, size);
 	}
 	
 	public HashMap<String, HashSet<Expression<Boolean>>> getBranchConstraints() {
@@ -120,30 +156,35 @@ public class ConcolicExecution {
 	    }
 	}
 
-	public static void main(String[] args) {
-		ConcolicExecution jdart = new ConcolicExecution("C:/Users/bhchen/workspace/testing/jdart/src/examples/features/nested/test_bar.jpf");
-		jdart.run();
-		ArrayList<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:23)");
+	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException {
+		ConcolicExecution jdart = new ConcolicExecution("C:/Users/bhchen/workspace/testing/format/src/features/nested/test_bar.jpf");
+		Object[] obj = new Object[1];
+		obj[0] = 1.733;
+		jdart.run(obj);
+		ArrayList<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:23)", mlt.Config.TESTS_SIZE);
 		System.out.println(vals);
-		System.out.println(jdart.getBranchConstraints());
+		HashMap<String, HashSet<Expression<Boolean>>> cons = jdart.getBranchConstraints();
+		System.out.println(cons);
 		jdart.statistics();
 				
-		jdart.run();
-		vals = jdart.getValuations("features.nested.Input.foo(Input.java:25)");
+		obj[0] = 1.734;
+		jdart.run(obj);
+		vals = jdart.getValuations("features.nested.Input.foo(Input.java:25)", mlt.Config.TESTS_SIZE);
 		System.out.println(vals);
 		System.out.println(jdart.getBranchConstraints());
 		jdart.statistics();
 		
-		mlt.Config.CLS = new Class[]{double.class};
-		mlt.Config.PARAMETERS = new String[]{"d"};
-		Object[] test1 = new Object[1];
+		/*mlt.Config.CLS = new Class[]{double.class, double.class};
+		mlt.Config.PARAMETERS = new String[]{"a", "d"};
+		Object[] test1 = new Object[2];
 		test1[0] = 2.5;
-		System.out.println(mlt.test.Util.toValuation(test1));
+		test1[1] = -11.8497166513;
+		System.out.println(cons.get("features.nested.Input.bar(Input.java:48)").iterator().next().evaluate(mlt.test.Util.testToValuation(test1)));
 		
-		//Object[] test2 = mlt.test.Util.toTest(vals.get(0));
-		//for (int i = 0; i < test2.length; i++) {
-		//	System.out.println(test2[i].getClass() + " " + test2[i]);
-		//}
+		Object[] test2 = mlt.test.Util.valuationToTest(vals.get(0));
+		for (int i = 0; i < test2.length; i++) {
+			System.out.println(test2[i].getClass() + " " + test2[i]);
+		}*/
 	}
 
 }

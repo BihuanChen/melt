@@ -59,7 +59,9 @@ public class Instrumenter implements Serializable {
 	 */
 	public void instrumentFilesInDir(File root) throws IOException, MalformedTreeException, BadLocationException {
 		if (root.isFile()) {
-			instrumentFile(root);
+			if (root.getName().endsWith(".java")) {
+				instrumentFile(root);
+			}
 		} else {
 			File[] files = root.listFiles();	 
 			for (File f : files) {
@@ -267,7 +269,9 @@ public class Instrumenter implements Serializable {
 	 */
 	public void formatFilesInDir(File root) throws IOException, MalformedTreeException, BadLocationException {
 		if (root.isFile()) {
-			formatFile(root);
+			if (root.getName().endsWith(".java")) {
+				formatFile(root);
+			}
 		} else {
 			File[] files = root.listFiles();	 
 			for (File f : files) {

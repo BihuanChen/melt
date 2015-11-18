@@ -23,6 +23,7 @@ import mlt.test.Profiles;
 import mlt.test.TestGenerator;
 import mlt.test.TestRunner;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 
@@ -34,7 +35,13 @@ public class MLT {
 		File project = new File(Config.SOURCEPATH);
 		Instrumenter instrumenter = new Instrumenter();
 		instrumenter.formatFilesInDir(project);
-
+		// copy the formatted code for concolic execution
+		if (project.isDirectory()) {
+			FileUtils.copyDirectory(project, new File(Config.TARGETPATH));
+		} else if (project.isFile()) {
+			FileUtils.copyFile(project, new File(Config.TARGETPATH));
+		}
+		
 		// analyze inputs-branch dependency
 		long t2 = System.currentTimeMillis();
 		String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
@@ -255,7 +262,7 @@ public class MLT {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.loadProperties("src/examples/dt/original/Fisher.mlt");
+		Config.loadProperties("c:/Users/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.mlt");
 		//MLT.prepare();
 		MLT.run();
 	}

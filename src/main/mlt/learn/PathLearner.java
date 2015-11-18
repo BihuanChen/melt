@@ -72,7 +72,6 @@ public class PathLearner {
 		if ( Double.isNaN(learner.classifiyInstance(test)) ) {
 			return true;
 		} else {
-			System.err.println("error in generation");
 			return false;
 		}
 	}
