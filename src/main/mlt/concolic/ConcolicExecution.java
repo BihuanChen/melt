@@ -3,10 +3,10 @@ package mlt.concolic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import mlt.test.Profiles;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -19,6 +19,7 @@ import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.jdart.CompletedAnalysis;
 import gov.nasa.jpf.jdart.ConcolicExplorer;
 import gov.nasa.jpf.jdart.ConcolicInstructionFactory;
@@ -30,6 +31,7 @@ import gov.nasa.jpf.jdart.constraints.Path;
 import gov.nasa.jpf.util.JPFLogger;
 import gov.nasa.jpf.util.LogManager;
 import gov.nasa.jpf.util.SimpleProfiler;
+import gov.nasa.jpf.vm.Instruction;
 
 public class ConcolicExecution {
 
@@ -64,7 +66,23 @@ public class ConcolicExecution {
  	    ce = jpfConf.getEssentialInstance(CONFIG_KEY_CONCOLIC_EXPLORER, ConcolicExplorer.class);
  	    ce.configure(cc);
 	}
-
+	
+	public void run(Object[] test) throws NotFoundException, CannotCompileException, IOException {
+		this.prepare(test);
+		if (ce.hasCurrentAnalysis()) {
+			// FIXME ce.completedAnalyses stores previous results
+	    	ce.completeAnalysis();
+	    }
+	    // run jpf
+	    JPF jpf = new JPF(jpfConf);
+	    SimpleProfiler.start("JDART-run");
+	    SimpleProfiler.start("JPF-boot"); // is stopped upon searchStarted in ConcolicListener
+	    jpf.run();
+	    SimpleProfiler.stop("JDART-run");
+	    // post process 
+	    logger.info("Profiling:\n" + SimpleProfiler.getResults());
+	}
+	
 	private void prepare(final Object[] test) throws NotFoundException, CannotCompileException, IOException {
 		String mainClass = jpfConf.getString("target");
 		final String methodName = jpfConf.getString("concolic.method");
@@ -92,28 +110,8 @@ public class ConcolicExecution {
 		cc.writeFile(jpfConf.getString("classpath").split(",")[0]);
 	}
 	
-	public void run(Object[] test) throws NotFoundException, CannotCompileException, IOException {
-		this.prepare(test);
-		if (ce.hasCurrentAnalysis()) {
-			// FIXME ce.completedAnalyses stores previous results
-	    	ce.completeAnalysis();
-	    }
-	    // run jpf
-	    JPF jpf = new JPF(jpfConf);
-	    SimpleProfiler.start("JDART-run");
-	    SimpleProfiler.start("JPF-boot"); // is stopped upon searchStarted in ConcolicListener
-	    jpf.run();
-	    SimpleProfiler.stop("JDART-run");
-	    // post process 
-	    logger.info("Profiling:\n" + SimpleProfiler.getResults());
-	}
-	
-	public ArrayList<Valuation> getValuations(String srcLoc, int size) {
-		return ce.getCurrentAnalysis().getInternalConstraintsTree().findValuations(srcLoc, size);
-	}
-	
-	public HashMap<String, HashSet<Expression<Boolean>>> getBranchConstraints() {
-		return ce.getCurrentAnalysis().getInternalConstraintsTree().getBranchConstraints();
+	public ArrayList<Valuation> getValuations(String srcLoc, int size, HashMap<Instruction, ArrayList<Expression<Boolean>>> cons) {
+		return ce.getCurrentAnalysis().getInternalConstraintsTree().findValuations(srcLoc, size, cons);
 	}
 	
 	public void statistics() {
@@ -156,23 +154,38 @@ public class ConcolicExecution {
 	    }
 	}
 
-	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException {
+	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException {		
 		ConcolicExecution jdart = new ConcolicExecution("C:/Users/bhchen/workspace/testing/format/src/features/nested/test_bar.jpf");
 		Object[] obj = new Object[1];
 		obj[0] = 1.733;
 		jdart.run(obj);
-		ArrayList<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:23)", mlt.Config.TESTS_SIZE);
+		HashMap<Instruction, ArrayList<Expression<Boolean>>> cons = new HashMap<Instruction, ArrayList<Expression<Boolean>>>();
+		ArrayList<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:23)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
-		HashMap<String, HashSet<Expression<Boolean>>> cons = jdart.getBranchConstraints();
 		System.out.println(cons);
 		jdart.statistics();
-				
-		obj[0] = 1.734;
+		//Expression<Boolean> e1 = cons.get("features.nested.Input.bar(Input.java:48)").iterator().next();
+		
+		Profiles.branchConstraints.putAll(cons);
+		
+		obj[0] = 3.2;
 		jdart.run(obj);
-		vals = jdart.getValuations("features.nested.Input.foo(Input.java:25)", mlt.Config.TESTS_SIZE);
+		cons = new HashMap<Instruction, ArrayList<Expression<Boolean>>>();
+		vals = jdart.getValuations("features.nested.Input.bar(Input.java:48)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
-		System.out.println(jdart.getBranchConstraints());
+		System.out.println(cons);
 		jdart.statistics();
+		//Expression<Boolean> e2 = cons.get("features.nested.Input.bar(Input.java:48)").iterator().next();
+
+		Profiles.branchConstraints.putAll(cons);
+		
+		//System.out.println(e1);
+		//System.out.println(e2);
+		//NumericBooleanExpression be1 = (NumericBooleanExpression)e1;
+		//NumericBooleanExpression be2 = (NumericBooleanExpression)e2;
+		//System.out.println(be1.getLeft().equals(be2.getLeft()) + " " + be1.getComparator().not().equals(be2.getComparator()) + " " + be1.getRight().equals(be2.getRight()));
+
+		Profiles.printBranchConstraints();
 		
 		/*mlt.Config.CLS = new Class[]{double.class, double.class};
 		mlt.Config.PARAMETERS = new String[]{"a", "d"};
