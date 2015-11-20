@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mlt.test.Profiles;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -19,7 +18,6 @@ import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.jdart.CompletedAnalysis;
 import gov.nasa.jpf.jdart.ConcolicExplorer;
 import gov.nasa.jpf.jdart.ConcolicInstructionFactory;
@@ -110,7 +108,7 @@ public class ConcolicExecution {
 		cc.writeFile(jpfConf.getString("classpath").split(",")[0]);
 	}
 	
-	public ArrayList<Valuation> getValuations(String srcLoc, int size, HashMap<Instruction, ArrayList<Expression<Boolean>>> cons) {
+	public ArrayList<Valuation> getValuations(String srcLoc, int size, HashMap<Instruction, Expression<Boolean>> cons) {
 		return ce.getCurrentAnalysis().getInternalConstraintsTree().findValuations(srcLoc, size, cons);
 	}
 	
@@ -159,45 +157,19 @@ public class ConcolicExecution {
 		Object[] obj = new Object[1];
 		obj[0] = 1.733;
 		jdart.run(obj);
-		HashMap<Instruction, ArrayList<Expression<Boolean>>> cons = new HashMap<Instruction, ArrayList<Expression<Boolean>>>();
+		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
 		ArrayList<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:23)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
-		jdart.statistics();
-		//Expression<Boolean> e1 = cons.get("features.nested.Input.bar(Input.java:48)").iterator().next();
-		
-		Profiles.branchConstraints.putAll(cons);
-		
+		//jdart.statistics();
+
 		obj[0] = 3.2;
 		jdart.run(obj);
-		cons = new HashMap<Instruction, ArrayList<Expression<Boolean>>>();
+		cons = new HashMap<Instruction, Expression<Boolean>>();
 		vals = jdart.getValuations("features.nested.Input.bar(Input.java:48)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
-		jdart.statistics();
-		//Expression<Boolean> e2 = cons.get("features.nested.Input.bar(Input.java:48)").iterator().next();
-
-		Profiles.branchConstraints.putAll(cons);
-		
-		//System.out.println(e1);
-		//System.out.println(e2);
-		//NumericBooleanExpression be1 = (NumericBooleanExpression)e1;
-		//NumericBooleanExpression be2 = (NumericBooleanExpression)e2;
-		//System.out.println(be1.getLeft().equals(be2.getLeft()) + " " + be1.getComparator().not().equals(be2.getComparator()) + " " + be1.getRight().equals(be2.getRight()));
-
-		Profiles.printBranchConstraints();
-		
-		/*mlt.Config.CLS = new Class[]{double.class, double.class};
-		mlt.Config.PARAMETERS = new String[]{"a", "d"};
-		Object[] test1 = new Object[2];
-		test1[0] = 2.5;
-		test1[1] = -11.8497166513;
-		System.out.println(cons.get("features.nested.Input.bar(Input.java:48)").iterator().next().evaluate(mlt.test.Util.testToValuation(test1)));
-		
-		Object[] test2 = mlt.test.Util.valuationToTest(vals.get(0));
-		for (int i = 0; i < test2.length; i++) {
-			System.out.println(test2[i].getClass() + " " + test2[i]);
-		}*/
+		//jdart.statistics();
 	}
 
 }

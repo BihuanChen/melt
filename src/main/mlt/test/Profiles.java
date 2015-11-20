@@ -1,12 +1,10 @@
 package mlt.test;
 
 import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.vm.Instruction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import mlt.instrument.Predicate;
 
@@ -17,8 +15,6 @@ public class Profiles {
 	public static ArrayList<Pair> executedPredicates = new ArrayList<Pair>();
 	
 	public static ArrayList<Object[]> tests = new ArrayList<Object[]>();
-
-	public static HashMap<Instruction, ArrayList<Expression<Boolean>>> branchConstraints = new HashMap<Instruction, ArrayList<Expression<Boolean>>>();
 	
 	// for instrumentation
 	public static void add(int index, boolean value) {
@@ -54,14 +50,6 @@ public class Profiles {
 			System.out.println("[ml-testing] " + tests.get(i));
 		}
 		System.out.println();
-	}
-	
-	public static void printBranchConstraints() {
-		Iterator<Instruction> iterator = branchConstraints.keySet().iterator();
-		while (iterator.hasNext()) {
-			Instruction branchInfo = iterator.next();
-			System.out.println("[ml-testing] constraints for " + branchInfo + " are " + branchConstraints.get(branchInfo));
-		}
 	}
 
 }
