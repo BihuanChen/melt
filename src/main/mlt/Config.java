@@ -24,6 +24,9 @@ public class Config {
 	public static String MAINCLASS = null;
 	public static String ENTRYMETHOD = null;
 	
+	// configuration file for concolic execution
+	public static String JPFCONFIG = null;
+	
 	// reflection information for running tests
 	public static String METHOD = null;
 	@SuppressWarnings("rawtypes")
@@ -84,6 +87,13 @@ public class Config {
 			System.exit(0);
 		}
 		System.out.println("[ml-testing] entrymethod = " + ENTRYMETHOD);
+		
+		JPFCONFIG = prop.getProperty("jpfconfig");
+		if (JPFCONFIG == null) {
+			System.err.println("[ml-testing] configuration error: jpf configuration file not set");
+			System.exit(0);
+		}
+		System.out.println("[ml-testing] jpfconfig = " + JPFCONFIG);
 		
 		String p = prop.getProperty("exploration.mode");
 		if (p != null) {

@@ -262,7 +262,7 @@ public class MLT {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.loadProperties("c:/Users/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.mlt");
+		Config.loadProperties("c:/Users/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.mlt");
 		//MLT.prepare();
 		MLT.run();
 	}

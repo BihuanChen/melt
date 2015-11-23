@@ -1,12 +1,20 @@
 package mlt.test;
 
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.vm.Instruction;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
 import mlt.Config;
+import mlt.concolic.ConcolicExecution;
+import mlt.instrument.Predicate;
 import mlt.learn.PathLearner;
+import mlt.learn.PredicateNode;
 
 public class TestGenerator {
 
@@ -17,8 +25,48 @@ public class TestGenerator {
 	}
 	
 	public HashSet<Object[]> generate() throws Exception {
-		return randomTest();
-		//return adaptiveTest();
+		if (pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
+			return concolicTest();
+		} else {
+			return randomTest();
+			//return adaptiveTest();
+		}
+	}
+	
+	public HashSet<Object[]> concolicTest() throws Exception {
+		PredicateNode target = pathLearner.getTarget();
+		// get the test for concolic execution
+		Object[] test = null;
+		if (target.getSourceTrueBranch() != null) {
+			test = Profiles.tests.get(target.getSourceTrueBranch().getTests().get(0));
+		} else if (target.getSourceFalseBranch() != null) {
+			test = Profiles.tests.get(target.getSourceFalseBranch().getTests().get(0));
+		} else {
+			System.err.println("[ml-testing] error in choosing the test for concolic execution");
+		}
+		System.out.println(test[0] + " " + test[1]);
+		// get the source information for the target branch
+		Predicate p = Profiles.predicates.get(target.getPredicate());
+		String className = p.getClassName();
+		String srcLoc = className + "." + p.getMethodName() + "(" + className.substring(className.lastIndexOf(".") + 1) + ".java:" + p.getLineNumber() + ")";
+		System.out.println(srcLoc);
+		// run concolic execution to get tests and branch constraints
+		ConcolicExecution jdart = ConcolicExecution.getInstance(Config.JPFCONFIG);
+		jdart.run(test);
+		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
+		ArrayList<Valuation> vals = jdart.getValuations(srcLoc, Config.TESTS_SIZE, cons);
+		System.out.println(vals);
+		Iterator<Instruction> iterator = cons.keySet().iterator();
+		while (iterator.hasNext()) {
+			Instruction inst = iterator.next();
+			System.out.println(inst.getSourceLocation() + " " + cons.get(inst));
+		}
+		// convert valuations to tests
+		HashSet<Object[]> tests = new HashSet<Object[]>();
+		for (int i = 0; i < vals.size(); i++) {
+			tests.add(Util.valuationToTest(vals.get(i)));
+		}
+		return tests;
 	}
 	
 	public HashSet<Object[]> randomTest() throws Exception {

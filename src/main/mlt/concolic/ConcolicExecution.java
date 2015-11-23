@@ -41,7 +41,9 @@ public class ConcolicExecution {
 	
 	private JPFLogger logger;
 
-	public ConcolicExecution(String prop) {
+	private static ConcolicExecution instance;
+	
+	private ConcolicExecution(String prop) {
 		Config conf = JPF.createConfig(new String[]{prop});
 		conf.initClassLoader(ConcolicExecution.class.getClassLoader());
 	    // due to some bug the log manager has to be initialized first.
@@ -63,6 +65,13 @@ public class ConcolicExecution {
  	    jpfConf.setProperty(CONFIG_KEY_CONCOLIC_EXPLORER, ConcolicExplorer.class.getName() + "@jdart-explorer");
  	    ce = jpfConf.getEssentialInstance(CONFIG_KEY_CONCOLIC_EXPLORER, ConcolicExplorer.class);
  	    ce.configure(cc);
+	}
+	
+	public static ConcolicExecution getInstance(String prop) {
+		if (instance == null) {
+			instance = new ConcolicExecution(prop);
+		}
+		return instance;
 	}
 	
 	public void run(Object[] test) throws NotFoundException, CannotCompileException, IOException {
@@ -100,7 +109,7 @@ public class ConcolicExecution {
 					for (int i = 1; i < test.length; i++) {
 						args += ", " + test[i].toString();
 					}
-					m.replace("$0." + methodName + "(" + args + ");");
+					m.replace("$_ = $0." + methodName + "(" + args + ");");
 				}
 			}
 			
@@ -153,7 +162,8 @@ public class ConcolicExecution {
 	}
 
 	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException {		
-		ConcolicExecution jdart = new ConcolicExecution("C:/Users/bhchen/workspace/testing/format/src/features/nested/test_bar.jpf");
+		
+		ConcolicExecution jdart = ConcolicExecution.getInstance("C:/Users/bhchen/workspace/testing/format/src/features/nested/test_bar.jpf");
 		Object[] obj = new Object[1];
 		obj[0] = 1.733;
 		jdart.run(obj);
@@ -170,6 +180,18 @@ public class ConcolicExecution {
 		System.out.println(vals);
 		System.out.println(cons);
 		//jdart.statistics();
+		
+		
+		/*ConcolicExecution jdart = ConcolicExecution.getInstance("c:/Users/bhchen/workspace/testing/benchmark1-art-ce/src/dt/original/Bessj.jpf");
+		Object[] obj = new Object[2];
+		obj[0] = 7975;
+		obj[1] = -5814.517874260192;
+		jdart.run(obj);
+		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
+		ArrayList<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:27)", mlt.Config.TESTS_SIZE, cons);
+		System.out.println(vals);
+		System.out.println(cons);
+		//jdart.statistics();*/
 	}
 
 }

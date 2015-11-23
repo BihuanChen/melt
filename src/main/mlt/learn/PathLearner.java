@@ -5,9 +5,9 @@ import java.util.Iterator;
 
 public class PathLearner {
 
-	PredicateNode target;
-	ArrayList<PredicateNode> nodes;
-	ArrayList<Boolean> branches;
+	private PredicateNode target;
+	private ArrayList<PredicateNode> nodes;
+	private ArrayList<Boolean> branches;
 
 	public PathLearner(PredicateNode target) {
 		this.target = target;
@@ -96,6 +96,10 @@ public class PathLearner {
 			branches = new ArrayList<Boolean>();
 		}
 		branches.add(branch);
+	}
+
+	public PredicateNode getTarget() {
+		return target;
 	}
 
 }
