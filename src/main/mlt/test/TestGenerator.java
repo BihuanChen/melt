@@ -44,12 +44,16 @@ public class TestGenerator {
 		} else {
 			System.err.println("[ml-testing] error in choosing the test for concolic execution");
 		}
-		System.out.println(test[0] + " " + test[1]);
+		System.out.print("[ml-testing] test for concolic execution is [" + test[0]);
+		for (int i = 1; i < test.length; i++) {
+			System.out.print(", " + test[i]);
+		}
+		System.out.println("]");
 		// get the source information for the target branch
 		Predicate p = Profiles.predicates.get(target.getPredicate());
 		String className = p.getClassName();
 		String srcLoc = className + "." + p.getMethodName() + "(" + className.substring(className.lastIndexOf(".") + 1) + ".java:" + p.getLineNumber() + ")";
-		System.out.println(srcLoc);
+		System.out.println("[ml-testing] target branch is " + srcLoc);
 		// run concolic execution to get tests and branch constraints
 		ConcolicExecution jdart = ConcolicExecution.getInstance(Config.JPFCONFIG);
 		jdart.run(test);

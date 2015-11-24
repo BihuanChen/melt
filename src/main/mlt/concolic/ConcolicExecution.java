@@ -161,9 +161,8 @@ public class ConcolicExecution {
 	    }
 	}
 
-	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException {		
-		
-		ConcolicExecution jdart = ConcolicExecution.getInstance("C:/Users/bhchen/workspace/testing/format/src/features/nested/test_bar.jpf");
+	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException {
+		/*ConcolicExecution jdart = ConcolicExecution.getInstance("C:/Users/bhchen/workspace/testing/format/src/features/nested/test_bar.jpf");
 		Object[] obj = new Object[1];
 		obj[0] = 1.733;
 		jdart.run(obj);
@@ -179,10 +178,9 @@ public class ConcolicExecution {
 		vals = jdart.getValuations("features.nested.Input.bar(Input.java:48)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
-		//jdart.statistics();
+		//jdart.statistics();*/
 		
-		
-		/*ConcolicExecution jdart = ConcolicExecution.getInstance("c:/Users/bhchen/workspace/testing/benchmark1-art-ce/src/dt/original/Bessj.jpf");
+		ConcolicExecution jdart = ConcolicExecution.getInstance("c:/Users/bhchen/workspace/testing/benchmark1-art-ce/src/dt/original/Bessj.jpf");
 		Object[] obj = new Object[2];
 		obj[0] = 7975;
 		obj[1] = -5814.517874260192;
@@ -191,7 +189,7 @@ public class ConcolicExecution {
 		ArrayList<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:27)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
-		//jdart.statistics();*/
+		//jdart.statistics();
 	}
 
 }
