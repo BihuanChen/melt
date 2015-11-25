@@ -1,8 +1,11 @@
 package mlt.learn;
 
+import gov.nasa.jpf.constraints.api.Expression;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import mlt.test.Profiles;
 
@@ -24,10 +27,14 @@ public class PredicateNode {
 	
 	private boolean covered = false;
 	
+	private LinkedHashMap<String, Expression<Boolean>> constraints;
+	private int oldSize;
+	
 	public PredicateNode() {
 		this.predicate = -1;
 		this.level = -1;
 		this.attempts = 0;
+		this.oldSize = 0;
 	}
 
 	public int getPredicate() {
@@ -163,11 +170,34 @@ public class PredicateNode {
 		return size != ttSize && size != ftSize;
 	}
 	
+	public LinkedHashMap<String, Expression<Boolean>> getConstraints() {
+		return constraints;
+	}
+
+	public void addConstraint(String instID, Expression<Boolean> constraint) {
+		if (constraints == null) {
+			constraints = new LinkedHashMap<String, Expression<Boolean>>();
+		}
+		// TODO more possibilities to update constraints?
+		if (constraints.get(instID) == null) {
+			constraints.put(instID, constraint);
+		}
+	}
+
+	public int getOldSize() {
+		return oldSize;
+	}
+
+	public void setOldSize(int oldSize) {
+		this.oldSize = oldSize;
+	}
+
 	@Override
 	public String toString() {
 		return "PredicateNode [ predicate = " + predicate + ", level = " + level + ", attempts = " + attempts + 
 				", sourceTrueBranch = " + sourceTrueBranch + ", sourceFalseBranch = " + sourceFalseBranch + 
-				", targetTrueBranches = " + targetTrueBranches + ", targetFalseBranches = " + targetFalseBranches + " ]";
+				", targetTrueBranches = " + targetTrueBranches + ", targetFalseBranches = " + targetFalseBranches + 
+				", constraints = " + constraints + " ]";
 	}
 
 }

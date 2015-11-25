@@ -1,19 +1,31 @@
 package mlt.learn;
 
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.vm.Instruction;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+
+import mlt.instrument.Predicate;
+import mlt.test.Profiles;
 
 public class PathLearner {
 
+	private PredicateNode root;
 	private PredicateNode target;
+	
 	private ArrayList<PredicateNode> nodes;
 	private ArrayList<Boolean> branches;
 
-	public PathLearner(PredicateNode target) {
+	public PathLearner(PredicateNode root, PredicateNode target) {
+		this.root = root;
 		this.target = target;
 		this.findSourceNodes(target);
 	}
 	
+	//TODO multiple prefix branches for a target branch
 	private void findSourceNodes(PredicateNode node) {
 		if (node.getLevel() > 0) {
 			PredicateNode pn = findSourceNode(node);
@@ -53,6 +65,65 @@ public class PathLearner {
 		return null;
 	}
 
+	public void attachConstraints(int testIndex, HashMap<Instruction, Expression<Boolean>> constraints) {
+		// collect the nodes that are related to the test
+		HashSet<PredicateNode> ns = new HashSet<PredicateNode>();
+		collectNodes(root, testIndex, ns);
+		// attach the constraints
+		Iterator<Instruction> iterator = constraints.keySet().iterator();
+		while (iterator.hasNext()) {
+			Instruction inst = iterator.next();
+			String id = inst.getPosition() + " " + inst.toString();
+			String srcLoc = inst.getSourceLocation();
+			PredicateNode node = findNode(ns, srcLoc);
+			if (node == null) {
+				System.err.println("[ml-testing] error in attaching constraints");
+			} else {
+				node.addConstraint(id, constraints.get(inst));
+			}
+		}
+	}
+	
+	private void collectNodes(PredicateNode node, int testIndex, HashSet<PredicateNode> set) {
+		if (node.getPredicate() != -1) {
+			PredicateArc arc = node.getSourceTrueBranch();
+			if (arc != null && arc.getTests().contains(testIndex)) {
+				set.add(node);
+				if (arc.getTarget().getLevel() > node.getLevel()) {
+					collectNodes(arc.getTarget(), testIndex, set);
+				}
+			}
+			arc = node.getSourceFalseBranch();
+			if (arc != null && arc.getTests().contains(testIndex)) {
+				set.add(node);
+				if (arc.getTarget().getLevel() > node.getLevel()) {
+					collectNodes(arc.getTarget(), testIndex, set);
+				}
+			}
+		}
+	}
+	
+	private PredicateNode findNode(HashSet<PredicateNode> ns, String srcLoc) {
+		if (srcLoc.equals(getSrcLoc(target))) {
+			return target;
+		}
+		Iterator<PredicateNode> iterator = ns.iterator();
+		while (iterator.hasNext()) {
+			PredicateNode n = iterator.next();
+			if (srcLoc.equals(getSrcLoc(n))) {
+				return n;
+			}
+		}
+		return null;
+	}
+	
+	private String getSrcLoc(PredicateNode node) {
+		Predicate p = Profiles.predicates.get(node.getPredicate());
+		String className = p.getClassName();
+		String srcLoc = className + "." + p.getMethodName() + "(" + className.substring(className.lastIndexOf(".") + 1) + ".java:" + p.getLineNumber() + ")";
+		return srcLoc;
+	}
+	
 	public boolean isValidTest(Object[] test) throws Exception {
 		if (nodes != null) {
 			int size = nodes.size();

@@ -115,7 +115,7 @@ public class MLT {
 				analyzer.update();
 			}
 			System.out.println("[ml-testing] the " + (++count) + " th set of tests");
-			//analyzer.printNodes();
+			analyzer.printNodes();
 			analyzer.coverage(targetNode);			
 			// find an partially explored branch to be covered
 			targetNode = analyzer.findUnexploredBranch();
@@ -125,7 +125,7 @@ public class MLT {
 			}
 			System.out.println("[ml-testing] target branch found " + targetNode);
 			// update the classification models from the current node to the root node
-			learner = new PathLearner(targetNode);
+			learner = new PathLearner(analyzer.getRoot(), targetNode);
 			System.out.println("[ml-testing] prefix nodes found " + learner.getNodes());
 			System.out.println("[ml-testing] prefix branches found " + learner.getBranches() + "\n");
 		}
@@ -204,7 +204,7 @@ public class MLT {
 		analyzer.printNodes();
 		PredicateNode node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
-		PathLearner pl = new PathLearner(node);
+		PathLearner pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 				
@@ -216,7 +216,7 @@ public class MLT {
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
-		pl = new PathLearner(node);
+		pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 		
@@ -228,7 +228,7 @@ public class MLT {
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
-		pl = new PathLearner(node);
+		pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 
@@ -248,7 +248,7 @@ public class MLT {
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
 		System.out.println("[ml-testing] target branch found " + node);
-		pl = new PathLearner(node);
+		pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 
