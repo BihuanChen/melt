@@ -25,7 +25,7 @@ public class PathLearner {
 		this.findSourceNodes(target);
 	}
 	
-	//TODO multiple prefix branches for a target branch
+	//TODO find all prefix branches for a target branch?
 	private void findSourceNodes(PredicateNode node) {
 		if (node.getLevel() > 0) {
 			PredicateNode pn = findSourceNode(node);

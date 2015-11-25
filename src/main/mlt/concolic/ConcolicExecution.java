@@ -77,7 +77,7 @@ public class ConcolicExecution {
 	public void run(Object[] test) throws NotFoundException, CannotCompileException, IOException {
 		this.prepare(test);
 		if (ce.hasCurrentAnalysis()) {
-			// FIXME ce.completedAnalyses stores previous results
+			// TODO possibility to remove previous stored results in ce.completedAnalyses to save space?
 	    	ce.completeAnalysis();
 	    }
 	    // run jpf

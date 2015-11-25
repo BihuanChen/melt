@@ -68,7 +68,7 @@ public class DependencyAnalyzer {
 		soot.Main.main(intraOptions);
 	}
 	
-	//FIXME: throws "Unknown tag in constant pool" if using java 1.8
+	//FIXME: throw "Unknown tag in constant pool" if using java 1.8
 	public static LinkedHashMap<String, HashSet<Integer>> doInterAnalysis(String classPath, String mainClass, final String entryPoint) {
 		String[] interOptions = new String[15];
 		interOptions[0] = "-cp";

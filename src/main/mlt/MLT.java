@@ -115,7 +115,7 @@ public class MLT {
 				analyzer.update();
 			}
 			System.out.println("[ml-testing] the " + (++count) + " th set of tests");
-			analyzer.printNodes();
+			//analyzer.printNodes();
 			analyzer.coverage(targetNode);			
 			// find an partially explored branch to be covered
 			targetNode = analyzer.findUnexploredBranch();
