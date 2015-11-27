@@ -17,8 +17,7 @@ public class PathLearner {
 	private PredicateNode root;
 	private PredicateNode target;
 	
-	private ArrayList<PredicateNode> nodes;
-	private ArrayList<Boolean> branches;
+	private HashSet<ArrayList<Step>> traces;
 
 	public PathLearner(PredicateNode root, PredicateNode target) {
 		this.root = root;
@@ -26,28 +25,42 @@ public class PathLearner {
 		this.findSourceNodes(target);
 	}
 	
-	//TODO find all prefix branches for a target branch?
+	// find all prefix traces for a target branch
 	private void findSourceNodes(PredicateNode node) {
 		if (node.getLevel() > 0) {
-			PredicateNode pn = findSourceNode(node);
-			if (pn == null) {
-				System.err.println("[ml-testing] errors in finding source nodes");
+			Step ps = findSourceStep(node);
+			if (ps == null) {
+				System.err.println("[ml-testing] errors in finding prefix traces");
 			} else {
-				findSourceNodes(pn);
+				String type = Profiles.predicates.get(ps.getNode().getPredicate()).getType();
+				PredicateArc arc = ps.getNode().getSourceTrueBranch();
+				if ((type.equals("for") || type.equals("do") || type.equals("while")) && !ps.getBranch() && arc != null) {
+					HashSet<ArrayList<Step>> newTraces = new HashSet<ArrayList<Step>>();
+					Iterator<ArrayList<Step>> iterator = traces.iterator();
+					while (iterator.hasNext()) {
+						ArrayList<Step> newTrace = new ArrayList<Step>(iterator.next());
+						newTrace.remove(newTrace.size() - 1);
+						newTrace.add(new Step(ps.getNode(), true));
+						newTraces.add(newTrace);
+					}
+					findTargetNodes(arc.getTarget(), newTraces);
+					traces.addAll(newTraces);
+				}
+				findSourceNodes(ps.getNode());
 			}
 		}
 	}
 	
-	private PredicateNode findSourceNode(PredicateNode node) {
+	private Step findSourceStep(PredicateNode node) {
 		ArrayList<PredicateArc> arcs = node.getTargetTrueBranches();
 		if (arcs != null) {
 			Iterator<PredicateArc> iterator = arcs.iterator();
 			while (iterator.hasNext()) {
 				PredicateNode pn = iterator.next().getSource();
 				if (pn.getLevel() == node.getLevel() - 1) {
-					addToNodes(pn);
-					addToBranches(true);
-					return pn;
+					Step s = new Step(pn, true);
+					addToTraces(s);
+					return s;
 				}
 			}
 		}
@@ -57,13 +70,52 @@ public class PathLearner {
 			while (iterator.hasNext()) {
 				PredicateNode pn = iterator.next().getSource();
 				if (pn.getLevel() == node.getLevel() - 1) {
-					addToNodes(pn);
-					addToBranches(false);
-					return pn;
+					Step s = new Step(pn, false);
+					addToTraces(s);
+					return s;
 				}
 			}
 		}
 		return null;
+	}
+	
+	private void findTargetNodes(PredicateNode node, HashSet<ArrayList<Step>> traces) {
+		PredicateArc tArc = node.getSourceTrueBranch();
+		PredicateArc fArc = node.getSourceFalseBranch();
+		if (tArc != null && fArc != null) {
+			HashSet<ArrayList<Step>> newTraces = new HashSet<ArrayList<Step>>();
+			Iterator<ArrayList<Step>> iterator = traces.iterator();
+			while (iterator.hasNext()) {
+				ArrayList<Step> trace = iterator.next();
+				ArrayList<Step> newTrace = new ArrayList<Step>(trace);
+				newTrace.add(new Step(node, false));
+				newTraces.add(newTrace);
+				trace.add(new Step(node, true));
+			}
+			if (tArc.getTarget().getLevel() > node.getLevel()) {
+				findTargetNodes(tArc.getTarget(), traces);
+			}
+			if (fArc.getTarget().getLevel() > node.getLevel()) {
+				findTargetNodes(fArc.getTarget(), newTraces);
+			}
+			traces.addAll(newTraces);
+		} else if (tArc != null && fArc == null) {
+			Iterator<ArrayList<Step>> iterator = traces.iterator();
+			while (iterator.hasNext()) {
+				iterator.next().add(new Step(node, true));
+			}
+			if (tArc.getTarget().getLevel() > node.getLevel()) {
+				findTargetNodes(tArc.getTarget(), traces);
+			}
+		} else if (tArc == null && fArc != null) {
+			Iterator<ArrayList<Step>> iterator = traces.iterator();
+			while (iterator.hasNext()) {
+				iterator.next().add(new Step(node, false));
+			}
+			if (fArc.getTarget().getLevel() > node.getLevel()) {
+				findTargetNodes(fArc.getTarget(), traces);
+			}
+		}
 	}
 
 	public void attachConstraints(int testIndex, HashMap<Instruction, Expression<Boolean>> constraints) {
@@ -126,52 +178,81 @@ public class PathLearner {
 	}
 	
 	public boolean isValidTest(TestCase testCase) throws Exception {
-		if (nodes != null) {
-			int size = nodes.size();
-			for (int i = 0 ; i < size; i++) {
-				TwoBranchesLearner learner = nodes.get(i).getTwoBranchesLearner();
-				if (learner != null) {
-					learner.buildInstancesAndClassifier();
-					double c = learner.classifiyInstance(testCase);
-					if ((c == 0.0 && branches.get(i)) || (c == 1.0 && !branches.get(i))) {
-						return false;
-					}
-				}
-			}
-		}
-		OneBranchLearner learner = target.getOneBranchLearner();
-		learner.buildInstancesAndClassifier();
-		if ( Double.isNaN(learner.classifiyInstance(testCase)) ) {
-			return true;
-		} else {
+		// a valid test case cannot belong to the executed branch 
+		OneBranchLearner oneLearner = target.getOneBranchLearner();
+		oneLearner.buildInstancesAndClassifier();
+		if (!Double.isNaN(oneLearner.classifiyInstance(testCase))) {
 			return false;
 		}
+		// a valid test case needs to satisfy one of the traces
+		if (traces != null) {
+			Iterator<ArrayList<Step>> iterator = traces.iterator();
+			while (iterator.hasNext()) {
+				ArrayList<Step> trace = iterator.next();
+				int size = trace.size();
+				boolean valid = true;
+				for (int i = 0 ; i < size; i++) {
+					TwoBranchesLearner twoLearner = trace.get(i).getNode().getTwoBranchesLearner();
+					if (twoLearner != null) {
+						twoLearner.buildInstancesAndClassifier();
+						double c = twoLearner.classifiyInstance(testCase);
+						if ((c == 0.0 && trace.get(i).getBranch()) || (c == 1.0 && !trace.get(i).getBranch())) {
+							valid = false;
+							break;
+						}
+					}
+				}
+				if (valid) {
+					return true;
+				}
+			}
+			return false;
+		}
+		return true;
 	}
 	
-	public ArrayList<PredicateNode> getNodes() {
-		return nodes;
+	public HashSet<ArrayList<Step>> getTraces() {
+		return traces;
 	}
 
-	public void addToNodes(PredicateNode node) {
-		if (nodes == null) {
-			nodes = new ArrayList<PredicateNode>();
+	private void addToTraces(Step step) {
+		if (traces == null) {
+			traces = new HashSet<ArrayList<Step>>();
+			traces.add(new ArrayList<Step>());
 		}
-		nodes.add(node);
-	}
-
-	public ArrayList<Boolean> getBranches() {
-		return branches;
-	}
-
-	public void addToBranches(Boolean branch) {
-		if (branches == null) {
-			branches = new ArrayList<Boolean>();
+		Iterator<ArrayList<Step>> iterator = traces.iterator();
+		while (iterator.hasNext()) {
+			iterator.next().add(step);
 		}
-		branches.add(branch);
 	}
 
 	public PredicateNode getTarget() {
 		return target;
 	}
 
+}
+
+class Step {
+	
+	private PredicateNode node;
+	private boolean branch;
+	
+	public Step(PredicateNode node, boolean branch) {
+		this.node = node;
+		this.branch = branch;
+	}
+
+	public PredicateNode getNode() {
+		return node;
+	}
+
+	public boolean getBranch() {
+		return branch;
+	}
+
+	@Override
+	public String toString() {
+		return "Step [node = " + node.getPredicate() + ", branch = " + branch + "]";
+	}
+	
 }

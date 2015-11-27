@@ -1,7 +1,11 @@
 sourcepath = src/tests/mlt/learn/test1/
+targetpath = 
+
 classpath = src/tests/
 mainclass = mlt.learn.test1.TestAnalyzer
-entrymethod = void test(byte,byte,byte)
+entrymethod = void test(a:byte,b:byte,c:byte)
+
+jpfconfig = 
 
 exploration.mode = systematic
 classification.model = randomforest
