@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 
 import mlt.Config;
 import mlt.test.Profiles;
-import mlt.test.Util;
+import mlt.test.TestCase;
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.LibSVM;
 import weka.classifiers.meta.FilteredClassifier;
@@ -71,7 +71,8 @@ public class OneBranchLearner {
 		}
 	}
 	
-	public double classifiyInstance(Object[] test) throws Exception {
+	public double classifiyInstance(TestCase testCase) throws Exception {
+		Object[] test = testCase.getTest();
 		int size = test.length;
 		LinkedHashMap<String, Expression<Boolean>> constraints = node.getConstraints();
 		if (constraints != null) {
@@ -92,7 +93,7 @@ public class OneBranchLearner {
 			Iterator<String> iterator = constraints.keySet().iterator();
 			int counter = 0;
 			while (iterator.hasNext()) {
-				boolean b = constraints.get(iterator.next()).evaluate(Util.testToValuation(test));
+				boolean b = constraints.get(iterator.next()).evaluate(testCase.getValuation());
 				instance.setValue(test.length + 1 + counter, b ? "true" : "false");
 				counter++;
 			}
@@ -158,7 +159,7 @@ public class OneBranchLearner {
 			for (int i = 0; i < instances.numInstances(); i++) {
 				for (int j = 0; j < newConstraints.size(); j++) {
 					flag = true;
-					boolean b = newConstraints.get(j).evaluate(Util.testToValuation(Profiles.tests.get(tests.get(i))));
+					boolean b = newConstraints.get(j).evaluate(Profiles.tests.get(tests.get(i)).getValuation());
 					instances.instance(i).setValue(instances.numAttributes() - newConstraints.size() + j, b ? "true" : "false");
 				}
 			}
@@ -167,7 +168,8 @@ public class OneBranchLearner {
 		return flag;
 	}
 	
-	private void createInstance(int id, Object[] test) {
+	private void createInstance(int id, TestCase testCase) {
+		Object[] test = testCase.getTest();
 		int size = test.length;
 		LinkedHashMap<String, Expression<Boolean>> constraints = node.getConstraints();
 		if (constraints != null) {
@@ -189,7 +191,7 @@ public class OneBranchLearner {
 			Iterator<String> iterator = constraints.keySet().iterator();
 			int counter = 0;
 			while (iterator.hasNext()) {
-				boolean b = constraints.get(iterator.next()).evaluate(Util.testToValuation(test));
+				boolean b = constraints.get(iterator.next()).evaluate(testCase.getValuation());
 				instance.setValue(test.length + 1 + counter, b ? "true" : "false");
 				counter++;
 			}

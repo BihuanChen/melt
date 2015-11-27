@@ -20,6 +20,7 @@ import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
 import mlt.learn.ProfileAnalyzer;
 import mlt.test.Profiles;
+import mlt.test.TestCase;
 import mlt.test.TestGenerator;
 import mlt.test.TestRunner;
 
@@ -99,19 +100,14 @@ public class MLT {
 
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
-			HashSet<Object[]> tests = new TestGenerator(learner).generate();
-			Iterator<Object[]> iterator = tests.iterator();
+			HashSet<TestCase> testCases = new TestGenerator(learner).generate();
+			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
-				Object[] test = iterator.next();
-				//System.out.print("[ml-testing] test inputs are");
-				//for (int i = 0; i < test.length; i++) {
-				//	System.out.print(" " + test[i]);
-				//}
-				//System.out.println();
+				TestCase testCase = iterator.next();
 				long t = System.currentTimeMillis();
-				runner.run(test);
+				runner.run(testCase);
 				testTime += System.currentTimeMillis() - t;
-				Profiles.tests.add(test);
+				Profiles.tests.add(testCase);
 				analyzer.update();
 			}
 			System.out.println("[ml-testing] the " + (++count) + " th set of tests");
@@ -158,19 +154,14 @@ public class MLT {
 		long endTime = t2 + timeout;
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
-			HashSet<Object[]> tests = new TestGenerator(null).generate();
-			Iterator<Object[]> iterator = tests.iterator();
+			HashSet<TestCase> testCases = new TestGenerator(null).generate();
+			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
-				Object[] test = iterator.next();
-				//System.out.print("[ml-testing] test inputs are");
-				//for (int i = 0; i < test.length; i++) {
-				//	System.out.print(" " + test[i]);
-				//}
-				//System.out.println();
+				TestCase testCase = iterator.next();
 				long t = System.currentTimeMillis();
-				runner.run(test);
+				runner.run(testCase);
 				testTime += System.currentTimeMillis() - t;
-				Profiles.tests.add(test);
+				Profiles.tests.add(testCase);
 				analyzer.update();
 			}
 			System.out.println("[ml-testing] the " + (++count) + " th set of tests");
@@ -196,7 +187,7 @@ public class MLT {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		TestRunner runner = new TestRunner();
 		
-		Object[] testInput1 = new Object[]{(byte)-1, (byte)1, (byte)1};
+		TestCase testInput1 = new TestCase(new Object[]{(byte)-1, (byte)1, (byte)1});
 		runner.run(testInput1);
 		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPredicates();
@@ -208,7 +199,7 @@ public class MLT {
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 				
-		Object[] testInput2 = new Object[]{(byte)2, (byte)-1, (byte)1};
+		TestCase testInput2 = new TestCase(new Object[]{(byte)2, (byte)-1, (byte)1});
 		runner.run(testInput2);
 		Profiles.tests.add(testInput2);
 		Profiles.printExecutedPredicates();
@@ -220,7 +211,7 @@ public class MLT {
 		System.out.println("[ml-testing] prefix nodes found " + pl.getNodes());
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 		
-		Object[] testInput3 = new Object[]{(byte)2, (byte)2, (byte)1};
+		TestCase testInput3 = new TestCase(new Object[]{(byte)2, (byte)2, (byte)1});
 		runner.run(testInput3);
 		Profiles.tests.add(testInput3);
 		Profiles.printExecutedPredicates();
@@ -235,12 +226,12 @@ public class MLT {
 		
 		TwoBranchesLearner twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
-		twoLearner.classifiyInstance(new Object[]{3, 1, 4});
+		twoLearner.classifiyInstance(new TestCase(new Object[]{3, 1, 4}));
 		twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
 
 		
-		Object[] testInput4 = new Object[]{(byte)3, (byte)3, (byte)-1};
+		TestCase testInput4 = new TestCase(new Object[]{(byte)3, (byte)3, (byte)-1});
 		runner.run(testInput4);
 		Profiles.tests.add(testInput4);
 		Profiles.printExecutedPredicates();
@@ -253,12 +244,12 @@ public class MLT {
 		System.out.println("[ml-testing] prefix branches found " + pl.getBranches() + "\n");
 
 		
-		System.out.println("[ml-testing] valid test ? " + pl.isValidTest(new Object[]{3, 3, -1}));
+		System.out.println("[ml-testing] valid test ? " + pl.isValidTest(new TestCase(new Object[]{3, 3, -1})));
 		
 		OneBranchLearner oneLearner = node.getOneBranchLearner();
 		oneLearner.buildInstancesAndClassifier();
-		System.out.println(oneLearner.classifiyInstance(new Object[]{3, 3, -1}));
-		System.out.println(oneLearner.classifiyInstance(new Object[]{3, 1, -1}));
+		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 3, -1})));
+		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 1, -1})));
 	}
 	
 	public static void main(String[] args) throws Exception {

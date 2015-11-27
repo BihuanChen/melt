@@ -10,6 +10,7 @@ import java.util.Iterator;
 
 import mlt.instrument.Predicate;
 import mlt.test.Profiles;
+import mlt.test.TestCase;
 
 public class PathLearner {
 
@@ -124,14 +125,14 @@ public class PathLearner {
 		return srcLoc;
 	}
 	
-	public boolean isValidTest(Object[] test) throws Exception {
+	public boolean isValidTest(TestCase testCase) throws Exception {
 		if (nodes != null) {
 			int size = nodes.size();
 			for (int i = 0 ; i < size; i++) {
 				TwoBranchesLearner learner = nodes.get(i).getTwoBranchesLearner();
 				if (learner != null) {
 					learner.buildInstancesAndClassifier();
-					double c = learner.classifiyInstance(test);
+					double c = learner.classifiyInstance(testCase);
 					if ((c == 0.0 && branches.get(i)) || (c == 1.0 && !branches.get(i))) {
 						return false;
 					}
@@ -140,7 +141,7 @@ public class PathLearner {
 		}
 		OneBranchLearner learner = target.getOneBranchLearner();
 		learner.buildInstancesAndClassifier();
-		if ( Double.isNaN(learner.classifiyInstance(test)) ) {
+		if ( Double.isNaN(learner.classifiyInstance(testCase)) ) {
 			return true;
 		} else {
 			return false;

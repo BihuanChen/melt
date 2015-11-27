@@ -24,7 +24,7 @@ public class TestGenerator {
 		this.pathLearner = pathLearner;
 	}
 	
-	public HashSet<Object[]> generate() throws Exception {
+	public HashSet<TestCase> generate() throws Exception {
 		if (pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
 			return concolicTest();
 		} else {
@@ -33,17 +33,17 @@ public class TestGenerator {
 		}
 	}
 	
-	public HashSet<Object[]> concolicTest() throws Exception {
+	public HashSet<TestCase> concolicTest() throws Exception {
 		PredicateNode target = pathLearner.getTarget();
 		// get the test for concolic execution
 		Object[] test = null;
 		int testIndex = -1;
 		if (target.getSourceTrueBranch() != null) {
 			testIndex = target.getSourceTrueBranch().getTests().get(0);
-			test = Profiles.tests.get(testIndex);
+			test = Profiles.tests.get(testIndex).getTest();
 		} else if (target.getSourceFalseBranch() != null) {
 			testIndex = target.getSourceFalseBranch().getTests().get(0);
-			test = Profiles.tests.get(testIndex);
+			test = Profiles.tests.get(testIndex).getTest();
 		} else {
 			System.err.println("[ml-testing] error in choosing the test for concolic execution");
 		}
@@ -66,39 +66,39 @@ public class TestGenerator {
 		// attach constraints to corresponding nodes
 		pathLearner.attachConstraints(testIndex, cons);
 		// convert valuations to tests
-		HashSet<Object[]> tests = new HashSet<Object[]>();
+		HashSet<TestCase> testCases = new HashSet<TestCase>();
 		for (int i = 0; i < vals.size(); i++) {
-			tests.add(Util.valuationToTest(vals.get(i)));
+			testCases.add(new TestCase(Util.valuationToTest(vals.get(i)), vals.get(i)));
 		}
-		return tests;
+		return testCases;
 	}
 	
 	// TODO stuck when the constraints are too narrow
-	public HashSet<Object[]> randomTest() throws Exception {
-		HashSet<Object[]> tests = new HashSet<Object[]>(Config.TESTS_SIZE);
+	public HashSet<TestCase> randomTest() throws Exception {
+		HashSet<TestCase> testCases = new HashSet<TestCase>(Config.TESTS_SIZE);
 		while (true) {
-			Object[] test = test();
+			TestCase testCase = test();
 			// check if the test is valid
-			if (pathLearner == null || pathLearner.isValidTest(test)) {
-				tests.add(test);
-				if (tests.size() == Config.TESTS_SIZE) {
-					return tests;
+			if (pathLearner == null || pathLearner.isValidTest(testCase)) {
+				testCases.add(testCase);
+				if (testCases.size() == Config.TESTS_SIZE) {
+					return testCases;
 				}
 			}
 		}
 	}
 	
-	public HashSet<Object[]> adaptiveTest() throws Exception {
+	public HashSet<TestCase> adaptiveTest() throws Exception {
 		int k = 10;
-		HashSet<Object[]> tests = new HashSet<Object[]>(Config.TESTS_SIZE);
+		HashSet<TestCase> testCases = new HashSet<TestCase>(Config.TESTS_SIZE);
 		while (true) {
 			// generate the k valid candidate tests
-			ArrayList<Object[]> candidates = new ArrayList<Object[]>(k);
+			ArrayList<TestCase> candidates = new ArrayList<TestCase>(k);
 			double[] minDist = new double[k];
 			for (int i = 0; i < k; ) {
-				Object[] t = test();
-				if (pathLearner == null || pathLearner.isValidTest(t)) { 
-					candidates.add(test());
+				TestCase testCase = test();
+				if (pathLearner == null || pathLearner.isValidTest(testCase)) { 
+					candidates.add(testCase);
 					minDist[i] = Double.MAX_VALUE;
 					i++;
 				}
@@ -107,17 +107,17 @@ public class TestGenerator {
 			int size = Profiles.tests.size();
 			for (int i = 0; i < size; i++) {
 				for (int j = 0; j < k; j++) {
-					double dist = this.distance(candidates.get(j), Profiles.tests.get(i));
+					double dist = this.distance(candidates.get(j).getTest(), Profiles.tests.get(i).getTest());
 					if (dist < minDist[j]) {
 						minDist[j] = dist;
 					}
 				}
 			}
-			Iterator<Object[]> iterator = tests.iterator();
+			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
-				Object[] t = iterator.next();
+				TestCase t = iterator.next();
 				for (int j = 0; j < k; j++) {
-					double dist = this.distance(candidates.get(j), t);
+					double dist = this.distance(candidates.get(j).getTest(), t.getTest());
 					if (dist < minDist[j]) {
 						minDist[j] = dist;
 					}
@@ -131,15 +131,15 @@ public class TestGenerator {
 				}
 			}
 			// add to the set of tests
-			tests.add(candidates.get(index));
-			if (tests.size() == Config.TESTS_SIZE) {
-				return tests;
+			testCases.add(candidates.get(index));
+			if (testCases.size() == Config.TESTS_SIZE) {
+				return testCases;
 			}			
 		}
 	}
 	
 	// randomly generate a test
-	private Object[] test() {
+	private TestCase test() {
 		int size = Config.CLS.length;
 		Object[] test = new Object[size];
 		for (int i = 0; i < size; i++) {
@@ -159,7 +159,7 @@ public class TestGenerator {
 				test[i] = new Random().nextBoolean();
 			}
 		}
-		return test;
+		return new TestCase(test);
 	}
 	
 	// compute the distance of two tests

@@ -11,7 +11,7 @@ import mlt.Config;
 
 public class TestRunner {
 
-	public void run(Object[] test) throws MalformedURLException {
+	public void run(TestCase testCase) throws MalformedURLException {
 		try {
 			File f = new File(Config.CLASSPATH);
 			URL[] cp = {f.toURI().toURL()};
@@ -19,7 +19,7 @@ public class TestRunner {
 			Class<?> c = cl.loadClass(Config.MAINCLASS);
 			Object o = c.newInstance();
 			Method m = c.getMethod(Config.METHOD, Config.CLS);
-			m.invoke(o, test);
+			m.invoke(o, testCase.getTest());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}

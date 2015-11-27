@@ -14,7 +14,7 @@ public class Profiles {
 
 	public static ArrayList<Pair> executedPredicates = new ArrayList<Pair>();
 	
-	public static ArrayList<Object[]> tests = new ArrayList<Object[]>();
+	public static ArrayList<TestCase> tests = new ArrayList<TestCase>();
 	
 	// for instrumentation
 	public static void add(int index, boolean value) {
@@ -47,7 +47,7 @@ public class Profiles {
 		int size = tests.size();
 		System.out.println("[ml-testing] tests");
 		for (int i = 0; i < size; i++) {
-			System.out.println("[ml-testing] " + tests.get(i));
+			System.out.println("[ml-testing] " + tests.get(i).getTest());
 		}
 		System.out.println();
 	}
