@@ -10,11 +10,22 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
+import jmetal.core.Algorithm;
+import jmetal.core.Operator;
+import jmetal.core.Problem;
+import jmetal.core.SolutionSet;
+import jmetal.metaheuristics.ibea.IBEA;
+import jmetal.operators.crossover.CrossoverFactory;
+import jmetal.operators.mutation.MutationFactory;
+import jmetal.operators.selection.BinaryTournament;
+import jmetal.util.JMException;
+import jmetal.util.comparators.FitnessComparator;
 import mlt.Config;
 import mlt.concolic.ConcolicExecution;
 import mlt.instrument.Predicate;
 import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
+import mlt.test.ea.TestSuiteGenerationProblem;
 
 public class TestGenerator {
 
@@ -73,7 +84,52 @@ public class TestGenerator {
 		return testCases;
 	}
 	
-	// TODO stuck when the constraints are too narrow
+	// TODO evolutionary algorithm based test case generation
+	public HashSet<TestCase> searchTest() throws JMException, ClassNotFoundException {
+		Problem problem = new TestSuiteGenerationProblem();
+		
+		// Algorithm to solve the problem
+	    Algorithm algorithm = new IBEA(problem);
+	    algorithm.setInputParameter("populationSize",100);
+	    algorithm.setInputParameter("archiveSize",100);
+	    algorithm.setInputParameter("maxEvaluations",25000);
+
+	    // Operator parameters
+	    HashMap<String, Object>  parameters ; 
+
+	    // Crossover operator 
+	    parameters = new HashMap<String, Object>() ;
+	    parameters.put("probability", 0.9) ;
+	    parameters.put("distributionIndex", 20.0) ;
+	    Operator crossover = CrossoverFactory.getCrossoverOperator("SBXCrossover", parameters);                   
+
+	    // Mutation operator
+	    parameters = new HashMap<String, Object>() ;
+	    parameters.put("probability", 1.0/problem.getNumberOfVariables()) ;
+	    parameters.put("distributionIndex", 20.0) ;
+	    Operator mutation = MutationFactory.getMutationOperator("PolynomialMutation", parameters);         
+
+	    // Selection Operator
+	    parameters = new HashMap<String, Object>() ; 
+	    parameters.put("comparator", new FitnessComparator()) ;
+	    Operator selection = new BinaryTournament(parameters);
+	    
+	    // Add the operators to the algorithm
+	    algorithm.addOperator("crossover",crossover);
+	    algorithm.addOperator("mutation",mutation);
+	    algorithm.addOperator("selection",selection);
+
+	    // Execute the Algorithm
+	    SolutionSet population = algorithm.execute();
+
+	    // Print the results
+	    population.printVariablesToFile("VAR");    
+	    population.printObjectivesToFile("FUN");
+	  
+		return null;
+	}
+	
+	// might stuck when the constraints are too narrow
 	public HashSet<TestCase> randomTest() throws Exception {
 		HashSet<TestCase> testCases = new HashSet<TestCase>(Config.TESTS_SIZE);
 		while (true) {
@@ -88,6 +144,7 @@ public class TestGenerator {
 		}
 	}
 	
+	// might stuck when the constraints are too narrow
 	public HashSet<TestCase> adaptiveTest() throws Exception {
 		int k = 10;
 		HashSet<TestCase> testCases = new HashSet<TestCase>(Config.TESTS_SIZE);

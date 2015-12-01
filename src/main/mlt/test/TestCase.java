@@ -7,6 +7,9 @@ public class TestCase {
 	private Object[] test;
 	private Valuation valuation;
 	
+	public TestCase() {
+	}
+	
 	public TestCase(Object[] test) {
 		this.test = test;
 	}
@@ -25,6 +28,16 @@ public class TestCase {
 			valuation = Util.testToValuation(test);
 		}
 		return valuation;
+	}
+
+	public TestCase deepCopy() {
+		TestCase newTC = new TestCase();
+		newTC.test = new Object[this.test.length];
+		for (int i = 0; i < this.test.length; i++) {
+			newTC.test[i] = this.test[i];
+		}
+		newTC.valuation = Util.testToValuation(newTC.test);
+		return newTC;
 	}
 
 }
