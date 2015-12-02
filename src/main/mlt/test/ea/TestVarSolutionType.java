@@ -4,9 +4,9 @@ import jmetal.core.Problem;
 import jmetal.core.SolutionType;
 import jmetal.core.Variable;
 
-public class TestSuiteSolutionType extends SolutionType {
+public class TestVarSolutionType extends SolutionType {
 
-	public TestSuiteSolutionType(Problem problem) {
+	public TestVarSolutionType(Problem problem) {
 		super(problem);
 	}
 

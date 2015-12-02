@@ -71,7 +71,7 @@ public class OneBranchLearner {
 		}
 	}
 	
-	public double classifiyInstance(TestCase testCase) throws Exception {
+	public double[] classifiyInstance(TestCase testCase) throws Exception {
 		Object[] test = testCase.getTest();
 		int size = test.length;
 		LinkedHashMap<String, Expression<Boolean>> constraints = node.getConstraints();
@@ -99,7 +99,8 @@ public class OneBranchLearner {
 			}
 		}
 		// classify the instance
-		return classifier.classifyInstance(instance);
+		return classifier.distributionForInstance(instance);
+		//return classifier.classifyInstance(instance);
 	}
 	
 	private boolean setupInstances() {

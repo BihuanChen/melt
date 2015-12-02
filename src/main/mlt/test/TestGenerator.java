@@ -19,13 +19,13 @@ import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.BinaryTournament;
 import jmetal.util.JMException;
-import jmetal.util.comparators.FitnessComparator;
+import jmetal.util.comparators.DominanceComparator;
 import mlt.Config;
 import mlt.concolic.ConcolicExecution;
 import mlt.instrument.Predicate;
 import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
-import mlt.test.ea.TestSuiteGenerationProblem;
+import mlt.test.ea.TestSuiteGenProblem;
 
 public class TestGenerator {
 
@@ -86,7 +86,7 @@ public class TestGenerator {
 	
 	// TODO evolutionary algorithm based test case generation
 	public HashSet<TestCase> searchTest() throws JMException, ClassNotFoundException {
-		Problem problem = new TestSuiteGenerationProblem();
+		Problem problem = new TestSuiteGenProblem(pathLearner);
 		
 		// Algorithm to solve the problem
 	    Algorithm algorithm = new IBEA(problem);
@@ -111,7 +111,7 @@ public class TestGenerator {
 
 	    // Selection Operator
 	    parameters = new HashMap<String, Object>() ; 
-	    parameters.put("comparator", new FitnessComparator()) ;
+	    parameters.put("comparator", new DominanceComparator()) ;
 	    Operator selection = new BinaryTournament(parameters);
 	    
 	    // Add the operators to the algorithm

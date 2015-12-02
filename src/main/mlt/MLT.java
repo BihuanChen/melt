@@ -222,7 +222,8 @@ public class MLT {
 		
 		TwoBranchesLearner twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
-		twoLearner.classifiyInstance(new TestCase(new Object[]{3, 1, 4}));
+		double[] probs = twoLearner.classifiyInstance(new TestCase(new Object[]{3, 1, 4}));
+		System.out.println(probs[0] + ", " + probs[1]);
 		twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
 
@@ -251,15 +252,15 @@ public class MLT {
 		
 		OneBranchLearner oneLearner = node.getOneBranchLearner();
 		oneLearner.buildInstancesAndClassifier();
-		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 3, -1})));
-		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 1, -1})));
+		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 3, -1}))[0]);
+		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 1, -1}))[0]);
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.loadProperties("c:/Users/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
-		//Config.loadProperties("c:/Users/bhchen/workspace/testing/ml-testing/src/tests/mlt/learn/test1/TestAnalyzer.mlt");
+		//Config.loadProperties("c:/Users/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
+		Config.loadProperties("c:/Users/bhchen/workspace/testing/ml-testing/src/tests/mlt/learn/test1/TestAnalyzer.mlt");
 		//MLT.prepare();
-		MLT.run();
+		MLT.test();
 	}
 
 }

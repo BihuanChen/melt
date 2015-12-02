@@ -7,17 +7,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import mlt.instrument.Predicate;
 import mlt.test.Profiles;
 import mlt.test.TestCase;
+import mlt.test.ea.TestVar;
 
 public class PathLearner {
 
 	private PredicateNode root;
 	private PredicateNode target;
 	
-	private HashSet<ArrayList<Step>> traces;
+	private LinkedHashSet<ArrayList<Step>> traces;
 
 	public PathLearner(PredicateNode root, PredicateNode target) {
 		this.root = root;
@@ -181,7 +183,7 @@ public class PathLearner {
 		// a valid test case cannot belong to the executed branch 
 		OneBranchLearner oneLearner = target.getOneBranchLearner();
 		oneLearner.buildInstancesAndClassifier();
-		if (!Double.isNaN(oneLearner.classifiyInstance(testCase))) {
+		if (oneLearner.classifiyInstance(testCase)[0] == 1.0) {
 			return false;
 		}
 		// a valid test case needs to satisfy one of the traces
@@ -195,8 +197,8 @@ public class PathLearner {
 					TwoBranchesLearner twoLearner = trace.get(i).getNode().getTwoBranchesLearner();
 					if (twoLearner != null) {
 						twoLearner.buildInstancesAndClassifier();
-						double c = twoLearner.classifiyInstance(testCase);
-						if ((c == 0.0 && trace.get(i).getBranch()) || (c == 1.0 && !trace.get(i).getBranch())) {
+						double[] probs = twoLearner.classifiyInstance(testCase);
+						if ((probs[0] >= probs[1] && trace.get(i).getBranch()) || (probs[0] < probs[1] && !trace.get(i).getBranch())) {
 							valid = false;
 							break;
 						}
@@ -211,13 +213,66 @@ public class PathLearner {
 		return true;
 	}
 	
+	public void evaluateTest(TestVar testVar) throws Exception {
+		// one branch learner
+		OneBranchLearner oneLearner = target.getOneBranchLearner();
+		oneLearner.buildInstancesAndClassifier();
+		double objTarget = oneLearner.classifiyInstance(testVar.getTest())[0];
+		// two branch learner
+		if (traces != null) {
+			Iterator<ArrayList<Step>> iterator = traces.iterator();
+			while (iterator.hasNext()) {
+				ArrayList<Step> trace = iterator.next();
+				double objValue = objTarget;
+				HashSet<PredicateNode> violation = null;
+				int size = trace.size();
+				for (int i = 0 ; i < size; i++) {
+					Step step = trace.get(i);
+					TwoBranchesLearner twoLearner = step.getNode().getTwoBranchesLearner();
+					if (twoLearner != null) {
+						twoLearner.buildInstancesAndClassifier();
+						double[] probs = twoLearner.classifiyInstance(testVar.getTest());
+						if (step.getBranch()) {
+							objValue += probs[0];
+						} else {
+							objValue += probs[1];
+						}
+						if ((probs[0] >= probs[1] && step.getBranch()) || (probs[0] < probs[1] && !step.getBranch())) {
+							if (violation == null) {
+								violation = new HashSet<PredicateNode>();
+							}
+							violation.add(step.getNode());
+						}
+					}
+				}
+				if (objTarget == 1.0) {
+					if (violation == null) {
+						violation = new HashSet<PredicateNode>(1);
+					}
+					violation.add(target);
+				}
+				testVar.addObjValue(objValue);
+				testVar.addViolation(violation);
+			}
+		} else {
+			if (objTarget == 1.0) {
+				HashSet<PredicateNode> violation = new HashSet<PredicateNode>(1);
+				violation.add(target);
+				testVar.addViolation(violation);
+			} else {
+				testVar.addViolation(null);
+			}
+			testVar.addObjValue(objTarget);
+		}
+	}
+	
 	public HashSet<ArrayList<Step>> getTraces() {
 		return traces;
 	}
 
 	private void addToTraces(Step step) {
 		if (traces == null) {
-			traces = new HashSet<ArrayList<Step>>();
+			traces = new LinkedHashSet<ArrayList<Step>>();
 			traces.add(new ArrayList<Step>());
 		}
 		Iterator<ArrayList<Step>> iterator = traces.iterator();
