@@ -12,8 +12,7 @@ public class TestVarSolutionType extends SolutionType {
 
 	@Override
 	public Variable[] createVariables() throws ClassNotFoundException {
-		
-		return null;
+		return ((TestSuiteGenProblem)problem_).getInitialSolution();
 	}
 
 }

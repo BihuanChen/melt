@@ -14,7 +14,7 @@ public class TestVar extends Variable {
 	private TestCase test;
 	
 	private ArrayList<Double> objValues = new ArrayList<Double>();
-	private int bestIndex;
+	private HashSet<Integer> bestObjIndex;
 	private ArrayList<HashSet<PredicateNode>> violations = new ArrayList<HashSet<PredicateNode>>();
 	
 	public TestVar() {}
@@ -42,12 +42,15 @@ public class TestVar extends Variable {
 		objValues.add(objValue);
 	}
 
-	public int getBestIndex() {
-		return bestIndex;
+	public HashSet<Integer> getBestObjIndex() {
+		return bestObjIndex;
 	}
 
-	public void setBestIndex(int bestIndex) {
-		this.bestIndex = bestIndex;
+	public void addBestIndex(int index) {
+		if (bestObjIndex == null) {
+			bestObjIndex = new HashSet<Integer>();
+		}
+		bestObjIndex.add(index);
 	}
 
 	public ArrayList<HashSet<PredicateNode>> getViolations() {

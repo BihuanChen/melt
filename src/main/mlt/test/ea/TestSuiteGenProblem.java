@@ -1,9 +1,13 @@
 package mlt.test.ea;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Random;
 
 import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
+import mlt.test.Profiles;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.Variable;
@@ -40,30 +44,26 @@ public class TestSuiteGenProblem extends Problem {
 				e.printStackTrace();
 			}
 		}
-		HashSet<Integer> used = new HashSet<Integer>();
 		for (int i = 0; i < numberOfObjectives_; i++) {
 			int minNumOfViolations = Integer.MAX_VALUE;	
 			int index = 0;
 			double objValue = 0;
 			for (int j = 0; j < numberOfVariables_; j++) {
-				if (!used.contains(j)) {
-					TestVar tv = (TestVar)suite[j];
-					HashSet<PredicateNode> violations = tv.getViolations().get(i);
-					int numOfViolations = violations == null ? 0 : violations.size();
-					if (numOfViolations < minNumOfViolations) {
-						minNumOfViolations = numOfViolations;
+				TestVar tv = (TestVar)suite[j];
+				HashSet<PredicateNode> violations = tv.getViolations().get(i);
+				int numOfViolations = violations == null ? 0 : violations.size();
+				if (numOfViolations < minNumOfViolations) {
+					minNumOfViolations = numOfViolations;
+					index = j;
+					objValue = tv.getObjValues().get(i);
+				} else if (numOfViolations == minNumOfViolations) {
+					if (tv.getObjValues().get(i) < objValue) {
 						index = j;
 						objValue = tv.getObjValues().get(i);
-					} else if (numOfViolations == minNumOfViolations) {
-						if (tv.getObjValues().get(i) < objValue) {
-							index = j;
-							objValue = tv.getObjValues().get(i);
-						}
 					}
 				}
 			}
-			used.add(index);
-			((TestVar)suite[index]).setBestIndex(i);
+			((TestVar)suite[index]).addBestIndex(i);
 			solution.setObjective(i, objValue);
 		}
 	}
@@ -74,11 +74,38 @@ public class TestSuiteGenProblem extends Problem {
 		Variable[] suite = solution.getDecisionVariables();
 		for (int i = 0; i < numberOfVariables_; i++) {
 			TestVar tv = (TestVar)suite[i];
-			HashSet<PredicateNode> violations = tv.getViolations().get(tv.getBestIndex());
-			totalNumOfViolations += violations == null ? 0 : violations.size();
+			HashSet<Integer> set = tv.getBestObjIndex();
+			if (set != null) {
+				Iterator<Integer> iterator = set.iterator();
+				while (iterator.hasNext()) {
+					HashSet<PredicateNode> violations = tv.getViolations().get(iterator.next());
+					totalNumOfViolations += violations == null ? 0 : violations.size();
+				}
+			}
 		}
 		solution.setOverallConstraintViolation(-totalNumOfViolations);
 		solution.setNumberOfViolatedConstraint(totalNumOfViolations);
+	}
+
+	private ArrayList<Integer> initialTests = null;
+	
+	public Variable[] getInitialSolution() {
+		if (initialTests == null) {
+			PredicateNode target = learner.getTarget();
+			if (target.getSourceTrueBranch() != null) {
+				initialTests = new ArrayList<Integer>(target.getSourceTrueBranch().getTests());
+			} else if (target.getSourceFalseBranch() != null) {
+				initialTests = new ArrayList<Integer>(target.getSourceFalseBranch().getTests());
+			} else {
+				System.err.println("[ml-testing] error in create the initial population in ea-based test generation");
+			}
+		}
+		Variable[] variables = new Variable[numberOfVariables_];
+		for (int i = 0; i < numberOfVariables_; i++) {
+			int rdm = new Random().nextInt(initialTests.size());
+			variables[i] = new TestVar(Profiles.tests.get(initialTests.get(rdm)).deepCopy());
+		}
+		return variables;
 	}
 
 }
