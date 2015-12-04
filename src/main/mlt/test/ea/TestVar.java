@@ -2,8 +2,10 @@ package mlt.test.ea;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import mlt.learn.PredicateNode;
+import mlt.test.Profiles;
 import mlt.test.TestCase;
 import jmetal.core.Variable;
 
@@ -27,6 +29,9 @@ public class TestVar extends Variable {
 	public Variable deepCopy() {
 		TestVar newTest = new TestVar();
 		newTest.test = this.test.deepCopy();
+		newTest.objValues.addAll(this.objValues);
+		newTest.bestObjIndex = this.bestObjIndex;
+		newTest.violations.addAll(this.violations);
 		return newTest;
 	}
 
@@ -59,6 +64,46 @@ public class TestVar extends Variable {
 
 	public void addViolation(HashSet<PredicateNode> violation) {
 		violations.add(violation);
+	}
+	
+	public void clear() {
+		objValues.clear();
+		bestObjIndex = null;
+		violations.clear();
+	}
+	
+	public HashSet<Integer> computeDepInputs() {
+		HashSet<Integer> depInputs = new HashSet<Integer>();
+		HashSet<PredicateNode> violatedNodes = new HashSet<PredicateNode>();
+		
+		if (bestObjIndex != null) {
+			Iterator<Integer> iterator = bestObjIndex.iterator();
+			while (iterator.hasNext()) {
+				HashSet<PredicateNode> part = violations.get(iterator.next());
+				if (part != null) {
+					violatedNodes.addAll(part);
+				}
+			}
+		}
+		
+		Iterator<PredicateNode> iterator = violatedNodes.iterator();
+		while (iterator.hasNext()) {
+			depInputs.addAll(Profiles.predicates.get(iterator.next().getPredicate()).getDepInputs());
+		}
+		return depInputs;
+	}
+	
+	public boolean isSatisfiedForOne() {
+		if (bestObjIndex == null) {
+			return false;
+		}
+		Iterator<Integer> iterator = bestObjIndex.iterator();
+		while (iterator.hasNext()) {
+			if (violations.get(iterator.next()) == null) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }

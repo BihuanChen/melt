@@ -36,7 +36,6 @@ public class TestCase {
 		for (int i = 0; i < this.test.length; i++) {
 			newTC.test[i] = this.test[i];
 		}
-		newTC.valuation = Util.testToValuation(newTC.test);
 		return newTC;
 	}
 

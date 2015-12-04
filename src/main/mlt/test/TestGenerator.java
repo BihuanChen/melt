@@ -13,19 +13,20 @@ import java.util.Random;
 import jmetal.core.Algorithm;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
+import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
 import jmetal.metaheuristics.ibea.IBEA;
-import jmetal.operators.crossover.CrossoverFactory;
-import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.BinaryTournament;
-import jmetal.util.JMException;
 import jmetal.util.comparators.DominanceComparator;
 import mlt.Config;
 import mlt.concolic.ConcolicExecution;
 import mlt.instrument.Predicate;
 import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
+import mlt.test.ea.GuidedCrossover;
+import mlt.test.ea.GuidedMutation;
 import mlt.test.ea.TestSuiteGenProblem;
+import mlt.test.ea.TestVar;
 
 public class TestGenerator {
 
@@ -39,7 +40,8 @@ public class TestGenerator {
 		if (pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
 			return concolicTest();
 		} else {
-			return randomTest();
+			return searchTest();
+			//return randomTest();
 			//return adaptiveTest();
 		}
 	}
@@ -84,34 +86,37 @@ public class TestGenerator {
 		return testCases;
 	}
 	
-	// TODO evolutionary algorithm based test case generation
-	public HashSet<TestCase> searchTest() throws JMException, ClassNotFoundException {
+	public HashSet<TestCase> searchTest() throws Exception {
+		if (pathLearner == null) {
+			return randomTest();
+			//return adaptiveTest();
+		}
+		
 		Problem problem = new TestSuiteGenProblem(pathLearner);
 		
 		// Algorithm to solve the problem
 	    Algorithm algorithm = new IBEA(problem);
-	    algorithm.setInputParameter("populationSize",100);
-	    algorithm.setInputParameter("archiveSize",100);
-	    algorithm.setInputParameter("maxEvaluations",25000);
+	    algorithm.setInputParameter("populationSize", 10);
+	    algorithm.setInputParameter("archiveSize", 10);
+	    algorithm.setInputParameter("maxEvaluations", 2500);
 
 	    // Operator parameters
-	    HashMap<String, Object>  parameters ; 
+	    HashMap<String, Object>  parameters; 
 
 	    // Crossover operator 
-	    parameters = new HashMap<String, Object>() ;
-	    parameters.put("probability", 0.9) ;
-	    parameters.put("distributionIndex", 20.0) ;
-	    Operator crossover = CrossoverFactory.getCrossoverOperator("SBXCrossover", parameters);                   
+	    parameters = new HashMap<String, Object>();
+	    parameters.put("probability", 0.9);
+	    Operator crossover = new GuidedCrossover(parameters);                   
 
 	    // Mutation operator
-	    parameters = new HashMap<String, Object>() ;
-	    parameters.put("probability", 1.0/problem.getNumberOfVariables()) ;
-	    parameters.put("distributionIndex", 20.0) ;
-	    Operator mutation = MutationFactory.getMutationOperator("PolynomialMutation", parameters);         
+	    parameters = new HashMap<String, Object>();
+	    parameters.put("probability_h", 0.9);
+	    parameters.put("probability_l", 0.1);
+	    Operator mutation = new GuidedMutation(parameters);
 
 	    // Selection Operator
-	    parameters = new HashMap<String, Object>() ; 
-	    parameters.put("comparator", new DominanceComparator()) ;
+	    parameters = new HashMap<String, Object>(); 
+	    parameters.put("comparator", new DominanceComparator());
 	    Operator selection = new BinaryTournament(parameters);
 	    
 	    // Add the operators to the algorithm
@@ -122,11 +127,38 @@ public class TestGenerator {
 	    // Execute the Algorithm
 	    SolutionSet population = algorithm.execute();
 
-	    // Print the results
-	    population.printVariablesToFile("VAR");    
-	    population.printObjectivesToFile("FUN");
-	  
-		return null;
+	    // Get the results
+	    HashMap<Integer, HashSet<TestCase>> satisfiedTests = new HashMap<Integer, HashSet<TestCase>>(problem.getNumberOfObjectives());
+	    for (int i = 0; i < population.size(); i++) {
+	    	Solution solution = population.get(i);
+	    	for (int j = 0; j < solution.numberOfVariables(); j++) {
+	    		TestVar tv = (TestVar)solution.getDecisionVariables()[j];
+	    		HashSet<Integer> indexs = tv.getBestObjIndex();
+	    		if (indexs != null) {
+	    			Iterator<Integer> iterator = indexs.iterator();
+	    			while (iterator.hasNext()) {
+	    				int idx = iterator.next();
+	    				if (tv.getViolations().get(idx) == null) {
+	    					if (satisfiedTests.get(idx) == null) {
+	    						satisfiedTests.put(idx, new HashSet<TestCase>());
+	    					}
+	    					satisfiedTests.get(idx).add(tv.getTest());
+	    				}
+	    			}
+	    		}
+	    	}
+	    }
+	    HashSet<TestCase> tests = new HashSet<TestCase>();
+	    Iterator<Integer> iterator = satisfiedTests.keySet().iterator();
+	    while (iterator.hasNext()) {
+	    	HashSet<TestCase> tt = satisfiedTests.get(iterator.next());
+	    	if (tt != null) {
+	    		// TODO use all the generated tests?
+	    		System.out.println("size" + tt.size());
+	    		tests.add(tt.iterator().next());
+	    	}
+	    }
+		return tests;
 	}
 	
 	// might stuck when the constraints are too narrow

@@ -3,7 +3,6 @@ package mlt.test.ea;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Random;
 
 import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
@@ -12,6 +11,7 @@ import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.Variable;
 import jmetal.util.JMException;
+import jmetal.util.PseudoRandom;
 
 public class TestSuiteGenProblem extends Problem {
 
@@ -102,7 +102,7 @@ public class TestSuiteGenProblem extends Problem {
 		}
 		Variable[] variables = new Variable[numberOfVariables_];
 		for (int i = 0; i < numberOfVariables_; i++) {
-			int rdm = new Random().nextInt(initialTests.size());
+			int rdm = PseudoRandom.randInt(0, initialTests.size() - 1);
 			variables[i] = new TestVar(Profiles.tests.get(initialTests.get(rdm)).deepCopy());
 		}
 		return variables;
