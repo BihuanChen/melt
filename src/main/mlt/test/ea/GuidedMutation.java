@@ -32,14 +32,15 @@ public class GuidedMutation extends Mutation {
 		Solution solution = (Solution)object;		
 		for (int i = 0; i < solution.numberOfVariables(); i++) {
 			TestVar tv = (TestVar)solution.getDecisionVariables()[i];
-			if (tv.getObjValues().size() == 0) {
+			// mutate with low probability if it is crossovered or it satisfies one prefix path
+			if (tv.getObjValues().size() == 0 || tv.isSatisfiedForOne()) {
 				Object[] test = tv.getTest().getTest();
 				for (int j = 0; j < test.length; j++) {
 					if (PseudoRandom.randDouble() < mutationProbability_l) {
 						doMutation(test, j);
 					}
 				}
-			} else if (!tv.isSatisfiedForOne()) {
+			} else {
 				Object[] test = tv.getTest().getTest();
 				HashSet<Integer> depInputs = tv.computeDepInputs();
 				for (int j = 0; j < test.length; j++) {
@@ -59,22 +60,23 @@ public class GuidedMutation extends Mutation {
 		return solution;
 	}
 	
+	// TODO more operators?
 	private void doMutation(Object[] test, int index) {
 		@SuppressWarnings("rawtypes")
 		Class cls = test[index].getClass();
-		if (cls == byte.class) {
+		if (cls == Byte.class) {
 			test[index] = (byte)PseudoRandom.randInt(Config.MIN_BYTE, Config.MAX_BYTE);
-		} else if (cls == short.class) {
+		} else if (cls == Short.class) {
 			test[index] = (short)PseudoRandom.randInt(Config.MIN_SHORT, Config.MAX_SHORT);
-		} else if (cls == int.class) {
+		} else if (cls == Integer.class) {
 			test[index] = PseudoRandom.randInt(Config.MIN_INT, Config.MAX_INT);
-		} else if (cls == long.class) {
+		} else if (cls == Long.class) {
 			test[index] = (long)PseudoRandom.randDouble(Config.MIN_LONG, Config.MAX_LONG);
-		} else if (cls == float.class) {
+		} else if (cls == Float.class) {
 			test[index] = (float)PseudoRandom.randDouble(Config.MIN_FLOAT, Config.MAX_FLOAT);
-		} else if (cls == double.class) {
+		} else if (cls == Double.class) {
 			test[index] = PseudoRandom.randDouble(Config.MIN_DOUBLE, Config.MAX_DOUBLE);
-		} else if (cls == boolean.class) {
+		} else if (cls == Boolean.class) {
 			test[index] = PseudoRandom.randInt(0, 1) == 0 ? false : true;
 		}
 	}

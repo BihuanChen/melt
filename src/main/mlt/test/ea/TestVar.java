@@ -74,22 +74,28 @@ public class TestVar extends Variable {
 	
 	public HashSet<Integer> computeDepInputs() {
 		HashSet<Integer> depInputs = new HashSet<Integer>();
-		HashSet<PredicateNode> violatedNodes = new HashSet<PredicateNode>();
 		
 		if (bestObjIndex != null) {
-			Iterator<Integer> iterator = bestObjIndex.iterator();
-			while (iterator.hasNext()) {
-				HashSet<PredicateNode> part = violations.get(iterator.next());
+			HashSet<PredicateNode> violatedNodes = new HashSet<PredicateNode>();
+			Iterator<Integer> iterator1 = bestObjIndex.iterator();
+			while (iterator1.hasNext()) {
+				HashSet<PredicateNode> part = violations.get(iterator1.next());
 				if (part != null) {
 					violatedNodes.addAll(part);
 				}
 			}
+			Iterator<PredicateNode> iterator2 = violatedNodes.iterator();
+			while (iterator2.hasNext()) {
+				depInputs.addAll(Profiles.predicates.get(iterator2.next().getPredicate()).getDepInputs());
+			}
+		} else {
+			// no best index, then all the test inputs need to be crossovered or mutated
+			int size = test.getTest().length;
+			for (int i = 0; i < size; i++) {
+				depInputs.add(i);
+			}
 		}
 		
-		Iterator<PredicateNode> iterator = violatedNodes.iterator();
-		while (iterator.hasNext()) {
-			depInputs.addAll(Profiles.predicates.get(iterator.next().getPredicate()).getDepInputs());
-		}
 		return depInputs;
 	}
 	

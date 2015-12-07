@@ -38,5 +38,13 @@ public class TestCase {
 		}
 		return newTC;
 	}
+	
+	public String toString() {
+		String str = "[" + test[0];
+		for (int i = 1; i < test.length; i++) {
+			str += ", " + test[i];
+		}
+		return str + "]";
+	}
 
 }

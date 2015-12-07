@@ -154,7 +154,6 @@ public class TestGenerator {
 	    	HashSet<TestCase> tt = satisfiedTests.get(iterator.next());
 	    	if (tt != null) {
 	    		// TODO use all the generated tests?
-	    		System.out.println("size" + tt.size());
 	    		tests.add(tt.iterator().next());
 	    	}
 	    }

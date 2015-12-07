@@ -89,6 +89,7 @@ public class TestSuiteGenProblem extends Problem {
 
 	private ArrayList<Integer> initialTests = null;
 	
+	// TODO add randomly generated test cases?
 	public Variable[] getInitialSolution() {
 		if (initialTests == null) {
 			PredicateNode target = learner.getTarget();

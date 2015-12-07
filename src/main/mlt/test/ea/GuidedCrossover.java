@@ -41,6 +41,7 @@ public class GuidedCrossover extends Crossover {
 				HashSet<Integer> depInputs0 = ((TestVar)parents[0].getDecisionVariables()[i]).computeDepInputs();
 				HashSet<Integer> depInputs1 = ((TestVar)parents[1].getDecisionVariables()[i]).computeDepInputs();
 				
+				// TODO not very effective for small-length test cases? 
 				boolean flag0 = false;
 				boolean flag1 = false;
 				for (int j = 0; j < c0.length; j++) {
@@ -60,9 +61,6 @@ public class GuidedCrossover extends Crossover {
 				if (flag1) {
 					((TestVar)offspring[1].getDecisionVariables()[i]).clear();
 				}
-				
-				//((TestVar)offspring[0].getDecisionVariables()[i]).getTest().setTest(c0);
-				//((TestVar)offspring[1].getDecisionVariables()[i]).getTest().setTest(c1);
 			}
 		}
 		
