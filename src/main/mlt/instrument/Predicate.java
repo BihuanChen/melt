@@ -10,11 +10,18 @@ public class Predicate implements Serializable {
 	private String className;
 	private String methodName;
 	private int lineNumber;
-	private String expression;
-	private String type; // four types: if, do, while, and for
-	private HashSet<Integer> depInputs; // indexes of the inputs that the predicate depends on
 	
-	public Predicate(String className, String methodName, int lineNumber, String expression, String type) {
+	private String expression;
+	
+	// four types: if, do, while, and for
+	public enum TYPE {IF, DO, WHILE, FOR}
+	private TYPE type;
+	
+	// only set when using static taint analysis
+	// indexes of the inputs that the predicate depends on
+	private HashSet<Integer> depInputs; 
+	
+	public Predicate(String className, String methodName, int lineNumber, String expression, TYPE type) {
 		this.className = className;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
@@ -54,11 +61,11 @@ public class Predicate implements Serializable {
 		this.expression = expression;
 	}
 
-	public String getType() {
+	public TYPE getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(TYPE type) {
 		this.type = type;
 	}
 

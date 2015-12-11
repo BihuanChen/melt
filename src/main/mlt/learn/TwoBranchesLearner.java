@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import mlt.Config;
+import mlt.instrument.Predicate;
 import mlt.test.Profiles;
 import mlt.test.TestCase;
 import weka.classifiers.Classifier;
@@ -72,8 +73,8 @@ public class TwoBranchesLearner {
 		boolean changed2 = tTests.size() == 0 && fTests.size() == 0 ? false : true;
 		// load new tests data
 		if (changed2) {
-			String type = Profiles.predicates.get(node.getPredicate()).getType();
-			if (type.equals("if")) {
+			Predicate.TYPE type = Profiles.predicates.get(node.getPredicate()).getType();
+			if (type == Predicate.TYPE.IF) {
 				Iterator<Integer> iterator = tTests.iterator();
 				while (iterator.hasNext()) {
 					Integer i = iterator.next();
@@ -88,7 +89,7 @@ public class TwoBranchesLearner {
 					Integer i = iterator.next();
 					createInstance(i, Profiles.tests.get(i), "F");
 				}
-			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
+			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				Iterator<Integer> iterator = tTests.iterator();
 				while (iterator.hasNext()) {
 					Integer i = iterator.next();

@@ -169,19 +169,19 @@ public class Instrumenter implements Serializable {
 			
 			@Override
 			public boolean visit(ForStatement forStatement) {
-				visit(forStatement, forStatement.getExpression(), forStatement.getBody(), forStatement.getParent(), "for");
+				visit(forStatement, forStatement.getExpression(), forStatement.getBody(), forStatement.getParent(), Predicate.TYPE.FOR);
 				return super.visit(forStatement);
 			}
 			
 			@Override
 			public boolean visit(WhileStatement whileStatement) {
-				visit(whileStatement, whileStatement.getExpression(), whileStatement.getBody(), whileStatement.getParent(), "while");
+				visit(whileStatement, whileStatement.getExpression(), whileStatement.getBody(), whileStatement.getParent(), Predicate.TYPE.WHILE);
 				return super.visit(whileStatement);
 			}
 			
 			@Override
 			public boolean visit(DoStatement doStatement) {
-				visit(doStatement, doStatement.getExpression(), doStatement.getBody(), doStatement.getParent(), "do");
+				visit(doStatement, doStatement.getExpression(), doStatement.getBody(), doStatement.getParent(), Predicate.TYPE.DO);
 				return super.visit(doStatement);
 			}
 			
@@ -191,16 +191,16 @@ public class Instrumenter implements Serializable {
 				Expression expression = ifStatement.getExpression();
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(ifStatement.getThenStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), "if", true), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), Predicate.TYPE.IF, true), null);
 
 				listRewrite = rewriter.getListRewrite(ifStatement.getElseStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), "if", false), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), Predicate.TYPE.IF, false), null);
 				
 				return super.visit(ifStatement);
 			}
 			
 			@SuppressWarnings("unchecked")
-			private Statement createCounterStmt(String className, String methodName, int lineNumber, String expression, String type, boolean branch) {
+			private Statement createCounterStmt(String className, String methodName, int lineNumber, String expression, Predicate.TYPE type, boolean branch) {
 				// add the branch predicate
 				if (branch) {
 					Predicate predicate = new Predicate(className, methodName, lineNumber, expression, type);
@@ -220,7 +220,7 @@ public class Instrumenter implements Serializable {
 				return newStatement;
 			}
 			
-			private void visit(Statement statement, Expression expression, Statement body, ASTNode parent, String type) {	
+			private void visit(Statement statement, Expression expression, Statement body, ASTNode parent, Predicate.TYPE type) {	
 				int lineNum;
 				if (statement instanceof DoStatement) {
 					lineNum = cu.getLineNumber(((DoStatement)statement).getExpression().getStartPosition());

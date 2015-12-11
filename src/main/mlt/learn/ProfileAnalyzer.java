@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Stack;
 
 import mlt.Config;
+import mlt.instrument.Predicate;
 import mlt.test.Pair;
 import mlt.test.Profiles;
 
@@ -53,8 +54,8 @@ public class ProfileAnalyzer {
 			// check if the current branch is a loop branch;
 			// if yes, push the loop branch into the stack for later references
 			boolean isLoopBranch = false;
-			String type = Profiles.predicates.get(index).getType();
-			if (type.equals("for") || type.equals("do") || type.equals("while")) {
+			Predicate.TYPE type = Profiles.predicates.get(index).getType();
+			if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				isLoopBranch = true;
 				if (loopBranchStack.size() == 0 || loopBranchStack.peek().getPredicate() != index) {
 					loopBranchStack.push(current);

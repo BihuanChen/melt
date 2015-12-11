@@ -34,9 +34,9 @@ public class PathLearner {
 			if (ps == null) {
 				System.err.println("[ml-testing] errors in finding prefix traces");
 			} else {
-				String type = Profiles.predicates.get(ps.getNode().getPredicate()).getType();
+				Predicate.TYPE type = Profiles.predicates.get(ps.getNode().getPredicate()).getType();
 				PredicateArc arc = ps.getNode().getSourceTrueBranch();
-				if ((type.equals("for") || type.equals("do") || type.equals("while")) && !ps.getBranch() && arc != null) {
+				if ((type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) && !ps.getBranch() && arc != null) {
 					HashSet<ArrayList<Step>> newTraces = new HashSet<ArrayList<Step>>();
 					Iterator<ArrayList<Step>> iterator = traces.iterator();
 					while (iterator.hasNext()) {

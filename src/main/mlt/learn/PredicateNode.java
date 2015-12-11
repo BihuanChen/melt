@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import mlt.instrument.Predicate;
 import mlt.test.Profiles;
 
 public class PredicateNode {
@@ -101,12 +102,12 @@ public class PredicateNode {
 
 	public TwoBranchesLearner getTwoBranchesLearner() throws Exception {
 		if (twoBranchesLearner == null && Profiles.predicates.get(predicate).getDepInputs() != null) {
-			String type = Profiles.predicates.get(predicate).getType();
-			if (type.equals("if")) {
+			Predicate.TYPE type = Profiles.predicates.get(predicate).getType();
+			if (type == Predicate.TYPE.IF) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null && isIfConditionLearnable()) {
 					twoBranchesLearner = new TwoBranchesLearner(this);
 				}
-			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
+			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
 					twoBranchesLearner = new TwoBranchesLearner(this);
 				}
@@ -130,12 +131,12 @@ public class PredicateNode {
 
 	public boolean isCovered() {
 		if (!covered) {
-			String type = Profiles.predicates.get(predicate).getType();
-			if (type.equals("if")) {
+			Predicate.TYPE type = Profiles.predicates.get(predicate).getType();
+			if (type == Predicate.TYPE.IF) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null) {
 					covered = true;
 				}
-			} else if (type.equals("for") || type.equals("do") || type.equals("while")) {
+			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
 					covered = true;
 				}
