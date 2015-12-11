@@ -257,8 +257,8 @@ public class MLT {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.loadProperties("c:/Users/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
-		//Config.loadProperties("c:/Users/bhchen/workspace/testing/ml-testing/src/tests/mlt/learn/test1/TestAnalyzer.mlt");
+		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
+		//Config.loadProperties("/home/bhchen/workspace/testing/ml-testing/src/tests/mlt/learn/test1/TestAnalyzer.mlt");
 		//MLT.prepare();
 		MLT.run();
 	}
