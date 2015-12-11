@@ -44,27 +44,32 @@ public class MLT {
 			FileUtils.copyFile(project, new File(Config.TARGETPATH));
 		}
 		
-		// analyze inputs-branch dependency
+		// analyze inputs-branch dependency statically
 		long t2 = System.currentTimeMillis();
-		String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
-		LinkedHashMap<String, HashSet<Integer>> dependency = DependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
-	
+		LinkedHashMap<String, HashSet<Integer>> dependency = null;
+		if (Config.TAINT.equals("static")) {
+			String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
+			dependency = DependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
+		}
+		
 		// instrument the source code
 		long t3 = System.currentTimeMillis();
 		instrumenter.instrumentFilesInDir(project);
-		ArrayList<Predicate> predicates = instrumenter.getPredicates();
-
-		// map the inputs-branch dependency
+		
+		// map the inputs-branch dependency statically
 		long t4 = System.currentTimeMillis();
-		int size = predicates.size();
-		for (int i = 0; i < size; i++) {
-			Predicate p = predicates.get(i);
-			String id = p.getClassName() + " " + p.getLineNumber();
-			HashSet<Integer> set = dependency.get(id);
-			if (set != null) {
-				p.setDepInputs(set);				
-			} else {
-				System.err.println("[ml-testing] inputs-branch dependency not found " + p.getExpression());
+		if (Config.TAINT.equals("static")) {
+			ArrayList<Predicate> predicates = instrumenter.getPredicates();
+			int size = predicates.size();
+			for (int i = 0; i < size; i++) {
+				Predicate p = predicates.get(i);
+				String id = p.getClassName() + " " + p.getLineNumber();
+				HashSet<Integer> set = dependency.get(id);
+				if (set != null) {
+					p.setDepInputs(set);				
+				} else {
+					System.err.println("[ml-testing] inputs-branch dependency not found " + p.getExpression());
+				}
 			}
 		}
 		
@@ -76,7 +81,9 @@ public class MLT {
 		
 		long t6 = System.currentTimeMillis();
 		System.out.println("[ml-testing] project formatted in " + (t2 - t1) + " ms");
-		System.out.println("[ml-testing] dependency analyzed in " + (t3 - t2 + t5 - t4) + " ms");
+		if (Config.TAINT.equals("static")) {
+			System.out.println("[ml-testing] dependency analyzed in " + (t3 - t2 + t5 - t4) + " ms");
+		}
 		System.out.println("[ml-testing] project instrumented in " + (t4 - t3) + " ms");
 		System.out.println("[ml-testing] predicates serialized in " + (t6 - t5) + " ms");
 	}

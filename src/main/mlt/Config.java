@@ -19,7 +19,10 @@ public class Config {
 	public static String SOURCEPATH = null;
 	public static String TARGETPATH = null;
 	
-	// configuration information of the target project for taint analysis
+	// configuration information for taint analysis
+	public static String TAINT = "static";
+	
+	// configuration information of the target project for static taint analysis
 	public static String CLASSPATH = null;
 	public static String MAINCLASS = null;
 	public static String ENTRYMETHOD = null;

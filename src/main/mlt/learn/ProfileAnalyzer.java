@@ -141,7 +141,7 @@ public class ProfileAnalyzer {
 			Iterator<Integer> iterator = leveledNodes.get(i).iterator();
 			while (iterator.hasNext()) {
 				PredicateNode node = nodes.get(iterator.next());
-				if (Profiles.predicates.get(node.getPredicate()).getDepInputs() != null && node.getAttempts() < Config.MAX_ATTEMPTS) {
+				if (node.getDepInputs() != null && node.getAttempts() < Config.MAX_ATTEMPTS) {
 					if (!node.isCovered()) {
 						pSet.add(node);
 					}

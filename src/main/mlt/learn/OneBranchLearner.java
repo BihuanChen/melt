@@ -114,7 +114,7 @@ public class OneBranchLearner {
 			Attribute classAttr = new Attribute("branch", fvClassVal);
 			attrs.addElement(classAttr);
 			// declare each input as an attribute
-			HashSet<Integer> depInputs = Profiles.predicates.get(node.getPredicate()).getDepInputs();
+			HashSet<Integer> depInputs = node.getDepInputs();
 			int[] delAttrs = new int[size - depInputs.size()];
 			for (int i = 0, j = 0; i < size; i++) {
 				if (Config.CLS[i] == boolean.class) {

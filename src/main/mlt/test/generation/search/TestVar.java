@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import mlt.learn.PredicateNode;
-import mlt.test.Profiles;
 import mlt.test.TestCase;
 import jmetal.core.Variable;
 
@@ -86,7 +85,7 @@ public class TestVar extends Variable {
 			}
 			Iterator<PredicateNode> iterator2 = violatedNodes.iterator();
 			while (iterator2.hasNext()) {
-				depInputs.addAll(Profiles.predicates.get(iterator2.next().getPredicate()).getDepInputs());
+				depInputs.addAll(iterator2.next().getDepInputs());
 			}
 		} else {
 			// no best index, then all the test inputs need to be crossovered or mutated

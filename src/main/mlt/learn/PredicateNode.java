@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import mlt.Config;
 import mlt.instrument.Predicate;
 import mlt.test.Profiles;
 
@@ -30,6 +31,8 @@ public class PredicateNode {
 	
 	private LinkedHashMap<String, Expression<Boolean>> constraints;
 	private int oldSize;
+	
+	private HashSet<Integer> depInputs;
 	
 	public PredicateNode() {
 		this.predicate = -1;
@@ -101,7 +104,7 @@ public class PredicateNode {
 	}
 
 	public TwoBranchesLearner getTwoBranchesLearner() throws Exception {
-		if (twoBranchesLearner == null && Profiles.predicates.get(predicate).getDepInputs() != null) {
+		if (twoBranchesLearner == null && getDepInputs() != null) {
 			Predicate.TYPE type = Profiles.predicates.get(predicate).getType();
 			if (type == Predicate.TYPE.IF) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null && isIfConditionLearnable()) {
@@ -191,6 +194,22 @@ public class PredicateNode {
 
 	public void setOldSize(int oldSize) {
 		this.oldSize = oldSize;
+	}
+
+	public HashSet<Integer> getDepInputs() {
+		if (Config.TAINT.equals("dynamic")) {
+			return depInputs;
+		} else {//if (Config.TAINT.equals("static")){
+			return Profiles.predicates.get(predicate).getDepInputs();
+		}
+	}
+
+	// only called when using dynamic taint analysis
+	public void addDepInputs(HashSet<Integer> newDepInputs) {
+		if (depInputs == null) {
+			depInputs = new HashSet<Integer>();
+		}
+		depInputs.addAll(newDepInputs);
 	}
 
 	@Override

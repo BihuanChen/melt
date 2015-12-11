@@ -17,7 +17,6 @@ public class Predicate implements Serializable {
 	public enum TYPE {IF, DO, WHILE, FOR}
 	private TYPE type;
 	
-	// only set when using static taint analysis
 	// indexes of the inputs that the predicate depends on
 	private HashSet<Integer> depInputs; 
 	
@@ -73,6 +72,7 @@ public class Predicate implements Serializable {
 		return depInputs;
 	}
 
+	// only called when using static taint analysis
 	public void setDepInputs(HashSet<Integer> depInputs) {
 		this.depInputs = depInputs;
 	}
