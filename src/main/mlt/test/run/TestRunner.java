@@ -1,4 +1,4 @@
-package mlt.test;
+package mlt.test.run;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -8,6 +8,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import mlt.Config;
+import mlt.test.TestCase;
 
 public class TestRunner {
 

@@ -12,7 +12,7 @@ import java.util.LinkedHashSet;
 import mlt.instrument.Predicate;
 import mlt.test.Profiles;
 import mlt.test.TestCase;
-import mlt.test.ea.TestVar;
+import mlt.test.generation.search.TestVar;
 
 public class PathLearner {
 

@@ -1,4 +1,4 @@
-package mlt.concolic;
+package mlt.test.generation.concolic;
 
 import java.io.IOException;
 import java.util.ArrayList;

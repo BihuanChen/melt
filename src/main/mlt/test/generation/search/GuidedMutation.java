@@ -1,4 +1,4 @@
-package mlt.test.ea;
+package mlt.test.generation.search;
 
 import java.util.HashMap;
 import java.util.HashSet;

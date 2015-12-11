@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  */
-package mlt.concolic;
+package mlt.test.generation.concolic;
 
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.search.Search;

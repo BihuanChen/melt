@@ -1,4 +1,4 @@
-package mlt.test.ea;
+package mlt.test.generation.search;
 
 import jmetal.core.Problem;
 import jmetal.core.SolutionType;

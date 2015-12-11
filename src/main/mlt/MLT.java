@@ -21,8 +21,9 @@ import mlt.learn.PredicateNode;
 import mlt.learn.ProfileAnalyzer;
 import mlt.test.Profiles;
 import mlt.test.TestCase;
-import mlt.test.TestGenerator;
-import mlt.test.TestRunner;
+import mlt.test.generation.random.PureRandomTestGenerator;
+import mlt.test.generation.search.SearchBasedTestGenerator;
+import mlt.test.run.TestRunner;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jface.text.BadLocationException;
@@ -100,7 +101,7 @@ public class MLT {
 
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
-			HashSet<TestCase> testCases = new TestGenerator(learner).generate();
+			HashSet<TestCase> testCases = new SearchBasedTestGenerator(learner).generate();
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
@@ -153,7 +154,7 @@ public class MLT {
 		long endTime = t2 + timeout;
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
-			HashSet<TestCase> testCases = new TestGenerator(null).generate();
+			HashSet<TestCase> testCases = new PureRandomTestGenerator(null).generate();
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
