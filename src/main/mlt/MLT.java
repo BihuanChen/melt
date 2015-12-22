@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import mlt.dependency.DependencyAnalyzer;
+import mlt.dependency.StaticDependencyAnalyzer;
 import mlt.instrument.Instrumenter;
 import mlt.instrument.Predicate;
 import mlt.learn.OneBranchLearner;
@@ -49,7 +49,7 @@ public class MLT {
 		LinkedHashMap<String, HashSet<Integer>> dependency = null;
 		if (Config.TAINT.equals("static")) {
 			String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
-			dependency = DependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
+			dependency = StaticDependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
 		}
 		
 		// instrument the source code

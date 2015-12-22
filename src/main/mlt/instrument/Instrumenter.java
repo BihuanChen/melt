@@ -191,19 +191,19 @@ public class Instrumenter implements Serializable {
 				Expression expression = ifStatement.getExpression();
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(ifStatement.getThenStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), Predicate.TYPE.IF, true), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression, Predicate.TYPE.IF, true), null);
 
 				listRewrite = rewriter.getListRewrite(ifStatement.getElseStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), Predicate.TYPE.IF, false), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression, Predicate.TYPE.IF, false), null);
 				
 				return super.visit(ifStatement);
 			}
 			
 			@SuppressWarnings("unchecked")
-			private Statement createCounterStmt(String className, String methodName, int lineNumber, String expression, Predicate.TYPE type, boolean branch) {
+			private Statement createCounterStmt(String className, String methodName, int lineNumber, Expression expression, Predicate.TYPE type, boolean branch) {
 				// add the branch predicate
 				if (branch) {
-					Predicate predicate = new Predicate(className, methodName, lineNumber, expression, type);
+					Predicate predicate = new Predicate(className, methodName, lineNumber, expression.toString(), type);
 					predicates.add(predicate);
 				}
 				int index = predicates.size() - 1;
@@ -229,7 +229,7 @@ public class Instrumenter implements Serializable {
 				}
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(body, Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression.toString(), type, true), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression, type, true), null);
 				
 				if (parent instanceof SwitchStatement) {
 					listRewrite = rewriter.getListRewrite(parent, SwitchStatement.STATEMENTS_PROPERTY);
@@ -238,7 +238,7 @@ public class Instrumenter implements Serializable {
 				} else {
 					System.err.println("[ml-testing] loop nested in unknown statements");
 				}
-				listRewrite.insertAfter(createCounterStmt(className, methodName, lineNum, expression.toString(), type, false), statement, null);
+				listRewrite.insertAfter(createCounterStmt(className, methodName, lineNum, expression, type, false), statement, null);
 			}
 			
 			@Override
@@ -339,7 +339,7 @@ public class Instrumenter implements Serializable {
 	
 	public static void main(String[] args) {
 		try {
-			File project = new File("src/tests/mlt/instrument/test2/");
+			File project = new File("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test.java");
 			Instrumenter instrumenter = new Instrumenter();
 			instrumenter.formatFilesInDir(project);
 			instrumenter.instrumentFilesInDir(project);

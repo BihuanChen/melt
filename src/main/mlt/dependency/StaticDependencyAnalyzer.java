@@ -22,7 +22,7 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import soot.toolkits.scalar.Pair;
 
-public class DependencyAnalyzer {
+public class StaticDependencyAnalyzer {
 	
 	private static boolean debug = false;
 	
@@ -126,10 +126,10 @@ public class DependencyAnalyzer {
 	}
 	
 	public static void main(String[] args) {
-		//DependencyAnalyzer.doIntraAnalysis("src/tests/", "mlt.dependency.test2.TestInputBranchDependencyIntra");
-		//DependencyAnalyzer.doInterAnalysis("src/tests/", "mlt.dependency.test1.TestInputBranchDependencyInter1", "<mlt.dependency.test1.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
-		//DependencyAnalyzer.doInterAnalysis("src/examples/", "dt.original.Median", "<dt.original.Median: int driver(int,int,int,int)>");
-		DependencyAnalyzer.doInterAnalysis("c:/Users/bhchen/workspace/testing/benchmark1-art-ce/bin/", "dt.original.Bessj", "<dt.original.Bessj: double bessj(int,double)>");
+		//StaticDependencyAnalyzer.doIntraAnalysis("src/tests/", "mlt.dependency.test2.TestInputBranchDependencyIntra");
+		//StaticDependencyAnalyzer.doInterAnalysis("src/tests/", "mlt.dependency.test1.TestInputBranchDependencyInter1", "<mlt.dependency.test1.TestInputBranchDependencyInter1: void entryPointMain(int,int,int,boolean)>");
+		//StaticDependencyAnalyzer.doInterAnalysis("src/examples/", "dt.original.Median", "<dt.original.Median: int driver(int,int,int,int)>");
+		StaticDependencyAnalyzer.doInterAnalysis("c:/Users/bhchen/workspace/testing/benchmark1-art-ce/bin/", "dt.original.Bessj", "<dt.original.Bessj: double bessj(int,double)>");
 	}
 
 }
