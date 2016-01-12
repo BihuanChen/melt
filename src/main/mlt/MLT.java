@@ -25,7 +25,6 @@ import mlt.test.generation.random.PureRandomTestGenerator;
 import mlt.test.generation.search.SearchBasedTestGenerator;
 import mlt.test.run.TestRunner;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 
@@ -36,28 +35,33 @@ public class MLT {
 		long t1 = System.currentTimeMillis();
 		File project = new File(Config.SOURCEPATH);
 		Instrumenter instrumenter = new Instrumenter();
-		instrumenter.formatFilesInDir(project);
-		// copy the formatted code for concolic execution
-		if (project.isDirectory()) {
-			FileUtils.copyDirectory(project, new File(Config.TARGETPATH));
-		} else if (project.isFile()) {
-			FileUtils.copyFile(project, new File(Config.TARGETPATH));
-		}
+		instrumenter.format(project);
 		
-		// analyze inputs-branch dependency statically
+		// instrument the source code
 		long t2 = System.currentTimeMillis();
+		instrumenter.instrument(project);
+		
+		// update line number information
+		long t3 = System.currentTimeMillis();
+		instrumenter.updateLineNumbers(project);
+				
+		// analyze inputs-branch dependency statically
+		long t4 = System.currentTimeMillis();
 		LinkedHashMap<String, HashSet<Integer>> dependency = null;
 		if (Config.TAINT.equals("static")) {
 			String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
 			dependency = StaticDependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
 		}
 		
-		// instrument the source code
-		long t3 = System.currentTimeMillis();
-		instrumenter.instrumentFilesInDir(project);
+		Iterator<String> iterator = dependency.keySet().iterator();
+		while (iterator.hasNext()) {
+			String u = iterator.next();
+			HashSet<Integer> set = dependency.get(u);
+			System.out.println("[ml-testing] " + u);
+			System.out.println("[ml-testing] " + set + "\n");
+		}
 		
 		// map the inputs-branch dependency statically
-		long t4 = System.currentTimeMillis();
 		if (Config.TAINT.equals("static")) {
 			ArrayList<Predicate> predicates = instrumenter.getPredicates();
 			int size = predicates.size();
@@ -81,10 +85,11 @@ public class MLT {
 		
 		long t6 = System.currentTimeMillis();
 		System.out.println("[ml-testing] project formatted in " + (t2 - t1) + " ms");
+		System.out.println("[ml-testing] project instrumented in " + (t3 - t2) + " ms");
+		System.out.println("[ml-testing] line number updated in " + (t4 - t3) + " ms");
 		if (Config.TAINT.equals("static")) {
-			System.out.println("[ml-testing] dependency analyzed in " + (t3 - t2 + t5 - t4) + " ms");
+			System.out.println("[ml-testing] dependency analyzed in " + (t5 - t4) + " ms");
 		}
-		System.out.println("[ml-testing] project instrumented in " + (t4 - t3) + " ms");
 		System.out.println("[ml-testing] predicates serialized in " + (t6 - t5) + " ms");
 	}
 	
@@ -265,10 +270,10 @@ public class MLT {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
-		//Config.loadProperties("/home/bhchen/workspace/testing/ml-testing/src/tests/mlt/learn/test1/TestAnalyzer.mlt");
-		//MLT.prepare();
-		MLT.run();
+		//Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
+		Config.loadProperties("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.mlt");
+		MLT.prepare();
+		//MLT.run();
 	}
 
 }

@@ -94,7 +94,8 @@ public class ConcolicExecution {
 		String mainClass = jpfConf.getString("target");
 		final String methodName = jpfConf.getString("concolic.method");
 		ClassPool cp = ClassPool.getDefault();
-		cp.insertClassPath(jpfConf.getString("classpath").split(",")[0]);
+		cp.insertClassPath(jpfConf.getString("classpath").split(";")[0]);
+		cp.insertClassPath(jpfConf.getString("classpath").split(";")[1]);
 		CtClass cc = cp.get(mainClass);
 		if (cc.isFrozen()) {
 			cc.defrost();
@@ -180,7 +181,7 @@ public class ConcolicExecution {
 		System.out.println(cons);
 		//jdart.statistics();*/
 		
-		ConcolicExecution jdart = ConcolicExecution.getInstance("c:/Users/bhchen/workspace/testing/benchmark1-art-ce/src/dt/original/Bessj.jpf");
+		/*ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art-ce/src/dt/original/Bessj.jpf");
 		Object[] obj = new Object[2];
 		obj[0] = 7975;
 		obj[1] = -5814.517874260192;
@@ -188,8 +189,18 @@ public class ConcolicExecution {
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
 		ArrayList<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:27)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
-		System.out.println(cons);
+		System.out.println(cons);*/
 		//jdart.statistics();
+		
+		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.jpf");
+		Object[] obj = new Object[2];
+		obj[0] = 1;
+		obj[1] = 2;
+		jdart.run(obj);
+		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
+		ArrayList<Valuation> vals = jdart.getValuations("phosphor.test.Test1.test(Test1.java:13)", mlt.Config.TESTS_SIZE, cons);
+		System.out.println(vals);
+		System.out.println(cons);
 	}
 
 }

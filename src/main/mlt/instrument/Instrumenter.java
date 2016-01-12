@@ -4,12 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+
+import mlt.Config;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Assignment.Operator;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -22,6 +27,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
@@ -51,13 +57,83 @@ public class Instrumenter implements Serializable {
 	}
 
 	/**
+	 * loop a project directory to update line numbers recursively
+	 * @param root
+	 * @throws IOException
+	 * @throws MalformedTreeException
+	 * @throws BadLocationException
+	 */
+	public void updateLineNumbers(File root) throws IOException, MalformedTreeException, BadLocationException {
+		if (root.isFile()) {
+			if (root.getName().endsWith(".java")) {
+				updateLineNumbersFile(root);
+			}
+		} else {
+			File[] files = root.listFiles();	 
+			for (File f : files) {
+				updateLineNumbers(f);
+			}
+		}
+	}
+		
+	/*
+	 *  update line numbers for a file
+	 */
+	private void updateLineNumbersFile(File file) throws IOException, MalformedTreeException, BadLocationException {
+		final String source = FileUtils.readFileToString(file);
+		final Document document = new Document(source);
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(document.get().toCharArray());
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+
+		final CompilationUnit cu = (CompilationUnit)parser.createAST(null);
+				
+		cu.recordModifications();
+		cu.accept(new ASTVisitor() {
+
+			private int id = 0;
+			
+			@Override
+			public boolean visit(ForStatement forStatement) {
+				updateLineNumber(cu.getLineNumber(forStatement.getStartPosition()));
+				return super.visit(forStatement);
+			}
+			
+			@Override
+			public boolean visit(WhileStatement whileStatement) {
+				updateLineNumber(cu.getLineNumber(whileStatement.getStartPosition()));
+				return super.visit(whileStatement);
+			}
+			
+			@Override
+			public boolean visit(DoStatement doStatement) {
+				updateLineNumber(cu.getLineNumber(doStatement.getExpression().getStartPosition()));
+				return super.visit(doStatement);
+			}
+			
+			@Override
+			public boolean visit(IfStatement ifStatement) {
+				updateLineNumber(cu.getLineNumber(ifStatement.getStartPosition()));
+				return super.visit(ifStatement);
+			}
+			
+			private void updateLineNumber(int lineNumber) {
+				predicates.get(id++).setLineNumber(lineNumber);
+			}
+
+		});
+		
+	}
+	
+	/**
 	 * loop a project directory to get and instrument files recursively
 	 * @param root
 	 * @throws IOException
 	 * @throws MalformedTreeException
 	 * @throws BadLocationException
 	 */
-	public void instrumentFilesInDir(File root) throws IOException, MalformedTreeException, BadLocationException {
+	public void instrument(File root) throws IOException, MalformedTreeException, BadLocationException {
 		if (root.isFile()) {
 			if (root.getName().endsWith(".java")) {
 				instrumentFile(root);
@@ -65,7 +141,7 @@ public class Instrumenter implements Serializable {
 		} else {
 			File[] files = root.listFiles();	 
 			for (File f : files) {
-				instrumentFilesInDir(f);
+				instrument(f);
 			}
 		}
 	}
@@ -187,23 +263,23 @@ public class Instrumenter implements Serializable {
 			
 			@Override
 			public boolean visit(IfStatement ifStatement) {
-				int lineNum = cu.getLineNumber(ifStatement.getStartPosition());
+				//int lineNum = cu.getLineNumber(ifStatement.getStartPosition());
 				Expression expression = ifStatement.getExpression();
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(ifStatement.getThenStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression, Predicate.TYPE.IF, true), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, /*lineNum,*/ expression, Predicate.TYPE.IF, true), null);
 
 				listRewrite = rewriter.getListRewrite(ifStatement.getElseStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression, Predicate.TYPE.IF, false), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, /*lineNum,*/ expression, Predicate.TYPE.IF, false), null);
 				
 				return super.visit(ifStatement);
 			}
 			
 			@SuppressWarnings("unchecked")
-			private Statement createCounterStmt(String className, String methodName, int lineNumber, Expression expression, Predicate.TYPE type, boolean branch) {
+			private Statement createCounterStmt(String className, String methodName, /*int lineNumber,*/ Expression expression, Predicate.TYPE type, boolean branch) {
 				// add the branch predicate
 				if (branch) {
-					Predicate predicate = new Predicate(className, methodName, lineNumber, expression.toString(), type);
+					Predicate predicate = new Predicate(className, methodName, 0, expression.toString(), type);
 					predicates.add(predicate);
 				}
 				int index = predicates.size() - 1;
@@ -221,15 +297,15 @@ public class Instrumenter implements Serializable {
 			}
 			
 			private void visit(Statement statement, Expression expression, Statement body, ASTNode parent, Predicate.TYPE type) {	
-				int lineNum;
+				/*int lineNum;
 				if (statement instanceof DoStatement) {
 					lineNum = cu.getLineNumber(((DoStatement)statement).getExpression().getStartPosition());
 				} else {
 					lineNum = cu.getLineNumber(statement.getStartPosition());
-				}
+				}*/
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(body, Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, lineNum, expression, type, true), null);
+				listRewrite.insertFirst(createCounterStmt(className, methodName, /*lineNum,*/ expression, type, true), null);
 				
 				if (parent instanceof SwitchStatement) {
 					listRewrite = rewriter.getListRewrite(parent, SwitchStatement.STATEMENTS_PROPERTY);
@@ -238,13 +314,69 @@ public class Instrumenter implements Serializable {
 				} else {
 					System.err.println("[ml-testing] loop nested in unknown statements");
 				}
-				listRewrite.insertAfter(createCounterStmt(className, methodName, lineNum, expression, type, false), statement, null);
+				listRewrite.insertAfter(createCounterStmt(className, methodName, /*lineNum,*/ expression, type, false), statement, null);
 			}
 			
 			@Override
 			public boolean visit(MethodDeclaration methodDeclaration) {
 				methodName = methodDeclaration.getName().getFullyQualifiedName();
+				if (className.equals(Config.MAINCLASS) && methodName.equals(Config.METHOD)) {
+					int size = 0;
+					// construct the entry method
+					String id = methodDeclaration.getReturnType2().toString() + " " + methodName + "(";
+					List<?> parameters = methodDeclaration.parameters();
+					if (parameters != null) {
+						size = parameters.size();
+						for (int i = 0; i < size; i++) {
+							SingleVariableDeclaration svd = (SingleVariableDeclaration)parameters.get(i);
+							if (i < size - 1) {
+								id += svd.getType() + ",";
+							} else {
+								id += svd.getType();
+							}
+						}
+					}
+					id += ")";
+					// instrument Tainter.taint
+					if (id.equals(Config.ENTRYMETHOD)) {
+						Block block = methodDeclaration.getBody();
+						ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
+						for (int i = size - 1; i >= 0; i--) {
+							listRewrite.insertFirst(createAssignmentStatement(Config.PARAMETERS[i], Config.CLS[i], (int)Math.pow(2, i)), null);
+						}
+					}
+				}
 				return true;
+			}
+			
+			@SuppressWarnings("unchecked")
+			private Statement createAssignmentStatement(String parameter, Class<?> cls, int tag) {
+			    MethodInvocation invocation = ast.newMethodInvocation();
+			    QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "columbia", "cs", "psl", "phosphor", "runtime"}), ast.newSimpleName("Tainter"));
+			    invocation.setExpression(qualifiedName);
+			    if (cls == byte.class) {
+				    invocation.setName(ast.newSimpleName("taintedByte"));
+				} else if (cls == short.class) {
+					invocation.setName(ast.newSimpleName("taintedShort"));
+				} else if (cls == int.class) {
+					invocation.setName(ast.newSimpleName("taintedInt"));
+				} else if (cls == long.class) {
+					invocation.setName(ast.newSimpleName("taintedLong"));
+				} else if (cls == float.class) {
+					invocation.setName(ast.newSimpleName("taintedFloat"));
+				} else if (cls == double.class) {
+					invocation.setName(ast.newSimpleName("taintedDouble"));
+				} else if (cls == boolean.class) {
+					invocation.setName(ast.newSimpleName("taintedBoolean"));
+				}
+			    invocation.arguments().add(ast.newSimpleName(parameter));
+			    invocation.arguments().add(ast.newNumberLiteral(String.valueOf(tag)));
+				
+			    Assignment assignment = ast.newAssignment();
+			    assignment.setLeftHandSide(ast.newSimpleName(parameter));
+			    assignment.setOperator(Operator.ASSIGN);
+			    assignment.setRightHandSide(invocation);
+			    return ast.newExpressionStatement(assignment);
 			}
 
 			@Override
@@ -267,7 +399,7 @@ public class Instrumenter implements Serializable {
 	 * @throws MalformedTreeException
 	 * @throws BadLocationException
 	 */
-	public void formatFilesInDir(File root) throws IOException, MalformedTreeException, BadLocationException {
+	public void format(File root) throws IOException, MalformedTreeException, BadLocationException {
 		if (root.isFile()) {
 			if (root.getName().endsWith(".java")) {
 				formatFile(root);
@@ -275,7 +407,7 @@ public class Instrumenter implements Serializable {
 		} else {
 			File[] files = root.listFiles();	 
 			for (File f : files) {
-				formatFilesInDir(f);
+				format(f);
 			}
 		}
 	}
@@ -339,10 +471,13 @@ public class Instrumenter implements Serializable {
 	
 	public static void main(String[] args) {
 		try {
-			File project = new File("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test.java");
+			Config.loadProperties("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.mlt");
+			
+			File project = new File("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.java");
 			Instrumenter instrumenter = new Instrumenter();
-			instrumenter.formatFilesInDir(project);
-			instrumenter.instrumentFilesInDir(project);
+			instrumenter.format(project);
+			instrumenter.instrument(project);
+			instrumenter.updateLineNumbers(project);
 			
 			ArrayList<Predicate> pList = instrumenter.getPredicates();
 			int size = pList.size();

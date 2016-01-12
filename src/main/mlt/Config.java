@@ -17,7 +17,6 @@ public class Config {
 
 	// configuration information of the target project for instrumentation
 	public static String SOURCEPATH = null;
-	public static String TARGETPATH = null;
 	
 	// configuration information for taint analysis
 	public static String TAINT = "static";
@@ -62,13 +61,6 @@ public class Config {
 			System.exit(0);
 		}
 		System.out.println("[ml-testing] sourcepath = " + SOURCEPATH);
-		
-		TARGETPATH = prop.getProperty("targetpath");
-		if (TARGETPATH == null) {
-			System.err.println("[ml-testing] configuration error: target path not set");
-			System.exit(0);
-		}
-		System.out.println("[ml-testing] targetpath = " + TARGETPATH);
 		
 		CLASSPATH = prop.getProperty("classpath");
 		if (CLASSPATH == null) {

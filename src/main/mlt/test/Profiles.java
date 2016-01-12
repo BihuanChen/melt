@@ -2,8 +2,6 @@ package mlt.test;
 
 import java.util.ArrayList;
 
-import edu.columbia.cs.psl.phosphor.struct.LinkedList;
-import edu.ntu.taint.BranchTaint;
 import mlt.instrument.Predicate;
 
 public class Profiles {
@@ -11,7 +9,6 @@ public class Profiles {
 	public static ArrayList<Predicate> predicates = new ArrayList<Predicate>();
 
 	public static ArrayList<Pair> executedPredicates = new ArrayList<Pair>();
-	public static LinkedList<BranchTaint> branchTaints;
 	public static ArrayList<TestCase> tests = new ArrayList<TestCase>();
 	
 	// for instrumentation

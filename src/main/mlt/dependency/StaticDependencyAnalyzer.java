@@ -70,7 +70,7 @@ public class StaticDependencyAnalyzer {
 	
 	//FIXME: throw "Unknown tag in constant pool" if using java 1.8
 	public static LinkedHashMap<String, HashSet<Integer>> doInterAnalysis(String classPath, String mainClass, final String entryPoint) {
-		String[] interOptions = new String[15];
+		String[] interOptions = new String[16];
 		interOptions[0] = "-cp";
 		interOptions[1] = classPath;
 		interOptions[2] = "-pp";
@@ -86,6 +86,7 @@ public class StaticDependencyAnalyzer {
 		interOptions[12] = "-main-class";
 		interOptions[13] = mainClass;
 		interOptions[14] = mainClass;
+		interOptions[15] = "-allow-phantom-refs";
 		
 		final LinkedHashMap<String, HashSet<Integer>> branchesToInputsDependency = new LinkedHashMap<String, HashSet<Integer>>();
 		
