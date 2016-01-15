@@ -95,7 +95,6 @@ public class ConcolicExecution {
 		final String methodName = jpfConf.getString("concolic.method");
 		ClassPool cp = ClassPool.getDefault();
 		cp.insertClassPath(jpfConf.getString("classpath").split(";")[0]);
-		cp.insertClassPath(jpfConf.getString("classpath").split(";")[1]);
 		CtClass cc = cp.get(mainClass);
 		if (cc.isFrozen()) {
 			cc.defrost();
@@ -115,7 +114,7 @@ public class ConcolicExecution {
 			}
 			
 		});
-		cc.writeFile(jpfConf.getString("classpath").split(",")[0]);
+		cc.writeFile(jpfConf.getString("classpath").split(";")[0]);
 	}
 	
 	public ArrayList<Valuation> getValuations(String srcLoc, int size, HashMap<Instruction, Expression<Boolean>> cons) {
@@ -194,13 +193,14 @@ public class ConcolicExecution {
 		
 		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.jpf");
 		Object[] obj = new Object[2];
-		obj[0] = 1;
-		obj[1] = 2;
+		obj[0] = 9098;
+		obj[1] = -913;
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		ArrayList<Valuation> vals = jdart.getValuations("phosphor.test.Test1.test(Test1.java:13)", mlt.Config.TESTS_SIZE, cons);
+		ArrayList<Valuation> vals = jdart.getValuations("phosphor.test.Test1.test(Test1.java:10)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
+		jdart.statistics();
 	}
 
 }

@@ -1,9 +1,13 @@
 package mlt.test;
 
+import java.io.Serializable;
+
 import gov.nasa.jpf.constraints.api.Valuation;
 
-public class TestCase {
-	
+public class TestCase implements Serializable {
+
+	private static final long serialVersionUID = -8821706477496782862L;
+
 	private Object[] test;
 	private Valuation valuation;
 	

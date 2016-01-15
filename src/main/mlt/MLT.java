@@ -2,11 +2,11 @@ package mlt;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -23,14 +23,14 @@ import mlt.test.Profiles;
 import mlt.test.TestCase;
 import mlt.test.generation.random.PureRandomTestGenerator;
 import mlt.test.generation.search.SearchBasedTestGenerator;
-import mlt.test.run.TestRunner;
+import mlt.test.run.TestRunnerClient;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 
 public class MLT {
 		
-	public static void prepare() throws MalformedTreeException, IOException, BadLocationException {
+	public static void instrument() throws MalformedTreeException, IOException, BadLocationException {
 		// format the source code
 		long t1 = System.currentTimeMillis();
 		File project = new File(Config.SOURCEPATH);
@@ -44,57 +44,58 @@ public class MLT {
 		// update line number information
 		long t3 = System.currentTimeMillis();
 		instrumenter.updateLineNumbers(project);
-				
-		// analyze inputs-branch dependency statically
-		long t4 = System.currentTimeMillis();
-		LinkedHashMap<String, HashSet<Integer>> dependency = null;
-		if (Config.TAINT.equals("static")) {
-			String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
-			dependency = StaticDependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
-		}
-		
-		Iterator<String> iterator = dependency.keySet().iterator();
-		while (iterator.hasNext()) {
-			String u = iterator.next();
-			HashSet<Integer> set = dependency.get(u);
-			System.out.println("[ml-testing] " + u);
-			System.out.println("[ml-testing] " + set + "\n");
-		}
-		
-		// map the inputs-branch dependency statically
-		if (Config.TAINT.equals("static")) {
-			ArrayList<Predicate> predicates = instrumenter.getPredicates();
-			int size = predicates.size();
-			for (int i = 0; i < size; i++) {
-				Predicate p = predicates.get(i);
-				String id = p.getClassName() + " " + p.getLineNumber();
-				HashSet<Integer> set = dependency.get(id);
-				if (set != null) {
-					p.setDepInputs(set);				
-				} else {
-					System.err.println("[ml-testing] inputs-branch dependency not found " + p.getExpression());
-				}
-			}
-		}
 		
 		// serialize the predicates
-		long t5 = System.currentTimeMillis();
+		long t4 = System.currentTimeMillis();
 		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("predicates.pred")));
 		oout.writeObject(instrumenter);
 		oout.close();
 		
-		long t6 = System.currentTimeMillis();
+		long t5 = System.currentTimeMillis();
 		System.out.println("[ml-testing] project formatted in " + (t2 - t1) + " ms");
 		System.out.println("[ml-testing] project instrumented in " + (t3 - t2) + " ms");
 		System.out.println("[ml-testing] line number updated in " + (t4 - t3) + " ms");
-		if (Config.TAINT.equals("static")) {
-			System.out.println("[ml-testing] dependency analyzed in " + (t5 - t4) + " ms");
+		System.out.println("[ml-testing] predicates serialized in " + (t5 - t4) + " ms");
+	}
+	
+	public static void doStaticTaintAnalysis() throws FileNotFoundException, IOException, ClassNotFoundException {
+		// deserialize the predicates
+		long t1 = System.currentTimeMillis();
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
+		Instrumenter instrumenter = (Instrumenter)oin.readObject();
+		oin.close();
+	
+		// analyze inputs-branch dependency statically
+		long t2 = System.currentTimeMillis();
+		String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
+		LinkedHashMap<String, HashSet<Integer>> dependency = StaticDependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
+	
+		int size = instrumenter.getPredicates().size();
+		for (int i = 0; i < size; i++) {
+			Predicate p = instrumenter.getPredicates().get(i);
+			String id = p.getClassName() + " " + p.getLineNumber();
+			HashSet<Integer> set = dependency.get(id);
+			if (set != null) {
+				p.setDepInputs(set);				
+			} else {
+				System.err.println("[ml-testing] inputs-branch dependency not found " + p.getExpression());
+			}
 		}
-		System.out.println("[ml-testing] predicates serialized in " + (t6 - t5) + " ms");
+		
+		// serialize the predicates
+		long t3 = System.currentTimeMillis();
+		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("predicates.pred")));
+		oout.writeObject(instrumenter);
+		oout.close();
+		
+		long t4 = System.currentTimeMillis();
+		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
+		System.out.println("[ml-testing] taint analyzed in " + (t3 - t2) + " ms");
+		System.out.println("[ml-testing] predicates serialized in " + (t4 - t3) + " ms");
 	}
 	
 	public static void run() throws Exception {
-		// serialize the predicates
+		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
@@ -103,7 +104,7 @@ public class MLT {
 		
 		// running ml-testing
 		long t2 = System.currentTimeMillis();
-		TestRunner runner = new TestRunner();
+		TestRunnerClient runner = new TestRunnerClient();
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		PathLearner learner = null;
 		PredicateNode targetNode = null;
@@ -118,7 +119,7 @@ public class MLT {
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
 				long t = System.currentTimeMillis();
-				runner.run(testCase);
+				runner.run(testCase.getTest());
 				testTime += System.currentTimeMillis() - t;
 				Profiles.tests.add(testCase);
 				analyzer.update();
@@ -140,8 +141,8 @@ public class MLT {
 		
 		long t3 = System.currentTimeMillis();
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
-		System.out.println("[ml-testing] ml-testing in " + (t3 - t2) + " ms");
 		System.out.println("[ml-testing] tests run in " + testTime + " ms");
+		System.out.println("[ml-testing] ml-testing in " + (t3 - t2) + " ms");
 	}
 	
 	public static void runRandom() throws Exception {
@@ -153,11 +154,11 @@ public class MLT {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
-		//Profiles.printPredicates();
+		Profiles.printPredicates();
 		
 		// running random testing
 		long t2 = System.currentTimeMillis();
-		TestRunner runner = new TestRunner();
+		TestRunnerClient runner = new TestRunnerClient();
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 
 		long testTime = 0;
@@ -171,7 +172,7 @@ public class MLT {
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
 				long t = System.currentTimeMillis();
-				runner.run(testCase);
+				runner.run(testCase.getTest());
 				testTime += System.currentTimeMillis() - t;
 				Profiles.tests.add(testCase);
 				analyzer.update();
@@ -186,8 +187,8 @@ public class MLT {
 		
 		long t3 = System.currentTimeMillis();
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
-		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms");
 		System.out.println("[ml-testing] tests run in " + testTime + " ms");
+		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms");
 	}
 	
 	public static void test() throws Exception {
@@ -197,10 +198,10 @@ public class MLT {
 		Profiles.printPredicates();
 		
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
-		TestRunner runner = new TestRunner();
+		TestRunnerClient runner = new TestRunnerClient();
 		
 		TestCase testInput1 = new TestCase(new Object[]{(byte)-1, (byte)1, (byte)1});
-		runner.run(testInput1);
+		runner.run(testInput1.getTest());
 		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -211,7 +212,7 @@ public class MLT {
 		System.out.println("[ml-testing] prefix traces found " + pl.getTraces());
 				
 		TestCase testInput2 = new TestCase(new Object[]{(byte)2, (byte)-1, (byte)1});
-		runner.run(testInput2);
+		runner.run(testInput2.getTest());
 		Profiles.tests.add(testInput2);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -222,7 +223,7 @@ public class MLT {
 		System.out.println("[ml-testing] prefix traces found " + pl.getTraces());
 		
 		TestCase testInput3 = new TestCase(new Object[]{(byte)2, (byte)2, (byte)1});
-		runner.run(testInput3);
+		runner.run(testInput3.getTest());
 		Profiles.tests.add(testInput3);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -242,7 +243,7 @@ public class MLT {
 
 		
 		TestCase testInput4 = new TestCase(new Object[]{(byte)3, (byte)3, (byte)-1});
-		runner.run(testInput4);
+		runner.run(testInput4.getTest());
 		Profiles.tests.add(testInput4);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -272,8 +273,11 @@ public class MLT {
 	public static void main(String[] args) throws Exception {
 		//Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
 		Config.loadProperties("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.mlt");
-		MLT.prepare();
-		//MLT.run();
+		//MLT.instrument();
+		//if (Config.TAINT.equals("static")) {
+		//	MLT.doStaticTaintAnalysis();
+		//}
+		MLT.run();
 	}
 
 }

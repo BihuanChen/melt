@@ -116,6 +116,7 @@ public class ProfileAnalyzer {
 			}
 		}
 		Profiles.executedPredicates.clear();
+		Profiles.taints.clear();
 	}
 	
 	public PredicateNode findUnexploredBranch() {

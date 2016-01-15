@@ -1,15 +1,20 @@
 package mlt.test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import mlt.instrument.Predicate;
 
 public class Profiles {
 	
 	public static ArrayList<Predicate> predicates = new ArrayList<Predicate>();
-
-	public static ArrayList<Pair> executedPredicates = new ArrayList<Pair>();
 	public static ArrayList<TestCase> tests = new ArrayList<TestCase>();
+	
+	// dynamic info
+	public static ArrayList<Pair> executedPredicates = new ArrayList<Pair>();
+	public static HashMap<String, HashSet<Integer>> taints = new HashMap<String, HashSet<Integer>>();
 	
 	// for instrumentation
 	public static void add(int index, boolean value) {
@@ -24,6 +29,15 @@ public class Profiles {
 		System.out.println();
 	}
 	
+	public static void printTests() {
+		int size = tests.size();
+		System.out.println("[ml-testing] tests");
+		for (int i = 0; i < size; i++) {
+			System.out.println("[ml-testing] " + tests.get(i).getTest());
+		}
+		System.out.println();
+	}
+	
 	public static void printExecutedPredicates() {
 		int size = executedPredicates.size();
 		System.out.print("[ml-testing] predicates");
@@ -33,13 +47,12 @@ public class Profiles {
 		System.out.println(" executed");
 	}
 	
-	public static void printTests() {
-		int size = tests.size();
-		System.out.println("[ml-testing] tests");
-		for (int i = 0; i < size; i++) {
-			System.out.println("[ml-testing] " + tests.get(i).getTest());
+	public static void printTaints() {
+		Iterator<String> iterator = taints.keySet().iterator();
+		while (iterator.hasNext()) {
+			String key = iterator.next();
+			System.out.println("[ml-testing] " + key + " taints are " + taints.get(key));
 		}
-		System.out.println();
 	}
-
+	
 }

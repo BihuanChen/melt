@@ -8,11 +8,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import mlt.Config;
-import mlt.test.TestCase;
 
-public class TestRunner {
+public class TestRunnerUtil {
 
-	public void run(TestCase testCase) throws MalformedURLException {
+	public static void run(Object[] test) throws MalformedURLException {
 		try {
 			File f = new File(Config.CLASSPATH);
 			URL[] cp = {f.toURI().toURL()};
@@ -20,7 +19,7 @@ public class TestRunner {
 			Class<?> c = cl.loadClass(Config.MAINCLASS);
 			Object o = c.newInstance();
 			Method m = c.getMethod(Config.METHOD, Config.CLS);
-			m.invoke(o, testCase.getTest());
+			m.invoke(o, test);
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}

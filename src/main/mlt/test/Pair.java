@@ -1,7 +1,11 @@
 package mlt.test;
 
-public class Pair {
+import java.io.Serializable;
 
+public class Pair implements Serializable {
+
+	private static final long serialVersionUID = 6942611549827450107L;
+	
 	private int predicateIndex;
 	private boolean predicateValue; // either the true or false branch
 	
