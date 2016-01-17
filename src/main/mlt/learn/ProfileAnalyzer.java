@@ -47,8 +47,19 @@ public class ProfileAnalyzer {
 				current.setPredicate(index);
 				addToLeveledNodes(current.getLevel(), nodes.size() - 1);
 				addToPredicatedNodes(current.getPredicate(), nodes.size() - 1);
-			} else if (current.getPredicate() != p.getPredicateIndex()) {
+			} else if (current.getPredicate() != index) {
 				System.err.println("[ml-testing] error in creating the tree structure");
+			}
+			
+			// attach the dynamic taint results
+			if (Config.TAINT.equals("dynamic")) {
+				Predicate pd = Profiles.predicates.get(index);
+				String key = pd.getClassName() + "@" + pd.getLineNumber();
+				HashSet<Integer> newDepInputs = Profiles.taints.get(key);
+				if (current.getDepInputs() != null) {
+					newDepInputs.removeAll(current.getDepInputs());
+				}
+				current.addToNewDepInputs(newDepInputs);
 			}
 			
 			// check if the current branch is a loop branch;

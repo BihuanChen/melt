@@ -33,6 +33,7 @@ public class PredicateNode {
 	private int oldSize;
 	
 	private HashSet<Integer> depInputs;
+	private HashSet<Integer> newDepInputs;
 	
 	public PredicateNode() {
 		this.predicate = -1;
@@ -205,11 +206,18 @@ public class PredicateNode {
 	}
 
 	// only called when using dynamic taint analysis
-	public void addDepInputs(HashSet<Integer> newDepInputs) {
+	public void addToDepInputs() {
 		if (depInputs == null) {
 			depInputs = new HashSet<Integer>();
 		}
 		depInputs.addAll(newDepInputs);
+	}
+	
+	public void addToNewDepInputs(HashSet<Integer> newDepInputs) {
+		if (this.newDepInputs == null) {
+			this.newDepInputs = new HashSet<Integer>();
+		}
+		this.newDepInputs.addAll(newDepInputs);
 	}
 
 	@Override
@@ -217,7 +225,7 @@ public class PredicateNode {
 		return "PredicateNode [ predicate = " + predicate + ", level = " + level + ", attempts = " + attempts + 
 				", sourceTrueBranch = " + sourceTrueBranch + ", sourceFalseBranch = " + sourceFalseBranch + 
 				", targetTrueBranches = " + targetTrueBranches + ", targetFalseBranches = " + targetFalseBranches + 
-				", constraints = " + constraints + " ]";
+				", constraints = " + constraints + ", depInputs = " + depInputs + ", newDepInputs = " + newDepInputs + " ]";
 	}
 
 }

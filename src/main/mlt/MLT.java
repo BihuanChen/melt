@@ -191,7 +191,7 @@ public class MLT {
 		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms");
 	}
 	
-	public static void test() throws Exception {
+	public static void test1() throws Exception {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
@@ -270,6 +270,38 @@ public class MLT {
 		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 1, -1}))[0]);
 	}
 	
+	public static void test2() throws Exception {
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
+		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+		oin.close();
+		Profiles.printPredicates();
+		
+		ProfileAnalyzer analyzer = new ProfileAnalyzer();
+		TestRunnerClient runner = new TestRunnerClient();
+		
+		TestCase test1 = new TestCase(new Object[]{-1, -2});
+		runner.run(test1.getTest());
+		Profiles.tests.add(test1);
+		Profiles.printExecutedPredicates();
+		analyzer.update();
+		analyzer.printNodes();
+		//PredicateNode node = analyzer.findUnexploredBranch();
+		//System.out.println("[ml-testing] target branch found " + node);
+		//PathLearner pl = new PathLearner(analyzer.getRoot(), node);
+		//System.out.println("[ml-testing] prefix traces found " + pl.getTraces());
+				
+		TestCase test2 = new TestCase(new Object[]{1, 2});
+		runner.run(test2.getTest());
+		Profiles.tests.add(test2);
+		Profiles.printExecutedPredicates();
+		analyzer.update();
+		analyzer.printNodes();
+		//node = analyzer.findUnexploredBranch();
+		//System.out.println("[ml-testing] target branch found " + node);
+		//pl = new PathLearner(analyzer.getRoot(), node);
+		//System.out.println("[ml-testing] prefix traces found " + pl.getTraces());
+	}
+	
 	public static void main(String[] args) throws Exception {
 		//Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
 		Config.loadProperties("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.mlt");
@@ -277,7 +309,8 @@ public class MLT {
 		//if (Config.TAINT.equals("static")) {
 		//	MLT.doStaticTaintAnalysis();
 		//}
-		MLT.run();
+		//MLT.run();
+		MLT.test2();
 	}
 
 }
