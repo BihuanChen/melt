@@ -25,14 +25,14 @@ public class TestRunnerClient {
 		client.run(test1);
 		Profiles.printExecutedPredicates();
 		Profiles.printTaints();
-		Profiles.executedPredicates.clear();
+		Profiles.executedPredicates = null;
 		Profiles.taints.clear();
 		
 		Object[] test2 = new Object[]{-1, -2};
 		client.run(test2);
 		Profiles.printExecutedPredicates();
 		Profiles.printTaints();
-		Profiles.executedPredicates.clear();
+		Profiles.executedPredicates = null;
 		Profiles.taints.clear();
 	}
 	

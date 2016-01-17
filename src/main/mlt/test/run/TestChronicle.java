@@ -47,7 +47,7 @@ public class TestChronicle {
 			TestRunnerUtil.run(obj);
 		} else {
 			LinkedList<BranchTaint> taints = (LinkedList<BranchTaint>)reader.readObject();
-			Profiles.executedPredicates.addAll((ArrayList<Pair>)reader.readObject());
+			Profiles.executedPredicates = (ArrayList<Pair>)reader.readObject();
 
 			Node<BranchTaint> node = taints.getFirst();
 			while (node != null) {

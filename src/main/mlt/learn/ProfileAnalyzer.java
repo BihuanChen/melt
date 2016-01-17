@@ -115,7 +115,7 @@ public class ProfileAnalyzer {
 				}
 			}
 		}
-		Profiles.executedPredicates.clear();
+		Profiles.executedPredicates = null;
 		Profiles.taints.clear();
 	}
 	
