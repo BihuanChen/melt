@@ -30,16 +30,18 @@ public class PredicateNode {
 	private boolean covered = false;
 	
 	private LinkedHashMap<String, Expression<Boolean>> constraints;
-	private int oldSize;
+	private int oldConSize;
 	
 	private HashSet<Integer> depInputs;
-	private HashSet<Integer> newDepInputs;
+	private HashSet<Integer> notDepInputs;
+	private boolean depDirty;
 	
 	public PredicateNode() {
 		this.predicate = -1;
 		this.level = -1;
 		this.attempts = 0;
-		this.oldSize = 0;
+		this.oldConSize = 0;
+		this.depDirty = true;
 	}
 
 	public int getPredicate() {
@@ -189,12 +191,12 @@ public class PredicateNode {
 		}
 	}
 
-	public int getOldSize() {
-		return oldSize;
+	public int getOldConSize() {
+		return oldConSize;
 	}
 
-	public void setOldSize(int oldSize) {
-		this.oldSize = oldSize;
+	public void setOldConSize(int oldConSize) {
+		this.oldConSize = oldConSize;
 	}
 
 	public HashSet<Integer> getDepInputs() {
@@ -204,20 +206,43 @@ public class PredicateNode {
 			return Profiles.predicates.get(predicate).getDepInputs();
 		}
 	}
+	
+	public HashSet<Integer> getNotDepInputs() {
+		if (Config.TAINT.equals("dynamic")) {
+			return notDepInputs;
+		} else {//if (Config.TAINT.equals("static")){
+			return Profiles.predicates.get(predicate).getNotDepInputs();
+		}
+	}
 
 	// only called when using dynamic taint analysis
-	public void addToDepInputs() {
+	public void addToDepInputs(HashSet<Integer> newDepInputs) {
 		if (depInputs == null) {
 			depInputs = new HashSet<Integer>();
 		}
-		depInputs.addAll(newDepInputs);
-	}
-	
-	public void addToNewDepInputs(HashSet<Integer> newDepInputs) {
-		if (this.newDepInputs == null) {
-			this.newDepInputs = new HashSet<Integer>();
+		if (notDepInputs == null) {
+			notDepInputs = new HashSet<Integer>();
+			for (int i = 0; i < Config.CLS.length; i++) {
+				notDepInputs.add(i);
+			}
 		}
-		this.newDepInputs.addAll(newDepInputs);
+		Iterator<Integer> iterator = newDepInputs.iterator();
+		while (iterator.hasNext()) {
+			Integer i = iterator.next();
+			boolean exist = depInputs.add(i);
+			if (exist) {
+				notDepInputs.remove(i);
+				depDirty = true;
+			}
+		}
+	}
+
+	public boolean isDepDirty() {
+		return depDirty;
+	}
+
+	public void setDepDirty(boolean depDirty) {
+		this.depDirty = depDirty;
 	}
 
 	@Override
@@ -225,7 +250,7 @@ public class PredicateNode {
 		return "PredicateNode [ predicate = " + predicate + ", level = " + level + ", attempts = " + attempts + 
 				", sourceTrueBranch = " + sourceTrueBranch + ", sourceFalseBranch = " + sourceFalseBranch + 
 				", targetTrueBranches = " + targetTrueBranches + ", targetFalseBranches = " + targetFalseBranches + 
-				", constraints = " + constraints + ", depInputs = " + depInputs + ", newDepInputs = " + newDepInputs + " ]";
+				", constraints = " + constraints + ", depInputs = " + depInputs + ", notDepInputs = " + notDepInputs + " ]";
 	}
 
 }

@@ -35,7 +35,7 @@ public class TwoBranchesLearner {
 		
 	public TwoBranchesLearner(PredicateNode node) throws Exception {
 		this.node = node;
-		this.node.setOldSize(0);
+		this.node.setOldConSize(0);
 		
 		this.node.getSourceTrueBranch().setOldSize(0);
 		this.node.getSourceFalseBranch().setOldSize(0);
@@ -106,10 +106,28 @@ public class TwoBranchesLearner {
 				System.err.println("[ml-testing] unknown conditional statement");
 			}			
 		}
-		if (changed1 || changed2) {
+		// set the classifier filter
+		boolean change3 = false;
+		if (node.isDepDirty()) {
+			int size = node.getNotDepInputs().size();
+			int[] index = new int[size];
+			Iterator<Integer> iterator = node.getNotDepInputs().iterator();
+			int i = 0;
+			while (iterator.hasNext()) {
+				index[i++] = iterator.next() + 1;
+			}
+			Remove rm = new Remove();			
+			rm.setAttributeIndicesArray(index);
+			classifier.setFilter(rm);
+			
+			node.setDepDirty(false);
+			change3 = true;
+			System.out.println("two branch filter changes");
+		}
+		if (changed1 || changed2 || change3) {
 			// build the classifier if instances are changed
 			classifier.buildClassifier(instances);
-			//System.out.println("[ml-testing] instances \n" + instances + "\n");
+			System.out.println("[ml-testing] instances \n" + classifier + "\n");
 		}
 	}
 	
@@ -157,9 +175,7 @@ public class TwoBranchesLearner {
 			Attribute classAttr = new Attribute("branch", fvClassVal);
 			attrs.addElement(classAttr);
 			// declare each input as an attribute
-			HashSet<Integer> depInputs = node.getDepInputs();
-			int[] delAttrs = new int[size - depInputs.size()];
-			for (int i = 0, j = 0; i < size; i++) {
+			for (int i = 0; i < size; i++) {
 				if (Config.CLS[i] == boolean.class) {
 					FastVector fv = new FastVector(2);
 					fv.addElement("false");
@@ -168,29 +184,22 @@ public class TwoBranchesLearner {
 				} else {
 					attrs.addElement(new Attribute("input_" + i, i));
 				}
-				if (!depInputs.contains(i)) {
-					delAttrs[j++] = i + 1;
-				}
 			}
 			// initialize data
 			instances = new Instances("", attrs, 0);
 			instances.setClassIndex(0);
-			// initial the filter
-			Remove rm = new Remove();
-			rm.setAttributeIndicesArray(delAttrs);
-			classifier.setFilter(rm);
 		}
 		// add new attributes and update instances
 		boolean flag = false;
 		LinkedHashMap<String, Expression<Boolean>> constraints = node.getConstraints();
-		if (constraints != null && constraints.size() > node.getOldSize()) {
+		if (constraints != null && constraints.size() > node.getOldConSize()) {
 			Iterator<String> iterator = constraints.keySet().iterator();
 			int counter = 0;
 			ArrayList<Expression<Boolean>> newConstraints = new ArrayList<Expression<Boolean>>();
 			// add new attributes
 			while (iterator.hasNext()) {
 				String id = iterator.next();
-				if (counter >= node.getOldSize()) {
+				if (counter >= node.getOldConSize()) {
 					newConstraints.add(constraints.get(id));
 					FastVector fv = new FastVector(2);
 					fv.addElement("false");
@@ -207,7 +216,7 @@ public class TwoBranchesLearner {
 					instances.instance(i).setValue(instances.numAttributes() - newConstraints.size() + j, b ? "true" : "false");
 				}
 			}
-			node.setOldSize(constraints.size());
+			node.setOldConSize(constraints.size());
 		}
 		return flag;
 	}

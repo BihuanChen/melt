@@ -56,10 +56,7 @@ public class ProfileAnalyzer {
 				Predicate pd = Profiles.predicates.get(index);
 				String key = pd.getClassName() + "@" + pd.getLineNumber();
 				HashSet<Integer> newDepInputs = Profiles.taints.get(key);
-				if (current.getDepInputs() != null) {
-					newDepInputs.removeAll(current.getDepInputs());
-				}
-				current.addToNewDepInputs(newDepInputs);
+				current.addToDepInputs(newDepInputs);
 			}
 			
 			// check if the current branch is a loop branch;

@@ -279,16 +279,16 @@ public class MLT {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		TestRunnerClient runner = new TestRunnerClient();
 		
-		TestCase test1 = new TestCase(new Object[]{-1, -2});
+		TestCase test1 = new TestCase(new Object[]{1, -2});
 		runner.run(test1.getTest());
 		Profiles.tests.add(test1);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
 		analyzer.printNodes();
-		//PredicateNode node = analyzer.findUnexploredBranch();
-		//System.out.println("[ml-testing] target branch found " + node);
-		//PathLearner pl = new PathLearner(analyzer.getRoot(), node);
-		//System.out.println("[ml-testing] prefix traces found " + pl.getTraces());
+		PredicateNode node = analyzer.findUnexploredBranch();
+		System.out.println("[ml-testing] target branch found " + node);
+		PathLearner pl = new PathLearner(analyzer.getRoot(), node);
+		System.out.println("[ml-testing] prefix traces found " + pl.getTraces());
 				
 		TestCase test2 = new TestCase(new Object[]{1, 2});
 		runner.run(test2.getTest());
@@ -296,10 +296,15 @@ public class MLT {
 		Profiles.printExecutedPredicates();
 		analyzer.update();
 		analyzer.printNodes();
-		//node = analyzer.findUnexploredBranch();
-		//System.out.println("[ml-testing] target branch found " + node);
-		//pl = new PathLearner(analyzer.getRoot(), node);
-		//System.out.println("[ml-testing] prefix traces found " + pl.getTraces());
+		node = analyzer.findUnexploredBranch();
+		System.out.println("[ml-testing] target branch found " + node);
+		pl = new PathLearner(analyzer.getRoot(), node);
+		System.out.println("[ml-testing] prefix traces found " + pl.getTraces());
+		
+		//TwoBranchesLearner twoLearner = analyzer.getNodes().get(0).getTwoBranchesLearner();
+		//twoLearner.buildInstancesAndClassifier();
+		//twoLearner = analyzer.getNodes().get(0).getTwoBranchesLearner();
+		//twoLearner.buildInstancesAndClassifier();
 	}
 	
 	public static void main(String[] args) throws Exception {

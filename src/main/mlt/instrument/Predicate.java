@@ -3,6 +3,8 @@ package mlt.instrument;
 import java.io.Serializable;
 import java.util.HashSet;
 
+import mlt.Config;
+
 public class Predicate implements Serializable {
 
 	private static final long serialVersionUID = -6775548673062385131L;
@@ -18,7 +20,8 @@ public class Predicate implements Serializable {
 	private TYPE type;
 	
 	// indexes of the inputs that the predicate depends on
-	private HashSet<Integer> depInputs; 
+	private HashSet<Integer> depInputs;
+	private HashSet<Integer> notDepInputs;
 	
 	public Predicate(String className, String methodName, int lineNumber, String expression, TYPE type) {
 		this.className = className;
@@ -71,10 +74,19 @@ public class Predicate implements Serializable {
 	public HashSet<Integer> getDepInputs() {
 		return depInputs;
 	}
+	
+	public HashSet<Integer> getNotDepInputs() {
+		return notDepInputs;
+	}
 
 	// only called when using static taint analysis
 	public void setDepInputs(HashSet<Integer> depInputs) {
 		this.depInputs = depInputs;
+		notDepInputs = new HashSet<Integer>();
+		for (int i = 0; i < Config.CLS.length; i++) {
+			notDepInputs.add(i);
+		}
+		notDepInputs.removeAll(depInputs);
 	}
 
 	@Override
