@@ -122,12 +122,11 @@ public class TwoBranchesLearner {
 			
 			node.setDepDirty(false);
 			change3 = true;
-			System.out.println("two branch filter changes");
 		}
 		if (changed1 || changed2 || change3) {
 			// build the classifier if instances are changed
 			classifier.buildClassifier(instances);
-			System.out.println("[ml-testing] instances \n" + classifier + "\n");
+			//System.out.println("[ml-testing] instances \n" + classifier + "\n");
 		}
 	}
 	

@@ -90,7 +90,7 @@ public class Config {
 		}
 		System.out.println("[ml-testing] jpfconfig = " + JPFCONFIG);
 		
-		String p = prop.getProperty("exploration.mode");
+		/*String p = prop.getProperty("exploration.mode");
 		if (p != null) {
 			if (p.equals("systematic")) {
 				MODE = Mode.SYSTEMATIC;
@@ -101,9 +101,9 @@ public class Config {
 				System.exit(0);
 			}
 		}
-		System.out.println("[ml-testing] exploration.mode = " + MODE.toString().toLowerCase());
+		System.out.println("[ml-testing] exploration.mode = " + MODE.toString().toLowerCase());*/
 				
-		p = prop.getProperty("classification.model");
+		String p = prop.getProperty("classification.model");
 		if (p != null) {
 			if (p.equals("j48")) {
 				MODEL = Model.J48;

@@ -80,12 +80,11 @@ public class OneBranchLearner {
 			
 			node.setDepDirty(false);
 			change3 = true;
-			System.out.println("one branch filter changes");
 		}
 		if (changed1 || changed2 || change3) {
 			// build the classifier if new tests data are available
 			classifier.buildClassifier(instances);
-			System.out.println("[ml-testing] instances \n" + classifier + "\n");
+			//System.out.println("[ml-testing] instances \n" + classifier + "\n");
 		}
 	}
 	

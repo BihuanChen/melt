@@ -180,7 +180,7 @@ public class ConcolicExecution {
 		System.out.println(cons);
 		//jdart.statistics();*/
 		
-		/*ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art-ce/src/dt/original/Bessj.jpf");
+		/*ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.jpf");
 		Object[] obj = new Object[2];
 		obj[0] = 7975;
 		obj[1] = -5814.517874260192;
@@ -188,16 +188,16 @@ public class ConcolicExecution {
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
 		ArrayList<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:27)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
-		System.out.println(cons);*/
-		//jdart.statistics();
+		System.out.println(cons);
+		//jdart.statistics();*/
 		
-		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.jpf");
+		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.jpf");
 		Object[] obj = new Object[2];
-		obj[0] = 9098;
-		obj[1] = -913;
+		obj[0] = -3776;
+		obj[1] = 9603;
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		ArrayList<Valuation> vals = jdart.getValuations("phosphor.test.Test1.test(Test1.java:10)", mlt.Config.TESTS_SIZE, cons);
+		ArrayList<Valuation> vals = jdart.getValuations("phosphor.test.Test.test(Test.java:12)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
 		jdart.statistics();

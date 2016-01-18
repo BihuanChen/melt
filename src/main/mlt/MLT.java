@@ -47,7 +47,7 @@ public class MLT {
 		
 		// serialize the predicates
 		long t4 = System.currentTimeMillis();
-		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("predicates.pred")));
+		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File(Config.MAINCLASS + ".pred")));
 		oout.writeObject(instrumenter);
 		oout.close();
 		
@@ -61,7 +61,7 @@ public class MLT {
 	public static void doStaticTaintAnalysis() throws FileNotFoundException, IOException, ClassNotFoundException {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
 		Instrumenter instrumenter = (Instrumenter)oin.readObject();
 		oin.close();
 	
@@ -84,7 +84,7 @@ public class MLT {
 		
 		// serialize the predicates
 		long t3 = System.currentTimeMillis();
-		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("predicates.pred")));
+		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File(Config.MAINCLASS + ".pred")));
 		oout.writeObject(instrumenter);
 		oout.close();
 		
@@ -97,7 +97,7 @@ public class MLT {
 	public static void run() throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
 		Profiles.printPredicates();
@@ -151,7 +151,7 @@ public class MLT {
 		
 		// serialize the predicates
 		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
 		Profiles.printPredicates();
@@ -192,7 +192,7 @@ public class MLT {
 	}
 	
 	public static void test1() throws Exception {
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
 		Profiles.printPredicates();
@@ -271,7 +271,7 @@ public class MLT {
 	}
 	
 	public static void test2() throws Exception {
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("predicates.pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
 		Profiles.printPredicates();
@@ -301,21 +301,26 @@ public class MLT {
 		pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[ml-testing] prefix traces found " + pl.getTraces());
 		
-		//TwoBranchesLearner twoLearner = analyzer.getNodes().get(0).getTwoBranchesLearner();
-		//twoLearner.buildInstancesAndClassifier();
-		//twoLearner = analyzer.getNodes().get(0).getTwoBranchesLearner();
-		//twoLearner.buildInstancesAndClassifier();
+		TwoBranchesLearner twoLearner = analyzer.getNodes().get(1).getTwoBranchesLearner();
+		twoLearner.buildInstancesAndClassifier();
+		twoLearner = analyzer.getNodes().get(1).getTwoBranchesLearner();
+		twoLearner.buildInstancesAndClassifier();
+		
+		OneBranchLearner oneLearner = analyzer.getNodes().get(0).getOneBranchLearner();
+		oneLearner.buildInstancesAndClassifier();
+		oneLearner = analyzer.getNodes().get(0).getOneBranchLearner();
+		oneLearner.buildInstancesAndClassifier();
 	}
 	
 	public static void main(String[] args) throws Exception {
 		//Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
-		Config.loadProperties("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.mlt");
+		Config.loadProperties("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.mlt");
 		//MLT.instrument();
 		//if (Config.TAINT.equals("static")) {
 		//	MLT.doStaticTaintAnalysis();
 		//}
-		//MLT.run();
-		MLT.test2();
+		MLT.run();
+		//MLT.test2();
 	}
 
 }
