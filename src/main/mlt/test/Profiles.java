@@ -13,7 +13,7 @@ public class Profiles {
 	public static ArrayList<TestCase> tests = new ArrayList<TestCase>();
 	
 	// dynamic info
-	public static ArrayList<Pair> executedPredicates = null;
+	public static ArrayList<Pair> executedPredicates = new ArrayList<Pair>();
 	public static HashMap<String, HashSet<Integer>> taints = new HashMap<String, HashSet<Integer>>();
 	
 	// for instrumentation

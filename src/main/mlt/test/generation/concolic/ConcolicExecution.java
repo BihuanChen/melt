@@ -193,7 +193,7 @@ public class ConcolicExecution {
 		
 		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.jpf");
 		Object[] obj = new Object[2];
-		obj[0] = -3776;
+		obj[0] = 3776;
 		obj[1] = 9603;
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();

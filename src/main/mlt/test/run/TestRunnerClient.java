@@ -19,20 +19,20 @@ public class TestRunnerClient {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		mlt.Config.loadProperties("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.mlt");
+		mlt.Config.loadProperties("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.mlt");
 		TestRunnerClient client = new TestRunnerClient();
 		Object[] test1 = new Object[]{1, 2};
 		client.run(test1);
 		Profiles.printExecutedPredicates();
 		Profiles.printTaints();
-		Profiles.executedPredicates = null;
+		Profiles.executedPredicates.clear();
 		Profiles.taints.clear();
 		
 		Object[] test2 = new Object[]{-1, -2};
 		client.run(test2);
 		Profiles.printExecutedPredicates();
 		Profiles.printTaints();
-		Profiles.executedPredicates = null;
+		Profiles.executedPredicates.clear();
 		Profiles.taints.clear();
 	}
 	

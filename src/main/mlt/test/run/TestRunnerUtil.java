@@ -6,17 +6,13 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 
 import mlt.Config;
-import mlt.test.Pair;
-import mlt.test.Profiles;
 
 public class TestRunnerUtil {
 
 	public static void run(Object[] test) throws MalformedURLException {
 		try {
-			Profiles.executedPredicates = new ArrayList<Pair>();
 			File f = new File(Config.CLASSPATH);
 			URL[] cp = {f.toURI().toURL()};
 			URLClassLoader cl = new URLClassLoader(cp);

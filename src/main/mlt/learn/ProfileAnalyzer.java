@@ -123,7 +123,7 @@ public class ProfileAnalyzer {
 				}
 			}
 		}
-		Profiles.executedPredicates = null;
+		Profiles.executedPredicates.clear();
 		Profiles.taints.clear();
 	}
 	
