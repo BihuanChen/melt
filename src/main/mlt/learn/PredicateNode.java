@@ -217,6 +217,9 @@ public class PredicateNode {
 
 	// only called when using dynamic taint analysis
 	public void addToDepInputs(HashSet<Integer> newDepInputs) {
+		if (newDepInputs == null) {
+			return;
+		}
 		if (depInputs == null) {
 			depInputs = new HashSet<Integer>();
 		}

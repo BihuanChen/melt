@@ -21,7 +21,7 @@ import mlt.learn.PredicateNode;
 import mlt.learn.ProfileAnalyzer;
 import mlt.test.Profiles;
 import mlt.test.TestCase;
-import mlt.test.generation.random.PureRandomTestGenerator;
+import mlt.test.generation.random.AdaptiveRandomTestGenerator;
 import mlt.test.generation.search.SearchBasedTestGenerator;
 import mlt.test.run.TestRunnerClient;
 
@@ -149,7 +149,7 @@ public class MLT {
 		// parameter
 		long timeout = 17500;
 		
-		// serialize the predicates
+		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
@@ -167,7 +167,7 @@ public class MLT {
 		long endTime = t2 + timeout;
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
-			HashSet<TestCase> testCases = new PureRandomTestGenerator(null).generate();
+			HashSet<TestCase> testCases = new AdaptiveRandomTestGenerator(null).generate();
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
@@ -313,14 +313,13 @@ public class MLT {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		//Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.mlt");
-		Config.loadProperties("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.mlt");
+		//Config.loadProperties("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.mlt");
+		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.mlt");
 		//MLT.instrument();
 		//if (Config.TAINT.equals("static")) {
 		//	MLT.doStaticTaintAnalysis();
 		//}
-		MLT.run();
-		//MLT.test2();
+		MLT.runRandom();
 	}
 
 }
