@@ -2,6 +2,7 @@ package mlt;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 public class Config {
@@ -52,7 +53,10 @@ public class Config {
 	public static double MIN_DOUBLE = -8;
 	public static double MAX_DOUBLE = 7;
 	
+	public static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
 	public static void loadProperties(String file) throws IOException {
+		System.out.println("[ml-testing] " + FORMAT.format(System.currentTimeMillis()));
 		// load configuration
 		Properties prop = new Properties();
 		FileInputStream fis = new FileInputStream(file);

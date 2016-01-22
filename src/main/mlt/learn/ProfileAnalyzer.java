@@ -118,7 +118,7 @@ public class ProfileAnalyzer {
 			
 			// avoid associating a test input to a loop branch for multiple times
 			if (branch.getTests() == null || branch.getTests().get(branch.getTests().size() - 1) != testIndex) {
-				if (!(Profiles.predicates.get(branch.getSource().getPredicate()).getType().equals("do") && value && isOneIterationDoLoop(i, size))) {
+				if (!(Profiles.predicates.get(branch.getSource().getPredicate()).getType() == Predicate.TYPE.DO && value && isOneIterationDoLoop(i, size))) {
 					branch.addTest(testIndex);
 				}
 			}

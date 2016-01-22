@@ -52,6 +52,7 @@ public class MLT {
 		oout.close();
 		
 		long t5 = System.currentTimeMillis();
+		System.out.println("[ml-testing] " + Config.FORMAT.format(t5));
 		System.out.println("[ml-testing] project formatted in " + (t2 - t1) + " ms");
 		System.out.println("[ml-testing] project instrumented in " + (t3 - t2) + " ms");
 		System.out.println("[ml-testing] line number updated in " + (t4 - t3) + " ms");
@@ -100,6 +101,7 @@ public class MLT {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
+		System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
 		Profiles.printPredicates();
 		
 		// running ml-testing
@@ -124,11 +126,13 @@ public class MLT {
 				Profiles.tests.add(testCase);
 				analyzer.update();
 			}
-			System.out.println("[ml-testing] the " + (++count) + " th set of tests");
+			System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
+			System.out.println("[ml-testing] finish the " + (++count) + " th set of tests");
 			//analyzer.printNodes();
 			analyzer.coverage(targetNode);			
 			// find an partially explored branch to be covered
 			targetNode = analyzer.findUnexploredBranch();
+			System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
 			if (targetNode == null) {
 				System.out.println("[ml-testing] target branch not found \n");
 				break;
@@ -140,6 +144,7 @@ public class MLT {
 		}
 		
 		long t3 = System.currentTimeMillis();
+		System.out.println("[ml-testing] " + Config.FORMAT.format(t3));
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 		System.out.println("[ml-testing] tests run in " + testTime + " ms");
 		System.out.println("[ml-testing] ml-testing in " + (t3 - t2) + " ms");
@@ -154,6 +159,7 @@ public class MLT {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 		oin.close();
+		System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
 		Profiles.printPredicates();
 		
 		// running random testing
@@ -177,7 +183,8 @@ public class MLT {
 				Profiles.tests.add(testCase);
 				analyzer.update();
 			}
-			System.out.println("[ml-testing] the " + (++count) + " th set of tests");
+			System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
+			System.out.println("[ml-testing] finish the " + (++count) + " th set of tests");
 			//analyzer.printNodes();
 			analyzer.coverage(null);
 			if (System.currentTimeMillis() > endTime) {
@@ -186,6 +193,7 @@ public class MLT {
 		}
 		
 		long t3 = System.currentTimeMillis();
+		System.out.println("[ml-testing] " + Config.FORMAT.format(t3));
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 		System.out.println("[ml-testing] tests run in " + testTime + " ms");
 		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms");
@@ -237,7 +245,7 @@ public class MLT {
 		TwoBranchesLearner twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
 		double[] probs = twoLearner.classifiyInstance(new TestCase(new Object[]{3, 1, 4}));
-		System.out.println(probs[0] + ", " + probs[1]);
+		System.out.println("[ml-testing] " + probs[0] + ", " + probs[1]);
 		twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
 
@@ -258,7 +266,7 @@ public class MLT {
 		//pl = new PathLearner(analyzer.getRoot(), analyzer.getNodes().get(1));
 		//Iterator iterator = pl.getTraces().iterator();
 		//while (iterator.hasNext()) {
-		//	System.out.println(iterator.next());
+		//	System.out.println("[ml-testing] " + iterator.next());
 		//}
 		
 		
@@ -319,7 +327,7 @@ public class MLT {
 		//if (Config.TAINT.equals("static")) {
 		//	MLT.doStaticTaintAnalysis();
 		//}
-		MLT.runRandom();
+		MLT.run();
 	}
 
 }
