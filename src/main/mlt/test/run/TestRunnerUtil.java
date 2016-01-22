@@ -11,16 +11,25 @@ import mlt.Config;
 
 public class TestRunnerUtil {
 
-	public static void run(Object[] test) throws MalformedURLException {
+	private Class<?> c;
+	private Method m;
+	
+	public TestRunnerUtil() {
 		try {
 			File f = new File(Config.CLASSPATH);
 			URL[] cp = {f.toURI().toURL()};
 			URLClassLoader cl = new URLClassLoader(cp);
-			Class<?> c = cl.loadClass(Config.MAINCLASS);
-			Object o = c.newInstance();
-			Method m = c.getMethod(Config.METHOD, Config.CLS);
-			m.invoke(o, test);
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+			c = cl.loadClass(Config.MAINCLASS);
+			m = c.getMethod(Config.METHOD, Config.CLS);
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | MalformedURLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void run(Object[] test) throws MalformedURLException {
+		try {
+			m.invoke(c.newInstance(), test);
+		} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
 			e.printStackTrace();
 		}
 	}

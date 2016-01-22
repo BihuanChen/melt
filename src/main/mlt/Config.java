@@ -26,6 +26,9 @@ public class Config {
 	public static String MAINCLASS = null;
 	public static String ENTRYMETHOD = null;
 	
+	// filter package name for taint analysis
+	public static String FILTER = null;
+	
 	// configuration file for concolic execution
 	public static String JPFCONFIG = null;
 	
@@ -75,6 +78,9 @@ public class Config {
 			System.exit(0);
 		}
 		System.out.println("[ml-testing] mainclass = " + MAINCLASS);
+		
+		FILTER = MAINCLASS.substring(0, MAINCLASS.indexOf("."));
+		System.out.println("[ml-tesitng] filter = " + FILTER);
 		
 		ENTRYMETHOD = prop.getProperty("entrymethod");
 		if (ENTRYMETHOD == null) {
