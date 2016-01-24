@@ -98,6 +98,7 @@ public class TestChronicle {
 			}
 			writer.writeObject(taints);
 			// write executed predicates
+			//TODO process the executed predicates
 			writer.writeObject(obj2);
 		} else {
 			// write the test case

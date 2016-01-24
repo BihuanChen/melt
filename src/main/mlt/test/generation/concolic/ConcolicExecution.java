@@ -25,6 +25,7 @@ import gov.nasa.jpf.jdart.ConcolicListener;
 import gov.nasa.jpf.jdart.ConcolicPerturbator;
 import gov.nasa.jpf.jdart.config.ConcolicConfig;
 import gov.nasa.jpf.jdart.config.ConcolicMethodConfig;
+import gov.nasa.jpf.jdart.constraints.InternalConstraintsTree;
 import gov.nasa.jpf.jdart.constraints.Path;
 import gov.nasa.jpf.util.JPFLogger;
 import gov.nasa.jpf.util.LogManager;
@@ -90,6 +91,17 @@ public class ConcolicExecution {
 	    logger.info("Profiling:\n" + SimpleProfiler.getResults());
 	}
 	
+	public void run() {
+		// run jpf
+	    JPF jpf = new JPF(jpfConf);
+	    SimpleProfiler.start("JDART-run");
+	    SimpleProfiler.start("JPF-boot"); // is stopped upon searchStarted in ConcolicListener
+	    jpf.run();
+	    SimpleProfiler.stop("JDART-run");
+	    // post process 
+	    logger.info("Profiling:\n" + SimpleProfiler.getResults());
+	}
+	
 	private void prepare(final Object[] test) throws NotFoundException, CannotCompileException, IOException {
 		String mainClass = jpfConf.getString("target");
 		final String methodName = jpfConf.getString("concolic.method");
@@ -119,6 +131,12 @@ public class ConcolicExecution {
 	
 	public ArrayList<Valuation> getValuations(String srcLoc, int size, HashMap<Instruction, Expression<Boolean>> cons) {
 		return ce.getCurrentAnalysis().getInternalConstraintsTree().findValuations(srcLoc, size, cons);
+	}
+	
+	public ArrayList<Valuation> getValuations() {
+		Valuation iniVal = ce.getCompletedAnalyses().entrySet().iterator().next().getValue().get(0).getInitialValuation();
+		InternalConstraintsTree.getValuations().add(iniVal);
+		return InternalConstraintsTree.getValuations();
 	}
 	
 	public void statistics() {
@@ -191,16 +209,22 @@ public class ConcolicExecution {
 		System.out.println(cons);
 		//jdart.statistics();*/
 		
-		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.jpf");
+		/*ConcolicExecution jdart1 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.jpf");
 		Object[] obj = new Object[2];
-		obj[0] = 3776;
-		obj[1] = 9603;
-		jdart.run(obj);
-		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		ArrayList<Valuation> vals = jdart.getValuations("phosphor.test.Test.test(Test.java:12)", mlt.Config.TESTS_SIZE, cons);
-		System.out.println(vals);
-		System.out.println(cons);
-		jdart.statistics();
+		obj[0] = 8732;
+		obj[1] = -7888.887095263622;
+		jdart1.run(obj);
+		HashMap<Instruction, Expression<Boolean>> cons1 = new HashMap<Instruction, Expression<Boolean>>();
+		ArrayList<Valuation> vals1 = jdart1.getValuations("dt.original.Bessj.bessj(Bessj.java:123)", mlt.Config.TESTS_SIZE, cons1);
+		System.out.println(vals1);
+		System.out.println(cons1);
+		//jdart.statistics();*/
+		
+		ConcolicExecution jdart2 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.jpf");
+		jdart2.run();
+		ArrayList<Valuation> vals2 = jdart2.getValuations();
+		System.out.println(vals2);
+		//jdart2.statistics();
 	}
 
 }

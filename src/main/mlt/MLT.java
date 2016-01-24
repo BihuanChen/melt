@@ -1,5 +1,7 @@
 package mlt;
 
+import gov.nasa.jpf.constraints.api.Valuation;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -21,6 +24,8 @@ import mlt.learn.PredicateNode;
 import mlt.learn.ProfileAnalyzer;
 import mlt.test.Profiles;
 import mlt.test.TestCase;
+import mlt.test.Util;
+import mlt.test.generation.concolic.ConcolicExecution;
 import mlt.test.generation.random.AdaptiveRandomTestGenerator;
 import mlt.test.generation.search.SearchBasedTestGenerator;
 import mlt.test.run.TestRunnerClient;
@@ -106,7 +111,7 @@ public class MLT {
 		
 		// running ml-testing
 		long t2 = System.currentTimeMillis();
-		TestRunnerClient runner = new TestRunnerClient();
+		TestRunnerClient runner = new TestRunnerClient(false);
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		PathLearner learner = null;
 		PredicateNode targetNode = null;
@@ -152,7 +157,7 @@ public class MLT {
 	
 	public static void runRandom() throws Exception {
 		// parameter
-		long timeout = 17500;
+		long timeout = 111800;
 		
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
@@ -164,7 +169,7 @@ public class MLT {
 		
 		// running random testing
 		long t2 = System.currentTimeMillis();
-		TestRunnerClient runner = new TestRunnerClient();
+		TestRunnerClient runner = new TestRunnerClient(true);
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 
 		long testTime = 0;
@@ -180,7 +185,6 @@ public class MLT {
 				long t = System.currentTimeMillis();
 				runner.run(testCase.getTest());
 				testTime += System.currentTimeMillis() - t;
-				Profiles.tests.add(testCase);
 				analyzer.update();
 			}
 			System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
@@ -199,6 +203,44 @@ public class MLT {
 		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms");
 	}
 	
+	public static void runConcolic() throws Exception {
+		// deserialize the predicates
+		long t1 = System.currentTimeMillis();
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
+		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+		oin.close();
+		System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
+		Profiles.printPredicates();
+		
+		// running concolic testing
+		long t2 = System.currentTimeMillis();
+		TestRunnerClient runner = new TestRunnerClient(true);
+		ProfileAnalyzer analyzer = new ProfileAnalyzer();
+
+		long testTime = 0;
+
+		// generate and run tests, and analyze the branch profiles
+		ConcolicExecution jdart = ConcolicExecution.getInstance(Config.JPFCONFIG);
+		jdart.run();
+		ArrayList<Valuation> vals = jdart.getValuations();
+		for (int i = 0; i < vals.size(); i++) {
+			Object[] test = Util.valuationToTest(vals.get(i));
+			long t = System.currentTimeMillis();
+			runner.run(test);
+			testTime += System.currentTimeMillis() - t;
+			analyzer.update();
+		}
+		System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
+		//analyzer.printNodes();
+		analyzer.coverage(null);
+		
+		long t3 = System.currentTimeMillis();
+		System.out.println("[ml-testing] " + Config.FORMAT.format(t3));
+		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
+		System.out.println("[ml-testing] tests run in " + testTime + " ms");
+		System.out.println("[ml-testing] concolic testing in " + (t3 - t2) + " ms");
+	}
+	
 	public static void test1() throws Exception {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
@@ -206,7 +248,7 @@ public class MLT {
 		Profiles.printPredicates();
 		
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
-		TestRunnerClient runner = new TestRunnerClient();
+		TestRunnerClient runner = new TestRunnerClient(false);
 		
 		TestCase testInput1 = new TestCase(new Object[]{(byte)-1, (byte)1, (byte)1});
 		runner.run(testInput1.getTest());
@@ -285,7 +327,7 @@ public class MLT {
 		Profiles.printPredicates();
 		
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
-		TestRunnerClient runner = new TestRunnerClient();
+		TestRunnerClient runner = new TestRunnerClient(false);
 		
 		TestCase test1 = new TestCase(new Object[]{1, -2});
 		runner.run(test1.getTest());
@@ -327,7 +369,7 @@ public class MLT {
 		//if (Config.TAINT.equals("static")) {
 		//	MLT.doStaticTaintAnalysis();
 		//}
-		MLT.run();
+		MLT.runRandom();
 	}
 
 }
