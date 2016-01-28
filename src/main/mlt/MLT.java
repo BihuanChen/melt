@@ -9,6 +9,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -362,6 +367,81 @@ public class MLT {
 		oneLearner.buildInstancesAndClassifier();
 	}
 	
+	public static void computeMutationScore() {
+		if (Config.MUTATION_CLASSPATH == null || Config.MUTATION_PACKAGENAME == null) {
+			System.out.println("[ml-testing] mutation.classpath and mutation.packagename have to be set for computing mutation score");
+			return;
+		}
+		try {
+			URL[] cp = {new File(Config.MUTATION_CLASSPATH).toURI().toURL()};
+			URLClassLoader cl = new URLClassLoader(cp);
+			
+			File[] files = new File(Config.MUTATION_CLASSPATH + Config.MUTATION_PACKAGENAME.replace(".", "/")).listFiles();
+			boolean[] killed = new boolean[files.length];
+			double numOfKilled = 0;
+			for (int i = 0; i < files.length; i++) {
+				killed[i] = false;
+			}
+			
+			Class<?> c = cl.loadClass(Config.MAINCLASS);
+			Method m = c.getMethod(Config.METHOD, Config.CLS);
+			Object res_o = null;
+			InvocationTargetException ex_o = null;
+			
+			for (int j = 0; j < Profiles.tests.size(); j++) {
+				Object[] test = Profiles.tests.get(j).getTest();
+				try {
+					res_o = null; ex_o = null;
+					res_o = m.invoke(c.newInstance(), test);
+				} catch (InvocationTargetException e) {
+					ex_o = e;
+				}
+			
+				for (int i = 0; i < files.length; i++) {
+					if (!killed[i]) {
+						c = cl.loadClass(Config.MUTATION_PACKAGENAME + "." + files[i].getName().substring(0, files[i].getName().length() - 6));
+						m = c.getMethod(Config.METHOD, Config.CLS);
+						Object res_m = null;
+						InvocationTargetException ex_m = null;
+						try {
+							res_m = m.invoke(c.newInstance(), test);
+						} catch (InvocationTargetException e) {
+							ex_m = e;
+						}
+						
+						if (ex_o == null && ex_m == null) {
+							if (!res_o.equals(res_m)) {
+								killed[i] = true;
+								numOfKilled += 1;
+								System.out.println(files[i].getName());
+							}
+						} else if (ex_o != null && ex_m != null) {
+							if (!ex_o.getCause().getClass().equals(ex_m.getCause().getClass()) || !ex_o.getCause().getMessage().equals(ex_m.getCause().getMessage())) {
+								killed[i] = true;
+								numOfKilled += 1;
+								System.out.println(files[i].getName());
+							}
+						} else {
+							killed[i] = true;
+							numOfKilled += 1;
+							System.out.println(files[i].getName());
+						}
+					}				
+				}
+			}
+			System.out.println("[ml-testing] mutation score is " + numOfKilled + " / " + files.length + " = " + (numOfKilled / files.length));
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InstantiationException | MalformedURLException | ClassNotFoundException | NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void testMutationScore() throws IOException {
+		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.mlt");
+		Profiles.tests.add(new TestCase(new Object[]{0, 2}));
+		Profiles.tests.add(new TestCase(new Object[]{1, 2}));
+		MLT.computeMutationScore();
+	}
+	
 	public static void main(String[] args) throws Exception {
 		//Config.loadProperties("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.mlt");
 		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.mlt");
@@ -369,7 +449,10 @@ public class MLT {
 		//if (Config.TAINT.equals("static")) {
 		//	MLT.doStaticTaintAnalysis();
 		//}
-		MLT.runRandom();
+		//MLT.runRandom();
+		Profiles.tests.add(new TestCase(new Object[]{0, 2}));
+		Profiles.tests.add(new TestCase(new Object[]{1, 2}));
+		MLT.computeMutationScore();
 	}
 
 }

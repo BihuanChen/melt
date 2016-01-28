@@ -33,6 +33,10 @@ public class Config {
 	// configuration file for concolic execution
 	public static String JPFCONFIG = null;
 	
+	// configuration for mutation score computation
+	public static String MUTATION_CLASSPATH = null;
+	public static String MUTATION_PACKAGENAME = null;
+	
 	// reflection information for running tests
 	public static String METHOD = null;
 	@SuppressWarnings("rawtypes")
@@ -99,6 +103,16 @@ public class Config {
 			System.exit(0);
 		}
 		System.out.println("[ml-testing] jpfconfig = " + JPFCONFIG);
+		
+		MUTATION_CLASSPATH = prop.getProperty("mutation.classpath");
+		if (MUTATION_CLASSPATH != null) {
+			System.out.println("[ml-testing] mutation.classpath = " + MUTATION_CLASSPATH);
+		}
+		
+		MUTATION_PACKAGENAME = prop.getProperty("mutation.packagename");
+		if (MUTATION_PACKAGENAME != null) {
+			System.out.println("[ml-testing] mutation.packagename = " + MUTATION_PACKAGENAME);
+		}
 		
 		/*String p = prop.getProperty("exploration.mode");
 		if (p != null) {
