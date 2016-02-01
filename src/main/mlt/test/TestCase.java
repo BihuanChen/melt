@@ -33,6 +33,10 @@ public class TestCase implements Serializable {
 		}
 		return valuation;
 	}
+	
+	public void setValuation(Valuation valuation) {
+		this.valuation = valuation;
+	}
 
 	public TestCase deepCopy() {
 		TestCase newTC = new TestCase();

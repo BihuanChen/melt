@@ -34,7 +34,7 @@ public class OneBranchLearner {
 		
 		classifier = new FilteredClassifier();
 		LibSVM svm = new LibSVM();
-		String[] options = Utils.splitOptions("-S 2 -K 3 -D 3 -G 0.1 -R 0.0 -N 0.5 -M 40.0 -C 1.0 -E 0.001 -P 0.1 -seed 1"); // one-class svm, sigmoid
+		String[] options = Utils.splitOptions("-S 2 -K 2 -D 3 -G 0.5 -R 0.0 -N 0.5 -M 40.0 -C 1.0 -E 0.001 -P 0.1 -seed 1"); // one-class svm, radial basis
 		svm.setOptions(options);
 		classifier.setClassifier(svm);
 	}
@@ -42,30 +42,8 @@ public class OneBranchLearner {
 	public void buildInstancesAndClassifier() throws Exception {
 		// create or update instances
 		boolean changed1 = setupInstances();
-		// get new tests data
-		PredicateArc tb = node.getSourceTrueBranch();
-		HashSet<Integer> tTests = null;
-		if (tb != null) {
-			tTests = new HashSet<Integer>(tb.getTests().subList(tb.getOldSize(), tb.getTests().size()));
-			tb.setOldSize(tb.getTests().size());
-		}
-		PredicateArc fb = node.getSourceFalseBranch();
-		HashSet<Integer> fTests = null;
-		if (fb != null) {
-			fTests = new HashSet<Integer>(fb.getTests().subList(fb.getOldSize(), fb.getTests().size()));
-			fb.setOldSize(fb.getTests().size());
-		}
-		boolean changed2 = (tTests != null && tTests.size() != 0) || (fTests != null && fTests.size() != 0);
-		// load new tests data
-		if (changed2) {
-			Iterator<Integer> iterator = tTests != null ? tTests.iterator() : fTests.iterator();
-			while (iterator.hasNext()) {
-				Integer i = iterator.next();
-				createInstance(i, Profiles.tests.get(i));
-			}			
-		}
 		// set the classifier filter
-		boolean change3 = false;
+		boolean changed3 = false;
 		if (node.isDepDirty()) {
 			int size = node.getNotDepInputs().size();
 			int[] index = new int[size];
@@ -79,9 +57,36 @@ public class OneBranchLearner {
 			classifier.setFilter(rm);
 			
 			node.setDepDirty(false);
-			change3 = true;
+			changed3 = true;
 		}
-		if (changed1 || changed2 || change3) {
+		// decide if new tests data needs to be loaded (in a lazy manner)
+		PredicateArc tb = node.getSourceTrueBranch();
+		PredicateArc fb = node.getSourceFalseBranch();
+		boolean changed2 = false;
+		if (changed1 || changed3 || (tb != null && tb.getOldSize() == 0) || (fb != null && fb.getOldSize() == 0) || 
+				(tb != null && (tb.getTests().size() - tb.getOldSize()) > Config.LEARN_THRESHOLD) || (fb !=null && (fb.getTests().size() - fb.getOldSize()) > Config.LEARN_THRESHOLD)) {
+			changed2 = true;
+		}
+		// load new tests data
+		if (changed2) {
+			HashSet<Integer> tTests = null;
+			if (tb != null) {
+				tTests = new HashSet<Integer>(tb.getTests().subList(tb.getOldSize(), tb.getTests().size()));
+				tb.setOldSize(tb.getTests().size());
+			}
+			HashSet<Integer> fTests = null;
+			if (fb != null) {
+				fTests = new HashSet<Integer>(fb.getTests().subList(fb.getOldSize(), fb.getTests().size()));
+				fb.setOldSize(fb.getTests().size());
+			}
+						
+			Iterator<Integer> iterator = tTests != null ? tTests.iterator() : fTests.iterator();
+			while (iterator.hasNext()) {
+				Integer i = iterator.next();
+				createInstance(i, Profiles.tests.get(i));
+			}			
+		}
+		if (changed1 || changed2 || changed3) {
 			// build the classifier if new tests data are available
 			classifier.buildClassifier(instances);
 			//System.out.println("[ml-testing] instances \n" + classifier + "\n");

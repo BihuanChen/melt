@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import mlt.Config;
 import mlt.instrument.Predicate;
 import mlt.test.Profiles;
 import mlt.test.TestCase;
@@ -18,6 +19,9 @@ public class PathLearner {
 
 	private PredicateNode root;
 	private PredicateNode target;
+	
+	private OneBranchLearner oneLearner = null;
+	private HashSet<TwoBranchesLearner> twoLearners = new HashSet<TwoBranchesLearner>();
 	
 	private LinkedHashSet<ArrayList<Step>> traces;
 
@@ -130,6 +134,9 @@ public class PathLearner {
 			Instruction inst = iterator.next();
 			String id = inst.getPosition() + " " + inst.toString();
 			String srcLoc = inst.getSourceLocation();
+			if (Config.SKIPPED_BRANCH != null && Config.SKIPPED_BRANCH.contains(srcLoc)) {
+				continue;
+			}
 			PredicateNode node = findNode(ns, srcLoc);
 			if (node == null) {
 				System.err.println("[ml-testing] error in attaching constraints");
@@ -181,8 +188,10 @@ public class PathLearner {
 	
 	public boolean isValidTest(TestCase testCase) throws Exception {
 		// a valid test case cannot belong to the executed branch 
-		OneBranchLearner oneLearner = target.getOneBranchLearner();
-		oneLearner.buildInstancesAndClassifier();
+		if (oneLearner == null) {
+			oneLearner = target.getOneBranchLearner();
+			oneLearner.buildInstancesAndClassifier();
+		}
 		if (oneLearner.classifiyInstance(testCase)[0] == 1.0) {
 			return false;
 		}
@@ -196,7 +205,10 @@ public class PathLearner {
 				for (int i = 0 ; i < size; i++) {
 					TwoBranchesLearner twoLearner = trace.get(i).getNode().getTwoBranchesLearner();
 					if (twoLearner != null) {
-						twoLearner.buildInstancesAndClassifier();
+						if (!twoLearners.contains(twoLearner)) {
+							twoLearner.buildInstancesAndClassifier();
+							twoLearners.add(twoLearner);
+						}
 						double[] probs = twoLearner.classifiyInstance(testCase);
 						if ((probs[0] >= probs[1] && trace.get(i).getBranch()) || (probs[0] < probs[1] && !trace.get(i).getBranch())) {
 							valid = false;
@@ -215,8 +227,10 @@ public class PathLearner {
 	
 	public void evaluateTest(TestVar testVar) throws Exception {
 		// one branch learner
-		OneBranchLearner oneLearner = target.getOneBranchLearner();
-		oneLearner.buildInstancesAndClassifier();
+		if (oneLearner == null) {
+			oneLearner = target.getOneBranchLearner();
+			oneLearner.buildInstancesAndClassifier();
+		}
 		double objTarget = oneLearner.classifiyInstance(testVar.getTest())[0];
 		// two branch learner
 		if (traces != null) {
@@ -230,7 +244,10 @@ public class PathLearner {
 					Step step = trace.get(i);
 					TwoBranchesLearner twoLearner = step.getNode().getTwoBranchesLearner();
 					if (twoLearner != null) {
-						twoLearner.buildInstancesAndClassifier();
+						if (!twoLearners.contains(twoLearner)) {
+							twoLearner.buildInstancesAndClassifier();
+							twoLearners.add(twoLearner);
+						}
 						double[] probs = twoLearner.classifiyInstance(testVar.getTest());
 						if (step.getBranch()) {
 							objValue += probs[0];

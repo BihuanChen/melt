@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import mlt.dependency.StaticDependencyAnalyzer;
 import mlt.instrument.Instrumenter;
@@ -32,6 +36,7 @@ import mlt.test.TestCase;
 import mlt.test.Util;
 import mlt.test.generation.concolic.ConcolicExecution;
 import mlt.test.generation.random.AdaptiveRandomTestGenerator;
+import mlt.test.generation.random.PureRandomTestGenerator;
 import mlt.test.generation.search.SearchBasedTestGenerator;
 import mlt.test.run.TestRunnerClient;
 
@@ -105,7 +110,7 @@ public class MLT {
 		System.out.println("[ml-testing] predicates serialized in " + (t4 - t3) + " ms");
 	}
 	
-	public static void run() throws Exception {
+	public static void run(TestRunnerClient runner) throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
@@ -116,7 +121,7 @@ public class MLT {
 		
 		// running ml-testing
 		long t2 = System.currentTimeMillis();
-		TestRunnerClient runner = new TestRunnerClient(false);
+		//TestRunnerClient runner = new TestRunnerClient(false);
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		PathLearner learner = null;
 		PredicateNode targetNode = null;
@@ -147,10 +152,10 @@ public class MLT {
 				System.out.println("[ml-testing] target branch not found \n");
 				break;
 			}
-			System.out.println("[ml-testing] target branch found " + targetNode);
+			System.out.println("[ml-testing] target branch found " + targetNode.getPredicate());
 			// update the classification models from the current node to the root node
 			learner = new PathLearner(analyzer.getRoot(), targetNode);
-			System.out.println("[ml-testing] prefix traces found " + learner.getTraces());
+			System.out.println("[ml-testing] prefix traces found " + (learner.getTraces() == null ? "null" : learner.getTraces().size()));
 		}
 		
 		long t3 = System.currentTimeMillis();
@@ -160,10 +165,7 @@ public class MLT {
 		System.out.println("[ml-testing] ml-testing in " + (t3 - t2) + " ms");
 	}
 	
-	public static void runRandom() throws Exception {
-		// parameter
-		long timeout = 111800;
-		
+	public static void runRandom(long timeout, String algo) throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
@@ -183,13 +185,22 @@ public class MLT {
 		long endTime = t2 + timeout;
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
-			HashSet<TestCase> testCases = new AdaptiveRandomTestGenerator(null).generate();
+			HashSet<TestCase> testCases = null;
+			if (algo.equals("ART")) {
+				testCases = new AdaptiveRandomTestGenerator(null).generate();
+			} else if (algo.equals("RT")) {
+				testCases = new PureRandomTestGenerator(null).generate();
+			} else {
+				System.out.println("[ml-testing] wrong name for the random testing tool");
+				System.exit(0);
+			}
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
 				long t = System.currentTimeMillis();
 				runner.run(testCase.getTest());
 				testTime += System.currentTimeMillis() - t;
+				Profiles.tests.add(testCase);
 				analyzer.update();
 			}
 			System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
@@ -205,7 +216,7 @@ public class MLT {
 		System.out.println("[ml-testing] " + Config.FORMAT.format(t3));
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 		System.out.println("[ml-testing] tests run in " + testTime + " ms");
-		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms");
+		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms" + "\n");
 	}
 	
 	public static void runConcolic() throws Exception {
@@ -225,14 +236,16 @@ public class MLT {
 		long testTime = 0;
 
 		// generate and run tests, and analyze the branch profiles
-		ConcolicExecution jdart = ConcolicExecution.getInstance(Config.JPFCONFIG);
+		ConcolicExecution jdart = new ConcolicExecution(Config.JPFCONFIG);
 		jdart.run();
-		ArrayList<Valuation> vals = jdart.getValuations();
-		for (int i = 0; i < vals.size(); i++) {
-			Object[] test = Util.valuationToTest(vals.get(i));
+		HashSet<Valuation> vals = jdart.getValuations();
+		Iterator<Valuation> iterator = vals.iterator();
+		while (iterator.hasNext()) {
+			Object[] test = Util.valuationToTest(iterator.next());
 			long t = System.currentTimeMillis();
 			runner.run(test);
 			testTime += System.currentTimeMillis() - t;
+			Profiles.tests.add(new TestCase(test));
 			analyzer.update();
 		}
 		System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
@@ -367,7 +380,7 @@ public class MLT {
 		oneLearner.buildInstancesAndClassifier();
 	}
 	
-	public static void computeMutationScore() {
+	public static void computeMutationScore(ArrayList<TestCase> testCases) {
 		if (Config.MUTATION_CLASSPATH == null || Config.MUTATION_PACKAGENAME == null) {
 			System.out.println("[ml-testing] mutation.classpath and mutation.packagename have to be set for computing mutation score");
 			return;
@@ -382,14 +395,14 @@ public class MLT {
 			for (int i = 0; i < files.length; i++) {
 				killed[i] = false;
 			}
-			
+						
 			Class<?> c = cl.loadClass(Config.MAINCLASS);
 			Method m = c.getMethod(Config.METHOD, Config.CLS);
 			Object res_o = null;
 			InvocationTargetException ex_o = null;
 			
-			for (int j = 0; j < Profiles.tests.size(); j++) {
-				Object[] test = Profiles.tests.get(j).getTest();
+			for (int j = 0; j < testCases.size(); j++) {
+				final Object[] test = testCases.get(j).getTest();
 				try {
 					res_o = null; ex_o = null;
 					res_o = m.invoke(c.newInstance(), test);
@@ -399,60 +412,130 @@ public class MLT {
 			
 				for (int i = 0; i < files.length; i++) {
 					if (!killed[i]) {
-						c = cl.loadClass(Config.MUTATION_PACKAGENAME + "." + files[i].getName().substring(0, files[i].getName().length() - 6));
-						m = c.getMethod(Config.METHOD, Config.CLS);
-						Object res_m = null;
-						InvocationTargetException ex_m = null;
+						final Class<?> cc = cl.loadClass(Config.MUTATION_PACKAGENAME + "." + files[i].getName().substring(0, files[i].getName().length() - 6));
+						final Method mm = cc.getMethod(Config.METHOD, Config.CLS);
+						
+						final Object[] objs = new Object[]{null, null};
+						FutureTask<?> task = new FutureTask<Object>(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									objs[0] = mm.invoke(cc.newInstance(), test);
+								} catch (InvocationTargetException e) {
+									objs[1] = e;
+								} catch (IllegalAccessException | InstantiationException e) {
+									e.printStackTrace();
+								}
+							}
+						}, null);
+						Thread th = new Thread(task);
+						th.start();
 						try {
-							res_m = m.invoke(c.newInstance(), test);
-						} catch (InvocationTargetException e) {
-							ex_m = e;
+							task.get(10L, TimeUnit.SECONDS);
+						} catch (TimeoutException e) {
+							//e.printStackTrace();
+							objs[0] = null; objs[1] = null;
+							System.out.println("timeout " + files[i].getName());
 						}
+						th.stop();
+						
+						Object res_m = objs[0];
+						InvocationTargetException ex_m = (objs[1] == null) ? null : (InvocationTargetException)objs[1];
 						
 						if (ex_o == null && ex_m == null) {
 							if (!res_o.equals(res_m)) {
 								killed[i] = true;
 								numOfKilled += 1;
-								System.out.println(files[i].getName());
+								System.out.println(Config.FORMAT.format(System.currentTimeMillis()) + " " + files[i].getName());
 							}
 						} else if (ex_o != null && ex_m != null) {
 							if (!ex_o.getCause().getClass().equals(ex_m.getCause().getClass()) || !ex_o.getCause().getMessage().equals(ex_m.getCause().getMessage())) {
 								killed[i] = true;
 								numOfKilled += 1;
-								System.out.println(files[i].getName());
+								System.out.println(Config.FORMAT.format(System.currentTimeMillis()) + " " + files[i].getName());
 							}
 						} else {
 							killed[i] = true;
 							numOfKilled += 1;
-							System.out.println(files[i].getName());
+							System.out.println(Config.FORMAT.format(System.currentTimeMillis()) + " " + files[i].getName());
 						}
 					}				
 				}
 			}
-			System.out.println("[ml-testing] mutation score is " + numOfKilled + " / " + files.length + " = " + (numOfKilled / files.length));
-		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InstantiationException | MalformedURLException | ClassNotFoundException | NoSuchMethodException e) {
+			System.out.println("[ml-testing] mutation score is " + numOfKilled + " / " + files.length + " = " + (numOfKilled / files.length) + "\n");
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InstantiationException | MalformedURLException | ClassNotFoundException | NoSuchMethodException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public static void testMutationScore() throws IOException {
 		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.mlt");
-		Profiles.tests.add(new TestCase(new Object[]{0, 2}));
-		Profiles.tests.add(new TestCase(new Object[]{1, 2}));
-		MLT.computeMutationScore();
+		ArrayList<TestCase> testCases = new ArrayList<TestCase>();
+		testCases.add(new TestCase(new Object[]{0, 2}));
+		testCases.add(new TestCase(new Object[]{1, 2}));
+		MLT.computeMutationScore(testCases);
 	}
 	
-	public static void main(String[] args) throws Exception {
-		//Config.loadProperties("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.mlt");
-		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.mlt");
-		//MLT.instrument();
-		//if (Config.TAINT.equals("static")) {
-		//	MLT.doStaticTaintAnalysis();
-		//}
-		//MLT.runRandom();
-		Profiles.tests.add(new TestCase(new Object[]{0, 2}));
-		Profiles.tests.add(new TestCase(new Object[]{1, 2}));
-		MLT.computeMutationScore();
+	public static void main(String[] args) throws Exception {		
+		String algo = "MELT";
+		String[] program = {"Gammq"};
+		long[] timeout = {13000};
+		
+		for (int k = 0; k < program.length; k++) {
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/" + program[k] + ".mlt");
+			
+			//MLT.instrument();
+			//if (Config.TAINT.equals("static")) {
+			//	MLT.doStaticTaintAnalysis();
+			//}
+			
+			TestRunnerClient runner  = new TestRunnerClient(false);
+			for (int i = 1; i <= 30; i++) {
+				System.out.println("[ml-testing] the " + i + " th run");
+				if (algo.equals("MELT")) {
+					MLT.run(runner);
+				} else if (algo.equals("CT")) {
+					FutureTask<?> task = new FutureTask<Object>(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								MLT.runConcolic();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}, null);
+					Thread th = new Thread(task);
+					th.start();
+					try {
+						task.get(41L, TimeUnit.SECONDS);
+					} catch (TimeoutException e) {
+						//e.printStackTrace();
+						System.out.println("timeout");
+					}
+					
+					th.stop();
+				} else {
+					MLT.runRandom(timeout[k], algo);
+				}
+				
+				ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
+				for (int j = 0; j < Profiles.tests.size(); j++) {
+					Profiles.tests.get(j).setValuation(null);
+				}
+				oout.writeObject(Profiles.tests);
+				oout.close();
+				ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
+				@SuppressWarnings("unchecked")
+				ArrayList<TestCase> testCases = (ArrayList<TestCase>)oin.readObject();
+				oin.close();
+				
+				MLT.computeMutationScore(testCases);
+				
+				Profiles.predicates.clear();
+				Profiles.tests.clear();
+			}
+		}
 	}
 
 }

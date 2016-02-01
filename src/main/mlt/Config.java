@@ -3,6 +3,7 @@ package mlt;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.Properties;
 
 public class Config {
@@ -14,6 +15,7 @@ public class Config {
 	public static Mode MODE = Mode.SYSTEMATIC; 		// find an unexplored branch either randomly or systematically
 	public static int MAX_ATTEMPTS = 3; 			// the maximum number of attempts to cover an unexplored branch
 	public static Model MODEL = Model.RANDOMFOREST; // the applied classification model
+	public static int LEARN_THRESHOLD = 5;			// the threshold for re-learn the model
 	public static int TESTS_SIZE = 10; 				// the number of test cases that need to be generated at a time
 
 	// configuration information of the target project for instrumentation
@@ -32,6 +34,7 @@ public class Config {
 	
 	// configuration file for concolic execution
 	public static String JPFCONFIG = null;
+	public static HashSet<String> SKIPPED_BRANCH = null;
 	
 	// configuration for mutation score computation
 	public static String MUTATION_CLASSPATH = null;
@@ -103,6 +106,15 @@ public class Config {
 			System.exit(0);
 		}
 		System.out.println("[ml-testing] jpfconfig = " + JPFCONFIG);
+		
+		String sb = prop.getProperty("branch.skip");
+		if (sb != null) {
+			SKIPPED_BRANCH = new HashSet<String>();
+			String[] ss = sb.split("/");
+			for (int i = 0; i < ss.length; i++) {
+				SKIPPED_BRANCH.add(ss[i]);
+			}
+		}
 		
 		MUTATION_CLASSPATH = prop.getProperty("mutation.classpath");
 		if (MUTATION_CLASSPATH != null) {

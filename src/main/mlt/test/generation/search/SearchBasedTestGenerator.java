@@ -94,12 +94,21 @@ public class SearchBasedTestGenerator extends TestGenerator {
 	    	}
 	    }
 	    HashSet<TestCase> tests = new HashSet<TestCase>();
+	    int n = (Config.TESTS_SIZE / satisfiedTests.size()) + 1;
 	    Iterator<Integer> iterator = satisfiedTests.keySet().iterator();
 	    while (iterator.hasNext()) {
 	    	HashSet<TestCase> tt = satisfiedTests.get(iterator.next());
 	    	if (tt != null) {
 	    		// TODO use all the generated tests?
-	    		tests.add(tt.iterator().next());
+	    		// add the first case
+	    		//tests.add(tt.iterator().next());
+	    		// add equal number of test cases
+	    		Iterator<TestCase> ii = tt.iterator();
+	    		int count = 0;
+	    		while (ii.hasNext() && count < n) {
+	    			count++;
+	    			tests.add(ii.next());
+	    		}
 	    	}
 	    }
 		return tests;

@@ -1,11 +1,12 @@
 package mlt.test.generation.concolic;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import mlt.test.Util;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -44,7 +45,7 @@ public class ConcolicExecution {
 
 	private static ConcolicExecution instance;
 	
-	private ConcolicExecution(String prop) {
+	public ConcolicExecution(String prop) {
 		Config conf = JPF.createConfig(new String[]{prop});
 		conf.initClassLoader(ConcolicExecution.class.getClassLoader());
 	    // due to some bug the log manager has to be initialized first.
@@ -78,9 +79,9 @@ public class ConcolicExecution {
 	public void run(Object[] test) throws NotFoundException, CannotCompileException, IOException {
 		this.prepare(test);
 		if (ce.hasCurrentAnalysis()) {
-			// TODO possibility to remove previous stored results in ce.completedAnalyses to save space?
 	    	ce.completeAnalysis();
 	    }
+    	ce.getCompletedAnalyses().clear();
 	    // run jpf
 	    JPF jpf = new JPF(jpfConf);
 	    SimpleProfiler.start("JDART-run");
@@ -91,7 +92,14 @@ public class ConcolicExecution {
 	    logger.info("Profiling:\n" + SimpleProfiler.getResults());
 	}
 	
-	public void run() {
+	public void run() throws NotFoundException, CannotCompileException, IOException {
+		Object[] iniTest = Util.randomTest();
+		System.out.print("[FINER] Found: SAT : " + mlt.Config.PARAMETERS[0] + ":=" + iniTest[0]);
+		for (int i = 1; i < mlt.Config.PARAMETERS.length; i++) {
+			System.out.print("," + mlt.Config.PARAMETERS[i] + ":=" + iniTest[i]);
+		}
+		System.out.println();
+		this.prepare(iniTest);
 		// run jpf
 	    JPF jpf = new JPF(jpfConf);
 	    SimpleProfiler.start("JDART-run");
@@ -129,11 +137,14 @@ public class ConcolicExecution {
 		cc.writeFile(jpfConf.getString("classpath").split(";")[0]);
 	}
 	
-	public ArrayList<Valuation> getValuations(String srcLoc, int size, HashMap<Instruction, Expression<Boolean>> cons) {
+	public HashSet<Valuation> getValuations(String srcLoc, int size, HashMap<Instruction, Expression<Boolean>> cons) {
 		return ce.getCurrentAnalysis().getInternalConstraintsTree().findValuations(srcLoc, size, cons);
 	}
 	
-	public ArrayList<Valuation> getValuations() {
+	public HashSet<Valuation> getValuations() {
+		if (ce.hasCurrentAnalysis()) {
+	    	ce.completeAnalysis();
+	    }
 		Valuation iniVal = ce.getCompletedAnalyses().entrySet().iterator().next().getValue().get(0).getInitialValuation();
 		InternalConstraintsTree.getValuations().add(iniVal);
 		return InternalConstraintsTree.getValuations();
@@ -180,12 +191,12 @@ public class ConcolicExecution {
 	}
 
 	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException {
-		/*ConcolicExecution jdart = ConcolicExecution.getInstance("C:/Users/bhchen/workspace/testing/format/src/features/nested/test_bar.jpf");
+		/*ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/jdart/src/examples/features/nested/test_bar.jpf");
 		Object[] obj = new Object[1];
 		obj[0] = 1.733;
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		ArrayList<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:23)", mlt.Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:23)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
 		//jdart.statistics();
@@ -204,26 +215,28 @@ public class ConcolicExecution {
 		obj[1] = -5814.517874260192;
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		ArrayList<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:27)", mlt.Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:25)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
-		System.out.println(cons);
-		//jdart.statistics();*/
+		System.out.println(cons);*/
+		//jdart.statistics();
 		
-		/*ConcolicExecution jdart1 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.jpf");
-		Object[] obj = new Object[2];
-		obj[0] = 8732;
-		obj[1] = -7888.887095263622;
+		ConcolicExecution jdart1 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.jpf");
+		Object[] obj = new Object[3];
+		obj[0] = 2687;
+		obj[1] = -367;
+		obj[2] = 2263.4979569067946;
 		jdart1.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons1 = new HashMap<Instruction, Expression<Boolean>>();
-		ArrayList<Valuation> vals1 = jdart1.getValuations("dt.original.Bessj.bessj(Bessj.java:123)", mlt.Config.TESTS_SIZE, cons1);
+		HashSet<Valuation> vals1 = jdart1.getValuations("dt.original.Fisher.exe(Fisher.java:146)", mlt.Config.TESTS_SIZE, cons1);
 		System.out.println(vals1);
-		System.out.println(cons1);
-		//jdart.statistics();*/
+		//System.out.println(cons1);
+		//jdart.statistics();
 		
-		ConcolicExecution jdart2 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.jpf");
-		jdart2.run();
-		ArrayList<Valuation> vals2 = jdart2.getValuations();
-		System.out.println(vals2);
+		//ConcolicExecution jdart2 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.jpf");
+		//TimeoutSearch.timeout = 10000;
+		//jdart2.run();
+		//HashSet<Valuation> vals2 = jdart2.getValuations();
+		//System.out.println(vals2);
 		//jdart2.statistics();
 	}
 

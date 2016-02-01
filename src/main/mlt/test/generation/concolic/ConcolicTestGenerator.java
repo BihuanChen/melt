@@ -4,9 +4,9 @@ import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.vm.Instruction;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import mlt.Config;
 import mlt.instrument.Predicate;
@@ -57,14 +57,16 @@ public class ConcolicTestGenerator extends TestGenerator {
 		ConcolicExecution jdart = ConcolicExecution.getInstance(Config.JPFCONFIG);
 		jdart.run(test);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		ArrayList<Valuation> vals = jdart.getValuations(srcLoc, Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations(srcLoc, Config.TESTS_SIZE, cons);
 		System.out.println("[ml-testing] tests generated from concolic execution " + vals + "\n");
 		// attach constraints to corresponding nodes
 		pathLearner.attachConstraints(testIndex, cons);
 		// convert valuations to tests
 		HashSet<TestCase> testCases = new HashSet<TestCase>();
-		for (int i = 0; i < vals.size(); i++) {
-			testCases.add(new TestCase(Util.valuationToTest(vals.get(i)), vals.get(i)));
+		Iterator<Valuation> iterator = vals.iterator();
+		while (iterator.hasNext()) {
+			Valuation v = iterator.next();
+			testCases.add(new TestCase(Util.valuationToTest(v), v));
 		}
 		return testCases;
 	}

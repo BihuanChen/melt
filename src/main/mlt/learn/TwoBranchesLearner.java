@@ -1,6 +1,7 @@
 package mlt.learn;
 
 import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Valuation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,16 +64,38 @@ public class TwoBranchesLearner {
 	public void buildInstancesAndClassifier() throws Exception {
 		// create or update instances
 		boolean changed1 = setupInstances();
-		// get new tests data
+		// set the classifier filter
+		boolean changed3 = false;
+		if (node.isDepDirty()) {
+			int size = node.getNotDepInputs().size();
+			int[] index = new int[size];
+			Iterator<Integer> iterator = node.getNotDepInputs().iterator();
+			int i = 0;
+			while (iterator.hasNext()) {
+				index[i++] = iterator.next() + 1;
+			}
+			Remove rm = new Remove();			
+			rm.setAttributeIndicesArray(index);
+			classifier.setFilter(rm);
+			
+			node.setDepDirty(false);
+			changed3 = true;
+		}
+		// decide if new tests data needs to be loaded (in a lazy manner)
 		PredicateArc tb = node.getSourceTrueBranch();
 		PredicateArc fb = node.getSourceFalseBranch();
-		HashSet<Integer> tTests = new HashSet<Integer>(tb.getTests().subList(tb.getOldSize(), tb.getTests().size()));
-		tb.setOldSize(tb.getTests().size());
-		HashSet<Integer> fTests = new HashSet<Integer>(fb.getTests().subList(fb.getOldSize(), fb.getTests().size()));
-		fb.setOldSize(fb.getTests().size());
-		boolean changed2 = tTests.size() == 0 && fTests.size() == 0 ? false : true;
+		boolean changed2 = false;
+		if (changed1 || changed3 || (tb.getOldSize() == 0 && fb.getOldSize() == 0) || 
+				((tb.getTests().size() - tb.getOldSize()) > Config.LEARN_THRESHOLD || (fb.getTests().size() - fb.getOldSize()) > Config.LEARN_THRESHOLD)) {
+			changed2 = true;
+		}
 		// load new tests data
 		if (changed2) {
+			HashSet<Integer> tTests = new HashSet<Integer>(tb.getTests().subList(tb.getOldSize(), tb.getTests().size()));
+			tb.setOldSize(tb.getTests().size());
+			HashSet<Integer> fTests = new HashSet<Integer>(fb.getTests().subList(fb.getOldSize(), fb.getTests().size()));
+			fb.setOldSize(fb.getTests().size());
+			
 			Predicate.TYPE type = Profiles.predicates.get(node.getPredicate()).getType();
 			if (type == Predicate.TYPE.IF) {
 				Iterator<Integer> iterator = tTests.iterator();
@@ -106,24 +129,8 @@ public class TwoBranchesLearner {
 				System.err.println("[ml-testing] unknown conditional statement");
 			}			
 		}
-		// set the classifier filter
-		boolean change3 = false;
-		if (node.isDepDirty()) {
-			int size = node.getNotDepInputs().size();
-			int[] index = new int[size];
-			Iterator<Integer> iterator = node.getNotDepInputs().iterator();
-			int i = 0;
-			while (iterator.hasNext()) {
-				index[i++] = iterator.next() + 1;
-			}
-			Remove rm = new Remove();			
-			rm.setAttributeIndicesArray(index);
-			classifier.setFilter(rm);
-			
-			node.setDepDirty(false);
-			change3 = true;
-		}
-		if (changed1 || changed2 || change3) {
+		
+		if (changed1 || changed2 || changed3) {
 			// build the classifier if instances are changed
 			classifier.buildClassifier(instances);
 			//System.out.println("[ml-testing] instances \n" + classifier + "\n");
@@ -243,7 +250,9 @@ public class TwoBranchesLearner {
 			Iterator<String> iterator = constraints.keySet().iterator();
 			int counter = 0;
 			while (iterator.hasNext()) {
-				boolean b = constraints.get(iterator.next()).evaluate(testCase.getValuation());
+				Expression<Boolean> exp = constraints.get(iterator.next());
+				Valuation val = testCase.getValuation();
+				boolean b = exp.evaluate(val);
 				instance.setValue(test.length + 1 + counter, b ? "true" : "false");
 				counter++;
 			}
