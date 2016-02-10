@@ -127,11 +127,14 @@ public class MLT {
 		PredicateNode targetNode = null;
 		
 		long testTime = 0;
+		long geneTime = 0;
 		int count = 0;
 
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
+			long s = System.currentTimeMillis();
 			HashSet<TestCase> testCases = new SearchBasedTestGenerator(learner).generate();
+			geneTime += System.currentTimeMillis() - s;
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
@@ -162,6 +165,7 @@ public class MLT {
 		System.out.println("[ml-testing] " + Config.FORMAT.format(t3));
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 		System.out.println("[ml-testing] tests run in " + testTime + " ms");
+		System.out.println("[ml-testing] tests generated in " + geneTime + " ms");
 		System.out.println("[ml-testing] ml-testing in " + (t3 - t2) + " ms");
 	}
 	

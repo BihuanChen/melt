@@ -30,6 +30,8 @@
 	<classpathentry kind="lib" path="lib/jmetal4.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/chronicle-3.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/taint-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/jna-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jna-platform-4.2.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/affinity-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/lang-6.7.6.jar"/>

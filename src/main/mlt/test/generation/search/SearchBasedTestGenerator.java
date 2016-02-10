@@ -28,7 +28,11 @@ public class SearchBasedTestGenerator extends TestGenerator {
 	@Override
 	public HashSet<TestCase> generate() throws Exception {
 		if (pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
-			return new ConcolicTestGenerator(pathLearner).generate();
+			HashSet<TestCase> tcs = new ConcolicTestGenerator(pathLearner).generate();
+			if (tcs.size() == 0) {
+				return genSearchBasedTests();
+			}
+			return tcs;
 		} else if (pathLearner == null) {
 			return new PureRandomTestGenerator(pathLearner).generate();
 		} else {
@@ -94,6 +98,9 @@ public class SearchBasedTestGenerator extends TestGenerator {
 	    	}
 	    }
 	    HashSet<TestCase> tests = new HashSet<TestCase>();
+	    if (satisfiedTests.size() == 0) {
+	    	return tests;
+	    }
 	    int n = (Config.TESTS_SIZE / satisfiedTests.size()) + 1;
 	    Iterator<Integer> iterator = satisfiedTests.keySet().iterator();
 	    while (iterator.hasNext()) {

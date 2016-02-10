@@ -105,13 +105,13 @@ public class DataAnalyzer {
 			}
 		}*/
 		
-		/*while ((line = reader.readLine()) != null) {
+		while ((line = reader.readLine()) != null) {
 			if (line.contains("mutation score")) {
 				System.out.println(Double.valueOf(line.substring(line.indexOf("=") + 2)) * 100);
 			}
-		}*/
+		}
 		
-		double coverage = 0;
+		/*double coverage = 0;
 		boolean error = false;
 		while ((line = reader.readLine()) != null) {
 			if (line.contains("th run")) {
@@ -132,7 +132,7 @@ public class DataAnalyzer {
 				}
 			}
 		}
-		System.out.println(coverage * 100);
+		System.out.println(coverage * 100);*/
 		
 		reader.close();
 	}
