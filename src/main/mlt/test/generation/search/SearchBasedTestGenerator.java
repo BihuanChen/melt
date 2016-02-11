@@ -47,7 +47,7 @@ public class SearchBasedTestGenerator extends TestGenerator {
 	    Algorithm algorithm = new IBEA(problem);
 	    algorithm.setInputParameter("populationSize", 10);
 	    algorithm.setInputParameter("archiveSize", 10);
-	    algorithm.setInputParameter("maxEvaluations", 2500);
+	    algorithm.setInputParameter("maxEvaluations", 1000);
 
 	    // Operator parameters
 	    HashMap<String, Object>  parameters; 

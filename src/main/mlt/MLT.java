@@ -129,12 +129,14 @@ public class MLT {
 		long testTime = 0;
 		long geneTime = 0;
 		int count = 0;
+		long testSize = 0;
 
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
 			long s = System.currentTimeMillis();
 			HashSet<TestCase> testCases = new SearchBasedTestGenerator(learner).generate();
 			geneTime += System.currentTimeMillis() - s;
+			testSize += testCases.size();
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
@@ -164,8 +166,8 @@ public class MLT {
 		long t3 = System.currentTimeMillis();
 		System.out.println("[ml-testing] " + Config.FORMAT.format(t3));
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
-		System.out.println("[ml-testing] tests run in " + testTime + " ms");
-		System.out.println("[ml-testing] tests generated in " + geneTime + " ms");
+		System.out.println("[ml-testing] " + testSize + " tests run in " + testTime + " ms");
+		System.out.println("[ml-testing] " + testSize + " tests generated in " + geneTime + " ms");
 		System.out.println("[ml-testing] ml-testing in " + (t3 - t2) + " ms");
 	}
 	
@@ -185,7 +187,8 @@ public class MLT {
 
 		long testTime = 0;
 		int count = 0;
-
+		long testSize = 0;
+		
 		long endTime = t2 + timeout;
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
@@ -198,6 +201,7 @@ public class MLT {
 				System.out.println("[ml-testing] wrong name for the random testing tool");
 				System.exit(0);
 			}
+			testSize += testCases.size();
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
@@ -219,7 +223,7 @@ public class MLT {
 		long t3 = System.currentTimeMillis();
 		System.out.println("[ml-testing] " + Config.FORMAT.format(t3));
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
-		System.out.println("[ml-testing] tests run in " + testTime + " ms");
+		System.out.println("[ml-testing] " + testSize + " tests run in " + testTime + " ms");
 		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms" + "\n");
 	}
 	
@@ -238,11 +242,13 @@ public class MLT {
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 
 		long testTime = 0;
-
+		long testSize = 0;
+		
 		// generate and run tests, and analyze the branch profiles
 		ConcolicExecution jdart = new ConcolicExecution(Config.JPFCONFIG);
 		jdart.run();
 		HashSet<Valuation> vals = jdart.getValuations();
+		testSize += vals.size();
 		Iterator<Valuation> iterator = vals.iterator();
 		while (iterator.hasNext()) {
 			Object[] test = Util.valuationToTest(iterator.next());
@@ -259,7 +265,7 @@ public class MLT {
 		long t3 = System.currentTimeMillis();
 		System.out.println("[ml-testing] " + Config.FORMAT.format(t3));
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
-		System.out.println("[ml-testing] tests run in " + testTime + " ms");
+		System.out.println("[ml-testing] " + testSize + " tests run in " + testTime + " ms");
 		System.out.println("[ml-testing] concolic testing in " + (t3 - t2) + " ms");
 	}
 	
@@ -481,9 +487,9 @@ public class MLT {
 	}
 	
 	public static void main(String[] args) throws Exception {		
-		String algo = "MELT";
+		String algo = "RT";
 		String[] program = {"Gammq"};
-		long[] timeout = {13000};
+		long[] timeout = {18000};
 		
 		for (int k = 0; k < program.length; k++) {
 			Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/" + program[k] + ".mlt");
@@ -494,7 +500,7 @@ public class MLT {
 			//}
 			
 			TestRunnerClient runner  = new TestRunnerClient(false);
-			for (int i = 1; i <= 30; i++) {
+			for (int i = 2; i <= 30; i++) {
 				System.out.println("[ml-testing] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MLT.run(runner);
@@ -512,7 +518,7 @@ public class MLT {
 					Thread th = new Thread(task);
 					th.start();
 					try {
-						task.get(41L, TimeUnit.SECONDS);
+						task.get(18L, TimeUnit.SECONDS);
 					} catch (TimeoutException e) {
 						//e.printStackTrace();
 						System.out.println("timeout");

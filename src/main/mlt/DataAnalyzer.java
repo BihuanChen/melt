@@ -94,8 +94,8 @@ public class DataAnalyzer {
 	
 	public static void extractFromLogs() throws IOException, ClassNotFoundException {
 		String program = "Gammq";
-		String algo = "MELT";
-		File file = new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program + "/" + algo + "/melt");
+		String algo = "RT";
+		File file = new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program + "/" + algo + "/rt");
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = null;
 
