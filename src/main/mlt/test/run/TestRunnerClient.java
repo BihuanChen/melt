@@ -30,16 +30,16 @@ public class TestRunnerClient {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		mlt.Config.loadProperties("/home/bhchen/workspace/testing/benchmark0-test/src/phosphor/test/Test.mlt");
+		mlt.Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.mlt");
 		TestRunnerClient client = new TestRunnerClient(false);
-		Object[] test1 = new Object[]{1, 2};
+		Object[] test1 = new Object[]{80000000, 80000000, 300000};
 		client.run(test1);
 		Profiles.printExecutedPredicates();
 		Profiles.printTaints();
 		Profiles.executedPredicates.clear();
 		Profiles.taints.clear();
 		
-		Object[] test2 = new Object[]{-1, -2};
+		Object[] test2 = new Object[]{80000000, 80000000, 300000};
 		client.run(test2);
 		Profiles.printExecutedPredicates();
 		Profiles.printTaints();
