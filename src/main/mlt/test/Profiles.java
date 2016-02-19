@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Stack;
 
 import mlt.instrument.Predicate;
+import mlt.instrument.Predicate.TYPE;
 
 public class Profiles {
 	
@@ -13,12 +15,82 @@ public class Profiles {
 	public static ArrayList<TestCase> tests = new ArrayList<TestCase>();
 	
 	// dynamic info
-	public static ArrayList<Pair> executedPredicates = new ArrayList<Pair>();
+	public static PairArrayList executedPredicates = new PairArrayList();
 	public static HashMap<String, HashSet<Integer>> taints = new HashMap<String, HashSet<Integer>>();
 	
+	private static Stack<Integer> loopIndexStack = new Stack<Integer>();
+	private static Stack<Pair> loopPairStack = new Stack<Pair>();
 	// for instrumentation
 	public static void add(int index, boolean value) {
-		executedPredicates.add(new Pair(index, value));
+		Pair p = new Pair(index, value);
+		TYPE type = predicates.get(index).getType();
+		
+		if (loopIndexStack.size() == 0) {
+			if (type == TYPE.IF) {
+				executedPredicates.add(p);
+			} else if (type != TYPE.IF) {
+				executedPredicates.add(p);
+				loopIndexStack.push(index);
+				loopPairStack.push(p);
+			}
+		} else {
+			if (type != TYPE.IF && index != loopIndexStack.peek()) {
+				loopPairStack.peek().addToInnerPairs(p);
+				loopIndexStack.push(index);
+				loopPairStack.push(p);
+			} else if (type != TYPE.IF && index == loopIndexStack.peek()) {
+				loopPairStack.pop();
+				
+				PairArrayList ps = loopPairStack.empty() ? executedPredicates : loopPairStack.peek().getInnerPairs();				
+				int size = ps.size();
+				if ((type == TYPE.FOR || type == TYPE.WHILE) && size >= 2){
+					Pair p1 = ps.get(size - 1);
+					Pair p2 = ps.get(size - 2);
+					if (p1.getPredicateIndex() == index && p1.isPredicateValue() 
+							&& p2.getPredicateIndex() == index && p2.isPredicateValue()) {
+						for (int i = size - 2; i >= 0; i--) {
+							Pair pt = ps.get(i);
+							if (pt.getPredicateIndex() == index && pt.isPredicateValue()) {
+								if (p1.equals(pt)) {
+									ps.remove(size - 1);
+									break;
+								}
+							} else {
+								break;
+							}
+						}
+					}
+				} else if (type == TYPE.DO && size >= 3) {
+					Pair p1 = ps.get(size - 1);
+					Pair p2 = ps.get(size - 2);
+					Pair p3 = ps.get(size - 3);
+					if (p1.getPredicateIndex() == index && p1.isPredicateValue() 
+							&& p2.getPredicateIndex() == index && p2.isPredicateValue() 
+							&& p3.getPredicateIndex() == index && p3.isPredicateValue()) {
+						for (int i = size - 2; i >= 0; i--) {
+							Pair pt = ps.get(i);
+							if (pt.getPredicateIndex() == index && pt.isPredicateValue()) {
+								if (p1.equals(pt)) {
+									ps.remove(size - 1);
+									break;
+								}
+							} else {
+								break;
+							}
+						}
+					}
+				}
+				
+				ps.add(p);
+				if (value) {
+					loopPairStack.push(p);
+				} else {
+					loopIndexStack.pop();
+				}
+			} else {
+				loopPairStack.peek().addToInnerPairs(p);
+			}
+		}
 	}
 		
 	public static void printPredicates() {
@@ -40,11 +112,21 @@ public class Profiles {
 	
 	public static void printExecutedPredicates() {
 		int size = executedPredicates.size();
-		System.out.print("[ml-testing] predicates");
+		System.out.println("[ml-testing] predicates");
 		for (int i = 0; i < size; i++) {
-			System.out.print(" " + executedPredicates.get(i).getPredicateIndex() + " (" + executedPredicates.get(i).isPredicateValue() + ")");
+			System.out.println(executedPredicates.get(i).getPredicateIndex() + " (" + executedPredicates.get(i).isPredicateValue() + ")");
+			print(executedPredicates.get(i).getInnerPairs());
 		}
-		System.out.println(" executed");
+	}
+	
+	public static void print(PairArrayList list) {
+		if (list != null) {
+			int size = list.size();
+			for (int i = 0; i < size; i++) {
+				System.out.println(list.get(i).getPredicateIndex() + " (" + list.get(i).isPredicateValue() + ")");
+				print(list.get(i).getInnerPairs());
+			}
+		}
 	}
 	
 	public static void printTaints() {

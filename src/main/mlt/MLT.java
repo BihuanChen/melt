@@ -63,7 +63,7 @@ public class MLT {
 		// serialize the predicates
 		long t4 = System.currentTimeMillis();
 		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File(Config.MAINCLASS + ".pred")));
-		oout.writeObject(instrumenter);
+		oout.writeObject(instrumenter.getPredicates());
 		oout.close();
 		
 		long t5 = System.currentTimeMillis();
@@ -78,7 +78,8 @@ public class MLT {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
-		Instrumenter instrumenter = (Instrumenter)oin.readObject();
+		@SuppressWarnings("unchecked")
+		ArrayList<Predicate> predicates = (ArrayList<Predicate>)oin.readObject();
 		oin.close();
 	
 		// analyze inputs-branch dependency statically
@@ -86,9 +87,9 @@ public class MLT {
 		String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
 		LinkedHashMap<String, HashSet<Integer>> dependency = StaticDependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
 	
-		int size = instrumenter.getPredicates().size();
+		int size = predicates.size();
 		for (int i = 0; i < size; i++) {
-			Predicate p = instrumenter.getPredicates().get(i);
+			Predicate p = predicates.get(i);
 			String id = p.getClassName() + " " + p.getLineNumber();
 			HashSet<Integer> set = dependency.get(id);
 			if (set != null) {
@@ -101,7 +102,7 @@ public class MLT {
 		// serialize the predicates
 		long t3 = System.currentTimeMillis();
 		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File(Config.MAINCLASS + ".pred")));
-		oout.writeObject(instrumenter);
+		oout.writeObject(predicates);
 		oout.close();
 		
 		long t4 = System.currentTimeMillis();
@@ -110,11 +111,12 @@ public class MLT {
 		System.out.println("[ml-testing] predicates serialized in " + (t4 - t3) + " ms");
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void run(TestRunnerClient runner) throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
 		Profiles.printPredicates();
@@ -171,11 +173,12 @@ public class MLT {
 		System.out.println("[ml-testing] ml-testing in " + (t3 - t2) + " ms");
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void runRandom(long timeout, String algo) throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
 		Profiles.printPredicates();
@@ -227,11 +230,12 @@ public class MLT {
 		System.out.println("[ml-testing] random testing in " + (t3 - t2) + " ms" + "\n");
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void runConcolic() throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		System.out.println("[ml-testing] " + Config.FORMAT.format(System.currentTimeMillis()));
 		Profiles.printPredicates();
@@ -269,9 +273,10 @@ public class MLT {
 		System.out.println("[ml-testing] concolic testing in " + (t3 - t2) + " ms");
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void test1() throws Exception {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		Profiles.printPredicates();
 		
@@ -348,9 +353,10 @@ public class MLT {
 		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 1, -1}))[0]);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void test2() throws Exception {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		Profiles.printPredicates();
 		

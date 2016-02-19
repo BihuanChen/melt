@@ -2,13 +2,12 @@ package mlt.test.run;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import edu.ntu.taint.BranchTaintNode;
 import edu.ntu.taint.HashMap;
 import mlt.Config;
-import mlt.test.Pair;
+import mlt.test.PairArrayList;
 import mlt.test.Profiles;
 import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.ChronicleQueueBuilder;
@@ -41,7 +40,6 @@ public class TestChronicle {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void read() throws MalformedURLException {
 		while(!reader.nextIndex());
 		if (server) {
@@ -51,7 +49,7 @@ public class TestChronicle {
 		} else {
 			// read taint results and executed predicates
 			HashMap taints = (HashMap)reader.readObject();
-			Profiles.executedPredicates = (ArrayList<Pair>)reader.readObject();
+			Profiles.executedPredicates = (PairArrayList)reader.readObject();
 
 			BranchTaintNode[] nodes = taints.getRootNodes();
 			for (int i = 0; i < nodes.length; i++) {
@@ -79,7 +77,6 @@ public class TestChronicle {
 			// write taint results
 			writer.writeObject(obj1);
 			// write executed predicates
-			//TODO process the executed predicates?
 			writer.writeObject(obj2);
 		} else {
 			// write the test case

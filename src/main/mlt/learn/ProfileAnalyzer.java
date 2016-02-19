@@ -29,13 +29,14 @@ public class ProfileAnalyzer {
 		predicatedNodes = new HashMap<Integer, HashSet<Integer>>();
 	}
 
+	// TODO use the new version of executedPredicates
 	public void update() {
 		int size = Profiles.executedPredicates.size();
 		if (size == 0) { return; }
 		int testIndex = Profiles.tests.size() - 1;
 		
 		PredicateNode current = root;
-		Stack<PredicateNode> loopBranchStack = new Stack<PredicateNode>();
+		Stack<PredicateNode> loopBranchStack = new Stack<PredicateNode>(); //TODO a potential bug when returning within a loop
 		for (int i = 0; i < size; i++) {
 			// get the branch predicate information
 			Pair p = Profiles.executedPredicates.get(i);
