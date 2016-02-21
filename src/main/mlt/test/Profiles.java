@@ -17,10 +17,10 @@ public class Profiles {
 	// dynamic info
 	public static PairArrayList executedPredicates = new PairArrayList();
 	public static HashMap<String, HashSet<Integer>> taints = new HashMap<String, HashSet<Integer>>();
-	
+
+	// for instrumentation
 	private static Stack<Integer> loopIndexStack = new Stack<Integer>();
 	private static Stack<Pair> loopPairStack = new Stack<Pair>();
-	// for instrumentation
 	public static void add(int index, boolean value) {
 		Pair p = new Pair(index, value);
 		
@@ -117,7 +117,10 @@ public class Profiles {
 			}
 		}
 	}
-		
+	
+	// dummy add for concolic execution
+	//public static void add(int index, boolean value) {}
+	
 	public static void printPredicates() {
 		int size = predicates.size();
 		for (int i = 0; i < size; i++) {

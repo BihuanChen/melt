@@ -142,6 +142,7 @@ public class MLT {
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
+				System.err.println(testCase);
 				long t = System.currentTimeMillis();
 				runner.run(testCase.getTest());
 				testTime += System.currentTimeMillis() - t;
@@ -493,7 +494,7 @@ public class MLT {
 	}
 	
 	public static void main(String[] args) throws Exception {		
-		String algo = "RT";
+		String algo = "MELT";
 		String[] program = {"Gammq"};
 		long[] timeout = {18000};
 		
@@ -506,7 +507,7 @@ public class MLT {
 			//}
 			
 			TestRunnerClient runner  = new TestRunnerClient(false);
-			for (int i = 2; i <= 30; i++) {
+			for (int i = 31; i <= 35; i++) {
 				System.out.println("[ml-testing] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MLT.run(runner);

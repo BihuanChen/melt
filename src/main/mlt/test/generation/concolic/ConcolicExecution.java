@@ -217,27 +217,19 @@ public class ConcolicExecution {
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
 		HashSet<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:25)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
-		System.out.println(cons);*/
-		//jdart.statistics();
+		//System.out.println(cons);
+		//jdart.statistics();*/
 		
-		ConcolicExecution jdart1 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.jpf");
-		Object[] obj = new Object[3];
-		obj[0] = 2687;
-		obj[1] = -367;
-		obj[2] = 2263.4979569067946;
+		ConcolicExecution jdart1 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Gammq.jpf");
+		Object[] obj = new Object[2];
+		obj[0] = 7491371.891567677;
+		obj[1] = 7.720981519094333E7;
 		jdart1.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons1 = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals1 = jdart1.getValuations("dt.original.Fisher.exe(Fisher.java:146)", mlt.Config.TESTS_SIZE, cons1);
+		HashSet<Valuation> vals1 = jdart1.getValuations("dt.original.Gammq.exe(Gammq.java:169)", mlt.Config.TESTS_SIZE, cons1);
 		System.out.println(vals1);
 		//System.out.println(cons1);
 		//jdart.statistics();
-		
-		//ConcolicExecution jdart2 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.jpf");
-		//TimeoutSearch.timeout = 10000;
-		//jdart2.run();
-		//HashSet<Valuation> vals2 = jdart2.getValuations();
-		//System.out.println(vals2);
-		//jdart2.statistics();
 	}
 
 }
