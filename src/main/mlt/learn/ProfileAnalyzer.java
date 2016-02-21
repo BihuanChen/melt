@@ -9,6 +9,7 @@ import java.util.Stack;
 import mlt.Config;
 import mlt.instrument.Predicate;
 import mlt.test.Pair;
+import mlt.test.PairArrayList;
 import mlt.test.Profiles;
 
 public class ProfileAnalyzer {
@@ -29,20 +30,23 @@ public class ProfileAnalyzer {
 		predicatedNodes = new HashMap<Integer, HashSet<Integer>>();
 	}
 
-	// TODO use the new version of executedPredicates
 	public void update() {
-		int size = Profiles.executedPredicates.size();
+		ArrayList<Pair> eps = new ArrayList<Pair>();
+		getExecutedPredicates(Profiles.executedPredicates, eps);
+		Profiles.executedPredicates.clear();
+		
+		int size = eps.size();
 		if (size == 0) { return; }
 		int testIndex = Profiles.tests.size() - 1;
 		
 		PredicateNode current = root;
-		Stack<PredicateNode> loopBranchStack = new Stack<PredicateNode>(); //TODO a potential bug when returning within a loop
+		Stack<PredicateNode> loopBranchStack = new Stack<PredicateNode>();
 		for (int i = 0; i < size; i++) {
 			// get the branch predicate information
-			Pair p = Profiles.executedPredicates.get(i);
+			Pair p = eps.get(i);
 			int index = p.getPredicateIndex();
 			boolean value = p.isPredicateValue();
-
+			
 			// set the predicate index if not yet set
 			if (current.getPredicate() == -1) {
 				current.setPredicate(index);
@@ -76,11 +80,17 @@ public class ProfileAnalyzer {
 				loopBranchStack.pop();
 			}
 			
+			// deal with loop statements in loops
+			while (i + 1 < size && eps.get(i + 1).getPredicateIndex() == -1) {
+				loopBranchStack.pop();
+				i++;
+			}
+			
 			// check if the next branch is a loop branch
 			PredicateNode next = null;
 			if (loopBranchStack.size() > 0 && i + 1 < size) {
 				next = loopBranchStack.peek();
-				if (Profiles.executedPredicates.get(i + 1).getPredicateIndex() != next.getPredicate()) {
+				if (eps.get(i + 1).getPredicateIndex() != next.getPredicate()) {
 					next = null;
 				}
 			}
@@ -119,12 +129,11 @@ public class ProfileAnalyzer {
 			
 			// avoid associating a test input to a loop branch for multiple times
 			if (branch.getTests() == null || branch.getTests().get(branch.getTests().size() - 1) != testIndex) {
-				if (!(Profiles.predicates.get(branch.getSource().getPredicate()).getType() == Predicate.TYPE.DO && value && isOneIterationDoLoop(i, size))) {
+				if (!(Profiles.predicates.get(branch.getSource().getPredicate()).getType() == Predicate.TYPE.DO && value && isOneIterationDoLoop(eps, i, size))) {
 					branch.addTest(testIndex);
 				}
 			}
 		}
-		Profiles.executedPredicates.clear();
 		Profiles.taints.clear();
 	}
 	
@@ -217,10 +226,10 @@ public class ProfileAnalyzer {
 		predicatedNodes.get(predicate).add(index);
 	}
 	
-	private boolean isOneIterationDoLoop (int start, int end) {
-		Pair p1 = Profiles.executedPredicates.get(start);
+	private boolean isOneIterationDoLoop (ArrayList<Pair> eps, int start, int end) {
+		Pair p1 = eps.get(start);
 		for (int i = start + 1; i < end; i++) {
-			Pair p2 = Profiles.executedPredicates.get(i);
+			Pair p2 = eps.get(i);
 			if (p2.getPredicateIndex() == p1.getPredicateIndex() && p2.isPredicateValue()) {
 				return false;
 			} else if (p2.getPredicateIndex() == p1.getPredicateIndex() && !p2.isPredicateValue()) {
@@ -228,6 +237,17 @@ public class ProfileAnalyzer {
 			}
 		}
 		return true;
+	}
+	
+	private static void getExecutedPredicates(PairArrayList from, ArrayList<Pair> to) {
+		if (from != null) {
+			int size = from.size();
+			for (int i = 0; i < size; i++) {
+				Pair p = from.get(i);
+				to.add(p);
+				getExecutedPredicates(p.getInnerPairs(), to);
+			}
+		}
 	}
 
 	public PredicateNode getRoot() {

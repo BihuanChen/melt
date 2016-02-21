@@ -11,6 +11,7 @@ public class Predicate implements Serializable {
 	
 	private String className;
 	private String methodName;
+	private String signature;
 	private int lineNumber;
 	
 	private String expression;
@@ -23,10 +24,11 @@ public class Predicate implements Serializable {
 	private HashSet<Integer> depInputs;
 	private HashSet<Integer> notDepInputs;
 	
-	public Predicate(String className, String methodName, int lineNumber, String expression, TYPE type) {
+	public Predicate(String className, String methodName, String signature, int lineNumber, String expression, TYPE type) {
 		this.className = className;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
+		this.signature = signature;
 		this.expression = expression;
 		this.type = type;
 	}
@@ -45,6 +47,14 @@ public class Predicate implements Serializable {
 
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
+	}
+
+	public String getSignature() {
+		return signature;
+	}
+
+	public void setSignature(String signature) {
+		this.signature = signature;
 	}
 
 	public int getLineNumber() {
@@ -92,7 +102,7 @@ public class Predicate implements Serializable {
 	@Override
 	public String toString() {
 		return "Predicate [ className = " + className + ", methodName = "
-				+ methodName + ", lineNumber = " + lineNumber + ", expression = "
+				+ methodName + ", signature = " + signature + ", lineNumber = " + lineNumber + ", expression = "
 				+ expression + ", type = " + type + ", depInputs = " + depInputs + " ]";
 	}
 

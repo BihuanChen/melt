@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchStatement;
@@ -167,6 +168,8 @@ public class Instrumenter implements Serializable {
 		cu.accept(new ASTVisitor() {
 
 			private String methodName = null;
+			private String signature = null;
+			private int nestedLoops = 0;
 			
 			@Override
 			public boolean visit(ConditionalExpression conditionalExpression) {			
@@ -245,18 +248,21 @@ public class Instrumenter implements Serializable {
 			
 			@Override
 			public boolean visit(ForStatement forStatement) {
+				nestedLoops++;
 				visit(forStatement, forStatement.getExpression(), forStatement.getBody(), forStatement.getParent(), Predicate.TYPE.FOR);
 				return super.visit(forStatement);
 			}
 			
 			@Override
 			public boolean visit(WhileStatement whileStatement) {
+				nestedLoops++;
 				visit(whileStatement, whileStatement.getExpression(), whileStatement.getBody(), whileStatement.getParent(), Predicate.TYPE.WHILE);
 				return super.visit(whileStatement);
 			}
 			
 			@Override
 			public boolean visit(DoStatement doStatement) {
+				nestedLoops++;
 				visit(doStatement, doStatement.getExpression(), doStatement.getBody(), doStatement.getParent(), Predicate.TYPE.DO);
 				return super.visit(doStatement);
 			}
@@ -267,19 +273,19 @@ public class Instrumenter implements Serializable {
 				Expression expression = ifStatement.getExpression();
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(ifStatement.getThenStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, /*lineNum,*/ expression, Predicate.TYPE.IF, true), null);
+				listRewrite.insertFirst(createCounterStmt(expression, Predicate.TYPE.IF, true), null);
 
 				listRewrite = rewriter.getListRewrite(ifStatement.getElseStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, /*lineNum,*/ expression, Predicate.TYPE.IF, false), null);
+				listRewrite.insertFirst(createCounterStmt(expression, Predicate.TYPE.IF, false), null);
 				
 				return super.visit(ifStatement);
 			}
 			
 			@SuppressWarnings("unchecked")
-			private Statement createCounterStmt(String className, String methodName, /*int lineNumber,*/ Expression expression, Predicate.TYPE type, boolean branch) {
+			private Statement createCounterStmt(Expression expression, Predicate.TYPE type, boolean branch) {
 				// add the branch predicate
 				if (branch) {
-					Predicate predicate = new Predicate(className, methodName, 0, expression.toString(), type);
+					Predicate predicate = new Predicate(className, methodName, signature, 0, expression.toString(), type);
 					predicates.add(predicate);
 				}
 				int index = predicates.size() - 1;
@@ -305,7 +311,7 @@ public class Instrumenter implements Serializable {
 				}*/
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(body, Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(className, methodName, /*lineNum,*/ expression, type, true), null);
+				listRewrite.insertFirst(createCounterStmt(expression, type, true), null);
 				
 				if (parent instanceof SwitchStatement) {
 					listRewrite = rewriter.getListRewrite(parent, SwitchStatement.STATEMENTS_PROPERTY);
@@ -314,29 +320,32 @@ public class Instrumenter implements Serializable {
 				} else {
 					System.err.println("[ml-testing] loop nested in unknown statements");
 				}
-				listRewrite.insertAfter(createCounterStmt(className, methodName, /*lineNum,*/ expression, type, false), statement, null);
+				listRewrite.insertAfter(createCounterStmt(expression, type, false), statement, null);
 			}
 			
 			@Override
 			public boolean visit(MethodDeclaration methodDeclaration) {
 				methodName = methodDeclaration.getName().getFullyQualifiedName();
-				if (className.equals(Config.MAINCLASS) && methodName.equals(Config.METHOD)) {
-					int size = 0;
-					// construct the entry method
-					String id = methodDeclaration.getReturnType2().toString() + " " + methodName + "(";
-					List<?> parameters = methodDeclaration.parameters();
-					if (parameters != null) {
-						size = parameters.size();
-						for (int i = 0; i < size; i++) {
-							SingleVariableDeclaration svd = (SingleVariableDeclaration)parameters.get(i);
-							if (i < size - 1) {
-								id += svd.getType() + ",";
-							} else {
-								id += svd.getType();
-							}
+
+				int size = 0;
+				List<?> parameters = methodDeclaration.parameters();
+				signature = "(";
+				if (parameters != null) {
+					size = parameters.size();
+					for (int i = 0; i < size; i++) {
+						SingleVariableDeclaration svd = (SingleVariableDeclaration)parameters.get(i);
+						if (i < size - 1) {
+							signature += svd.getType() + ",";
+						} else {
+							signature += svd.getType();
 						}
 					}
-					id += ")";
+				}
+				signature += ")";
+				
+				if (className.equals(Config.MAINCLASS) && methodName.equals(Config.METHOD)) {
+					// construct the entry method
+					String id = methodDeclaration.getReturnType2().toString() + " " + methodName + signature;
 					// instrument Tainter.taint
 					if (id.equals(Config.ENTRYMETHOD)) {
 						Block block = methodDeclaration.getBody();
@@ -382,6 +391,47 @@ public class Instrumenter implements Serializable {
 			@Override
 			public void endVisit(MethodDeclaration node) {
 				methodName = null;
+				signature = null;
+			}
+			
+			@Override
+			public void endVisit(DoStatement node) {
+				nestedLoops--;
+				super.endVisit(node);
+			}
+
+			@Override
+			public void endVisit(ForStatement node) {
+				nestedLoops--;
+				super.endVisit(node);
+			}
+
+			@Override
+			public void endVisit(WhileStatement node) {
+				nestedLoops--;
+				super.endVisit(node);
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public boolean visit(ReturnStatement node) {
+				if (nestedLoops > 0) {
+					System.out.println("[ml-testing] return statements in loops " + node);
+					
+					MethodInvocation newInvocation = ast.newMethodInvocation();
+					QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"mlt", "test"}), ast.newSimpleName("Profiles"));
+					newInvocation.setExpression(qualifiedName);
+					newInvocation.setName(ast.newSimpleName("add"));
+					NumberLiteral literal1 = ast.newNumberLiteral("-1");
+					newInvocation.arguments().add(literal1);
+					BooleanLiteral literal2 = ast.newBooleanLiteral(false);
+					newInvocation.arguments().add(literal2);
+					Statement newStatement = ast.newExpressionStatement(newInvocation);
+					
+					ListRewrite listRewrite = rewriter.getListRewrite(node.getParent(), Block.STATEMENTS_PROPERTY);
+					listRewrite.insertBefore(newStatement, node, null);				
+				}
+				return super.visit(node);
 			}
 
 		});
@@ -471,9 +521,9 @@ public class Instrumenter implements Serializable {
 	
 	public static void main(String[] args) {
 		try {
-			Config.loadProperties("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.mlt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Remainder.mlt");
 			
-			File project = new File("/home/bhchen/workspace/testing/phosphor-test/src/phosphor/test/Test1.java");
+			File project = new File("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Remainder.java");
 			Instrumenter instrumenter = new Instrumenter();
 			instrumenter.format(project);
 			instrumenter.instrument(project);

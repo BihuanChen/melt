@@ -23,8 +23,33 @@ public class Profiles {
 	// for instrumentation
 	public static void add(int index, boolean value) {
 		Pair p = new Pair(index, value);
-		TYPE type = predicates.get(index).getType();
 		
+		if (index == -1) {
+			int ret_i = loopIndexStack.pop();
+			loopPairStack.pop();
+			Predicate ret_pre_i = Profiles.predicates.get(ret_i);
+			boolean mark = false;
+			while (loopIndexStack.size() > 0) {
+				loopPairStack.peek().addToInnerPairs(p);
+				int ret_j = loopIndexStack.peek();
+				Predicate ret_pre_j = Profiles.predicates.get(ret_j);
+				if (ret_pre_i.getClassName().equals(ret_pre_j.getClassName()) &&
+						ret_pre_i.getMethodName().equals(ret_pre_j.getMethodName()) &&
+						ret_pre_i.getSignature().equals(ret_pre_j.getSignature())) {
+					loopIndexStack.pop();
+					loopPairStack.pop();
+				} else {
+					mark = true;
+					break;
+				}
+			}
+			if (!mark) {
+				executedPredicates.add(p);
+			}
+			return; // the last iteration before the return statement could be redundant
+		}
+		
+		TYPE type = predicates.get(index).getType();
 		if (loopIndexStack.size() == 0) {
 			if (type == TYPE.IF) {
 				executedPredicates.add(p);
