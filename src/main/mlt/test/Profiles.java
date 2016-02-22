@@ -55,8 +55,10 @@ public class Profiles {
 				executedPredicates.add(p);
 			} else if (type != TYPE.IF) {
 				executedPredicates.add(p);
-				loopIndexStack.push(index);
-				loopPairStack.push(p);
+				if (value) { // for executions that directly execute the false loop branch
+					loopIndexStack.push(index);
+					loopPairStack.push(p);
+				}
 			}
 		} else {
 			if (type != TYPE.IF && index != loopIndexStack.peek()) {
@@ -120,6 +122,10 @@ public class Profiles {
 	
 	// dummy add for concolic execution
 	//public static void add(int index, boolean value) {}
+	
+	public static boolean consistant() {
+		return loopIndexStack.size() == 0 && loopPairStack.size() == 0;
+	}
 	
 	public static void printPredicates() {
 		int size = predicates.size();

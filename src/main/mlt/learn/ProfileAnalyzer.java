@@ -239,7 +239,7 @@ public class ProfileAnalyzer {
 		return true;
 	}
 	
-	public static void getExecutedPredicates(PairArrayList from, ArrayList<Pair> to) {
+	private void getExecutedPredicates(PairArrayList from, ArrayList<Pair> to) {
 		if (from != null) {
 			int size = from.size();
 			for (int i = 0; i < size; i++) {

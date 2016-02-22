@@ -32,14 +32,14 @@ public class TestRunnerClient {
 	public static void main(String[] args) throws IOException {
 		mlt.Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.mlt");
 		TestRunnerClient client = new TestRunnerClient(false);
-		Object[] test1 = new Object[]{80000000, 80000000, 300000};
+		Object[] test1 = new Object[]{-68424864, 93502598, 6.488842318872845E7};
 		client.run(test1);
 		Profiles.printExecutedPredicates();
 		Profiles.printTaints();
 		Profiles.executedPredicates.clear();
 		Profiles.taints.clear();
 		
-		Object[] test2 = new Object[]{80000000, 80000000, 300000};
+		Object[] test2 = new Object[]{-26898996, -2293003, 3.251309129702559E7};
 		client.run(test2);
 		Profiles.printExecutedPredicates();
 		Profiles.printTaints();

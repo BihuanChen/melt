@@ -21,6 +21,8 @@ import mlt.test.generation.random.PureRandomTestGenerator;
 
 public class SearchBasedTestGenerator extends TestGenerator {
 
+	public static long ceTime = 0;
+	
 	public SearchBasedTestGenerator(PathLearner pathLearner) {
 		super(pathLearner);
 	}
@@ -28,7 +30,9 @@ public class SearchBasedTestGenerator extends TestGenerator {
 	@Override
 	public HashSet<TestCase> generate() throws Exception {
 		if (pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
+			long t = System.currentTimeMillis();
 			HashSet<TestCase> tcs = new ConcolicTestGenerator(pathLearner).generate();
+			ceTime += System.currentTimeMillis() - t;
 			if (tcs.size() == 0) {
 				return genSearchBasedTests();
 			}

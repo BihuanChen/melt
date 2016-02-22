@@ -171,6 +171,7 @@ public class MLT {
 		System.out.println("[ml-testing] predicates deserialized in " + (t2 - t1) + " ms");
 		System.out.println("[ml-testing] " + testSize + " tests run in " + testTime + " ms");
 		System.out.println("[ml-testing] " + testSize + " tests generated in " + geneTime + " ms");
+		System.out.println("[ml-testing] concolic execution in " + SearchBasedTestGenerator.ceTime + " ms");
 		System.out.println("[ml-testing] ml-testing in " + (t3 - t2) + " ms");
 	}
 	
@@ -495,7 +496,7 @@ public class MLT {
 	
 	public static void main(String[] args) throws Exception {		
 		String algo = "MELT";
-		String[] program = {"Gammq"};
+		String[] program = {"Fisher"};
 		long[] timeout = {18000};
 		
 		for (int k = 0; k < program.length; k++) {
@@ -507,7 +508,7 @@ public class MLT {
 			//}
 			
 			TestRunnerClient runner  = new TestRunnerClient(false);
-			for (int i = 31; i <= 35; i++) {
+			for (int i = 31; i <= 60; i++) {
 				System.out.println("[ml-testing] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MLT.run(runner);
@@ -551,6 +552,7 @@ public class MLT {
 				
 				Profiles.predicates.clear();
 				Profiles.tests.clear();
+				SearchBasedTestGenerator.ceTime = 0;
 			}
 		}
 	}
