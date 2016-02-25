@@ -496,7 +496,7 @@ public class MLT {
 	
 	public static void main(String[] args) throws Exception {		
 		String algo = "MELT";
-		String[] program = {"Fisher"};
+		String[] program = {"Gammq"};
 		long[] timeout = {18000};
 		
 		for (int k = 0; k < program.length; k++) {
@@ -508,7 +508,7 @@ public class MLT {
 			//}
 			
 			TestRunnerClient runner  = new TestRunnerClient(false);
-			for (int i = 31; i <= 60; i++) {
+			for (int i = 31; i <= 31; i++) {
 				System.out.println("[ml-testing] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MLT.run(runner);

@@ -34,6 +34,7 @@ public class Config {
 	
 	// configuration file for concolic execution
 	public static String JPFCONFIG = null;
+	// skip branches that may have extremely long symbolic constraints
 	public static HashSet<String> SKIPPED_BRANCH = null;
 	
 	// configuration for mutation score computation

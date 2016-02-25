@@ -94,22 +94,28 @@ public class DataAnalyzer {
 	
 	public static void extractFromLogs() throws IOException, ClassNotFoundException {
 		String program = "Gammq";
-		String algo = "RT";
-		File file = new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program + "/" + algo + "/rt");
+		String algo = "MELT";
+		File file = new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program + "/" + algo + "/melt");
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = null;
 
-		/*while ((line = reader.readLine()) != null) {
+		while ((line = reader.readLine()) != null) {
 			if (line.contains("ml-testing in")) {
+				System.out.println(Double.valueOf(line.substring(line.lastIndexOf("n") + 2, line.lastIndexOf("m") - 1)) / 1000.0);
+			}
+		}
+		
+		/*while ((line = reader.readLine()) != null) {
+			if (line.contains("concolic execution in")) {
 				System.out.println(Double.valueOf(line.substring(line.lastIndexOf("n") + 2, line.lastIndexOf("m") - 1)) / 1000.0);
 			}
 		}*/
 		
-		while ((line = reader.readLine()) != null) {
+		/*while ((line = reader.readLine()) != null) {
 			if (line.contains("mutation score")) {
 				System.out.println(Double.valueOf(line.substring(line.indexOf("=") + 2)) * 100);
 			}
-		}
+		}*/
 		
 		/*double coverage = 0;
 		boolean error = false;

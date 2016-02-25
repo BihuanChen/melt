@@ -29,11 +29,13 @@ public class GuidedMutation extends Mutation {
 
 	@Override
 	public Object execute(Object object) throws JMException {
+		//System.err.println("mutation");
 		Solution solution = (Solution)object;		
+		//printSolution(solution);
 		for (int i = 0; i < solution.numberOfVariables(); i++) {
 			TestVar tv = (TestVar)solution.getDecisionVariables()[i];
-			// mutate with low probability if it is crossovered or it satisfies one prefix path
-			if (tv.getObjValues().size() == 0 || tv.isSatisfiedForOne()) {
+			// mutate with low probability if it satisfies one prefix path
+			if (tv.isSatisfiedForOne()) {
 				Object[] test = tv.getTest().getTest();
 				for (int j = 0; j < test.length; j++) {
 					if (PseudoRandom.randDouble() < mutationProbability_l) {
@@ -57,11 +59,13 @@ public class GuidedMutation extends Mutation {
 			}
 			tv.clear();
 		}
+		//printSolution(solution);
 		return solution;
 	}
 	
 	// TODO more operators?
 	private void doMutation(Object[] test, int index) {
+		//System.err.println("mutated");
 		@SuppressWarnings("rawtypes")
 		Class cls = test[index].getClass();
 		if (cls == Byte.class) {
@@ -79,6 +83,13 @@ public class GuidedMutation extends Mutation {
 		} else if (cls == Boolean.class) {
 			test[index] = PseudoRandom.randInt(0, 1) == 0 ? false : true;
 		}
+	}
+	
+	public void printSolution(Solution sol) {
+		for (int i = 0; i < sol.numberOfVariables(); i++) {
+			System.err.println(((TestVar)sol.getDecisionVariables()[i]).getTest());
+		}
+		System.err.println();
 	}
 
 }

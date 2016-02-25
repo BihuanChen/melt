@@ -196,19 +196,11 @@ public class ConcolicExecution {
 		obj[0] = 1.733;
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:23)", mlt.Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:33)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
-		//jdart.statistics();
+		jdart.statistics();*/
 
-		obj[0] = 3.2;
-		jdart.run(obj);
-		cons = new HashMap<Instruction, Expression<Boolean>>();
-		vals = jdart.getValuations("features.nested.Input.bar(Input.java:48)", mlt.Config.TESTS_SIZE, cons);
-		System.out.println(vals);
-		System.out.println(cons);
-		//jdart.statistics();*/
-		
 		/*ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.jpf");
 		Object[] obj = new Object[2];
 		obj[0] = 7975;
@@ -220,15 +212,13 @@ public class ConcolicExecution {
 		//System.out.println(cons);
 		//jdart.statistics();*/
 		
-		ConcolicExecution jdart1 = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Gammq.jpf");
-		Object[] obj = new Object[2];
-		obj[0] = 7491371.891567677;
-		obj[1] = 7.720981519094333E7;
-		jdart1.run(obj);
-		HashMap<Instruction, Expression<Boolean>> cons1 = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals1 = jdart1.getValuations("dt.original.Gammq.exe(Gammq.java:169)", mlt.Config.TESTS_SIZE, cons1);
-		System.out.println(vals1);
-		//System.out.println(cons1);
+		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.jpf");
+		Object[] obj = new Object[]{6428, 5407, -24.9007132884};
+		jdart.run(obj);
+		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
+		HashSet<Valuation> vals = jdart.getValuations("dt.original.Fisher.exe(Fisher.java:117)", mlt.Config.TESTS_SIZE, cons);
+		System.out.println(vals);
+		//System.out.println(cons);
 		//jdart.statistics();
 	}
 

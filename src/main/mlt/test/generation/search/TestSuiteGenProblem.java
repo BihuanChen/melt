@@ -100,6 +100,11 @@ public class TestSuiteGenProblem extends Problem {
 			} else {
 				System.err.println("[ml-testing] error in create the initial population in ea-based test generation");
 			}
+			System.err.println("debugging " + initialTests.size() + " initial tests");
+			
+			for (int i = 0; i < initialTests.size(); i++) {
+				System.err.println("debugging " + Profiles.tests.get(initialTests.get(i)));
+			}
 		}
 		Variable[] variables = new Variable[numberOfVariables_];
 		for (int i = 0; i < numberOfVariables_; i++) {
