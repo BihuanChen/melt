@@ -192,8 +192,7 @@ public class ConcolicExecution {
 
 	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException {
 		/*ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/jdart/src/examples/features/nested/test_bar.jpf");
-		Object[] obj = new Object[1];
-		obj[0] = 1.733;
+		Object[] obj = new Object[]{1.733};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
 		HashSet<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:33)", mlt.Config.TESTS_SIZE, cons);
@@ -209,17 +208,17 @@ public class ConcolicExecution {
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
 		HashSet<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:25)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
-		//System.out.println(cons);
-		//jdart.statistics();*/
+		System.out.println(cons);
+		jdart.statistics();*/
 		
-		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.jpf");
-		Object[] obj = new Object[]{6428, 5407, -24.9007132884};
+		/*ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.jpf");
+		Object[] obj = new Object[]{64280000, 54070000, -24.9007132884};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
 		HashSet<Valuation> vals = jdart.getValuations("dt.original.Fisher.exe(Fisher.java:117)", mlt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
-		//System.out.println(cons);
-		//jdart.statistics();
+		System.out.println(cons);
+		jdart.statistics();*/
 	}
 
 }
