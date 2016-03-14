@@ -1,7 +1,7 @@
-MLT: Systematic Testing via Learning and Guiding
+MELT: Systematic Testing via Learning and Guiding
 ======
 
-MLT is a tool for systematic software testing via machine learning techniques.
+MELT is a tool for systematic software testing via machine learning techniques.
 
 
 Running
