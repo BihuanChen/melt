@@ -1,10 +1,11 @@
 package mlt.learn;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Stack;
 
 import mlt.Config;
 import mlt.instrument.Predicate;
@@ -40,7 +41,7 @@ public class ProfileAnalyzer {
 		int testIndex = Profiles.tests.size() - 1;
 		
 		PredicateNode current = root;
-		Stack<PredicateNode> loopBranchStack = new Stack<PredicateNode>();
+		Deque<PredicateNode> loopBranchStack = new ArrayDeque<PredicateNode>();
 		for (int i = 0; i < size; i++) {
 			// get the branch predicate information
 			Pair p = eps.get(i);

@@ -22,7 +22,7 @@ public class DataAnalyzer {
 	public static void extractTestsFromCELogs() throws IOException, ClassNotFoundException {
 		String program = "Gammq";
 		String algo = "CT";
-		File file = new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program + "/" + algo + "/ct-1");
+		File file = new File("/media/bhchen/Data/data/melt/" + program + "/" + algo + "/results-1");
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = null;
 
@@ -36,7 +36,7 @@ public class DataAnalyzer {
 					Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
 					oin.close();
 					
-					ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program + "/" + algo + "/tests-" + count)));
+					ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("/media/bhchen/Data/data/melt/" + program + "/" + algo + "/tests-" + count)));
 					oout.writeObject(tests);
 					oout.close();
 				
@@ -95,15 +95,15 @@ public class DataAnalyzer {
 	public static void extractFromLogs() throws IOException, ClassNotFoundException {
 		String program = "Gammq";
 		String algo = "MELT";
-		File file = new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program + "/" + algo + "/melt");
+		File file = new File("/media/bhchen/Data/data/melt/" + program + "/" + algo + "/results");
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = null;
 
-		while ((line = reader.readLine()) != null) {
+		/*while ((line = reader.readLine()) != null) {
 			if (line.contains("ml-testing in")) {
 				System.out.println(Double.valueOf(line.substring(line.lastIndexOf("n") + 2, line.lastIndexOf("m") - 1)) / 1000.0);
 			}
-		}
+		}*/
 		
 		/*while ((line = reader.readLine()) != null) {
 			if (line.contains("concolic execution in")) {
@@ -111,11 +111,11 @@ public class DataAnalyzer {
 			}
 		}*/
 		
-		/*while ((line = reader.readLine()) != null) {
+		while ((line = reader.readLine()) != null) {
 			if (line.contains("mutation score")) {
 				System.out.println(Double.valueOf(line.substring(line.indexOf("=") + 2)) * 100);
 			}
-		}*/
+		}
 		
 		/*double coverage = 0;
 		boolean error = false;

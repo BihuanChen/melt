@@ -7,6 +7,8 @@ import java.util.Iterator;
 import mlt.learn.PathLearner;
 import mlt.learn.PredicateNode;
 import mlt.test.Profiles;
+import mlt.test.TestCase;
+import mlt.test.Util;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.Variable;
@@ -87,29 +89,42 @@ public class TestSuiteGenProblem extends Problem {
 		solution.setNumberOfViolatedConstraint(totalNumOfViolations);
 	}
 
-	private ArrayList<Integer> initialTests = null;
+	private ArrayList<TestCase> initialTests = null;
+	private static int initialTestsSize = 100;
 	
-	// TODO add randomly generated test cases?
+	// TODO more techniques to generate initial tests?
 	public Variable[] getInitialSolution() {
 		if (initialTests == null) {
+			initialTests = new ArrayList<TestCase>();
 			PredicateNode target = learner.getTarget();
 			if (target.getSourceTrueBranch() != null) {
-				initialTests = new ArrayList<Integer>(target.getSourceTrueBranch().getTests());
+				int size = target.getSourceTrueBranch().getTests().size();
+				for (int i = 0; i < size; i++) {
+					initialTests.add(Profiles.tests.get(target.getSourceTrueBranch().getTests().get(i)));
+				}
 			} else if (target.getSourceFalseBranch() != null) {
-				initialTests = new ArrayList<Integer>(target.getSourceFalseBranch().getTests());
+				int size = target.getSourceFalseBranch().getTests().size();
+				for (int i = 0; i < size; i++) {
+					initialTests.add(Profiles.tests.get(target.getSourceFalseBranch().getTests().get(i)));
+				}
 			} else {
 				System.err.println("[ml-testing] error in create the initial population in ea-based test generation");
 			}
+			// add randomly generated test cases
+			for (int i = initialTests.size(); i < initialTestsSize; i++) {
+				initialTests.add(new TestCase(Util.randomTest()));
+			}
+			// print the initial tests
 			System.err.println("debugging " + initialTests.size() + " initial tests");
-			
 			for (int i = 0; i < initialTests.size(); i++) {
-				System.err.println("debugging " + Profiles.tests.get(initialTests.get(i)));
+				System.err.println("debugging " + initialTests.get(i));
 			}
 		}
 		Variable[] variables = new Variable[numberOfVariables_];
+		int size = initialTests.size();
 		for (int i = 0; i < numberOfVariables_; i++) {
-			int rdm = PseudoRandom.randInt(0, initialTests.size() - 1);
-			variables[i] = new TestVar(Profiles.tests.get(initialTests.get(rdm)).deepCopy());
+			int rdm = PseudoRandom.randInt(0, size - 1);
+			variables[i] = new TestVar(initialTests.get(rdm).deepCopy());
 		}
 		return variables;
 	}

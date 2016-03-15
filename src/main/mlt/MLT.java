@@ -399,6 +399,8 @@ public class MLT {
 	}
 	
 	public static void computeMutationScore(ArrayList<TestCase> testCases) {
+		HashSet<TestCase> tests = new HashSet<TestCase>(testCases);
+		System.out.println("\n[ml-testing] " + testCases.size() + " tests to " + tests.size() + " tests");
 		if (Config.MUTATION_CLASSPATH == null || Config.MUTATION_PACKAGENAME == null) {
 			System.out.println("[ml-testing] mutation.classpath and mutation.packagename have to be set for computing mutation score");
 			return;
@@ -419,8 +421,9 @@ public class MLT {
 			Object res_o = null;
 			InvocationTargetException ex_o = null;
 			
-			for (int j = 0; j < testCases.size(); j++) {
-				final Object[] test = testCases.get(j).getTest();
+			Iterator<TestCase> iterator = tests.iterator();
+			while (iterator.hasNext()) {
+				final Object[] test = iterator.next().getTest();
 				try {
 					res_o = null; ex_o = null;
 					res_o = m.invoke(c.newInstance(), test);
@@ -494,7 +497,7 @@ public class MLT {
 		MLT.computeMutationScore(testCases);
 	}
 	
-	public static void main(String[] args) throws Exception {		
+	public static void main(String[] args) throws Exception {
 		String algo = "MELT";
 		String[] program = {"Gammq"};
 		long[] timeout = {18000};
@@ -508,7 +511,7 @@ public class MLT {
 			//}
 			
 			TestRunnerClient runner  = new TestRunnerClient(false);
-			for (int i = 31; i <= 31; i++) {
+			for (int i = 1; i <= 30; i++) {
 				System.out.println("[ml-testing] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MLT.run(runner);
@@ -537,13 +540,13 @@ public class MLT {
 					MLT.runRandom(timeout[k], algo);
 				}
 				
-				ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
+				ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
 				for (int j = 0; j < Profiles.tests.size(); j++) {
 					Profiles.tests.get(j).setValuation(null);
 				}
 				oout.writeObject(Profiles.tests);
 				oout.close();
-				ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/7E02BE0002BDBD89/Users/bhchen/Desktop/Data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
+				ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
 				@SuppressWarnings("unchecked")
 				ArrayList<TestCase> testCases = (ArrayList<TestCase>)oin.readObject();
 				oin.close();
