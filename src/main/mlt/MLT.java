@@ -499,18 +499,18 @@ public class MLT {
 	
 	public static void main(String[] args) throws Exception {
 		String algo = "MELT";
-		String[] program = {"Gammq"};
+		String[] program = {"Fisher"};
 		long[] timeout = {18000};
 		
 		for (int k = 0; k < program.length; k++) {
 			Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/" + program[k] + ".mlt");
 			
-			//MLT.instrument();
+			MLT.instrument();
 			//if (Config.TAINT.equals("static")) {
 			//	MLT.doStaticTaintAnalysis();
 			//}
 			
-			TestRunnerClient runner  = new TestRunnerClient(false);
+			/*TestRunnerClient runner  = new TestRunnerClient(false);
 			for (int i = 1; i <= 30; i++) {
 				System.out.println("[ml-testing] the " + i + " th run");
 				if (algo.equals("MELT")) {
@@ -556,7 +556,7 @@ public class MLT {
 				Profiles.predicates.clear();
 				Profiles.tests.clear();
 				SearchBasedTestGenerator.ceTime = 0;
-			}
+			}*/
 		}
 	}
 
