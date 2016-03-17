@@ -24,7 +24,7 @@ public class TestRunnerClient {
 		if (isLocal) {
 			runnerUtil.run(test);
 		} else {
-			testChronicle.write(test, null);
+			testChronicle.write(test);
 			testChronicle.read();
 		}
 	}
@@ -34,16 +34,12 @@ public class TestRunnerClient {
 		TestRunnerClient client = new TestRunnerClient(false);
 		Object[] test1 = new Object[]{-68424864, 93502598, 6.488842318872845E7};
 		client.run(test1);
-		Profiles.printExecutedPredicates();
 		Profiles.printTaints();
-		Profiles.executedPredicates.clear();
 		Profiles.taints.clear();
 		
 		Object[] test2 = new Object[]{-26898996, -2293003, 3.251309129702559E7};
 		client.run(test2);
-		Profiles.printExecutedPredicates();
 		Profiles.printTaints();
-		Profiles.executedPredicates.clear();
 		Profiles.taints.clear();
 	}
 	

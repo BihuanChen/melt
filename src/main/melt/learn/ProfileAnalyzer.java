@@ -35,6 +35,9 @@ public class ProfileAnalyzer {
 		ArrayList<Pair> eps = new ArrayList<Pair>();
 		getExecutedPredicates(Profiles.executedPredicates, eps);
 		Profiles.executedPredicates.clear();
+		if (!Profiles.consistant()) {
+			System.err.println("[melt] error in compressing executed predicates");
+		}
 		
 		int size = eps.size();
 		if (size == 0) { return; }

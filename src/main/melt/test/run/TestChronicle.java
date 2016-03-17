@@ -7,7 +7,6 @@ import java.util.HashSet;
 import edu.ntu.taint.BranchTaintNode;
 import edu.ntu.taint.HashMap;
 import melt.Config;
-import melt.test.PairArrayList;
 import melt.test.Profiles;
 import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.ChronicleQueueBuilder;
@@ -47,10 +46,8 @@ public class TestChronicle {
 			Object[] obj = (Object[])reader.readObject();
 			runnerUtil.run(obj);
 		} else {
-			// read taint results and executed predicates
+			// read taint results
 			HashMap taints = (HashMap)reader.readObject();
-			Profiles.executedPredicates = (PairArrayList)reader.readObject();
-
 			BranchTaintNode[] nodes = taints.getRootNodes();
 			for (int i = 0; i < nodes.length; i++) {
 				BranchTaintNode node = nodes[i];
@@ -67,20 +64,22 @@ public class TestChronicle {
 					node = node.getNext();
 				}
 			}
+			// read executed predicates
+			//Profiles.executedPredicates = (PairArrayList)reader.readObject();
 		}
 		reader.finish();
 	}
 	
-	public void write(Object obj1, Object obj2) {
+	public void write(Object obj) {
 		writer.startExcerpt();
 		if (server) {
 			// write taint results
-			writer.writeObject(obj1);
+			writer.writeObject(obj);
 			// write executed predicates
-			writer.writeObject(obj2);
+			//writer.writeObject(obj2);
 		} else {
 			// write the test case
-			writer.writeObject(obj1);
+			writer.writeObject(obj);
 		}
 		writer.finish();
 	}

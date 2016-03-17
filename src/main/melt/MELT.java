@@ -112,7 +112,7 @@ public class MELT {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static void run(TestRunnerClient runner) throws Exception {
+	public static void run(final TestRunnerClient runner1, final TestRunnerClient runner2) throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
@@ -132,7 +132,8 @@ public class MELT {
 		long geneTime = 0;
 		int count = 0;
 		long testSize = 0;
-
+		int redundant = 0;
+		
 		while (true) {
 			// generate and run tests, and analyze the branch profiles
 			long s = System.currentTimeMillis();
@@ -141,13 +142,48 @@ public class MELT {
 			testSize += testCases.size();
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
-				TestCase testCase = iterator.next();
-				System.err.println(testCase);
-				long t = System.currentTimeMillis();
-				runner.run(testCase.getTest());
-				testTime += System.currentTimeMillis() - t;
-				Profiles.tests.add(testCase);
-				analyzer.update();
+				final TestCase testCase = iterator.next();
+				System.out.println("[melt]" + testCase);
+				if (!Profiles.testsSet.contains(testCase)) {
+					long t = System.currentTimeMillis();
+					// get taint results
+					FutureTask<?> task1 = new FutureTask<Void>(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								runner1.run(testCase.getTest());
+							} catch (MalformedURLException e) {
+								e.printStackTrace();
+							}
+						}
+					}, null);
+					Thread th1 = new Thread(task1);
+					th1.start();
+					//runner1.run(testCase.getTest());
+					// get executed predicates
+					FutureTask<?> task2 = new FutureTask<Void>(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								runner2.run(testCase.getTest());
+							} catch (MalformedURLException e) {
+								e.printStackTrace();
+							}
+						}
+					}, null);
+					Thread th2 = new Thread(task2);
+					th2.start();
+					//runner2.run(testCase.getTest());
+					while (!task1.isDone() || !task2.isDone()) {} 
+					long delta = System.currentTimeMillis() - t;
+					System.out.println("time " + delta);
+					testTime += delta;
+					Profiles.tests.add(testCase);
+					Profiles.testsSet.add(testCase);
+					analyzer.update();
+				} else {
+					redundant++;
+				}
 			}
 			System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
 			System.out.println("[melt] finish the " + (++count) + " th set of tests");
@@ -498,11 +534,11 @@ public class MELT {
 	}
 		
 	public static void main(String[] args) throws Exception {
-		boolean mark = true;
+		boolean mark = false;
 		
 		String algo = "MELT";
 		String[] program = {"Fisher"};
-		long[] timeout = {18000};
+		long[] timeout = {206600};
 		
 		for (int k = 0; k < program.length; k++) {
 			Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/" + program[k] + ".melt");
@@ -517,13 +553,14 @@ public class MELT {
 			}
 			
 			// dynamic part
-			TestRunnerClient runner  = new TestRunnerClient(false);
-			for (int i = 1; i <= 30; i++) {
+			/*TestRunnerClient runner1 = new TestRunnerClient(false);
+			TestRunnerClient runner2 = new TestRunnerClient(true);
+			for (int i = 2; i <= 2; i++) {
 				System.out.println("[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
-					MELT.run(runner);
+					MELT.run(runner1, runner2);
 				} else if (algo.equals("CT")) {
-					FutureTask<?> task = new FutureTask<Object>(new Runnable() {
+					FutureTask<?> task = new FutureTask<Void>(new Runnable() {
 						@Override
 						public void run() {
 							try {
@@ -540,8 +577,7 @@ public class MELT {
 					} catch (TimeoutException e) {
 						//e.printStackTrace();
 						System.out.println("timeout");
-					}
-					
+					}					
 					th.stop();
 				} else {
 					MELT.runRandom(timeout[k], algo);
@@ -552,18 +588,19 @@ public class MELT {
 					Profiles.tests.get(j).setValuation(null);
 				}
 				oout.writeObject(Profiles.tests);
-				oout.close();
-				ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
+				oout.close();*/
+				ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + 2)));
 				@SuppressWarnings("unchecked")
 				ArrayList<TestCase> testCases = (ArrayList<TestCase>)oin.readObject();
 				oin.close();
 				
 				MELT.computeMutationScore(testCases);
 				
-				Profiles.predicates.clear();
-				Profiles.tests.clear();
-				SearchBasedTestGenerator.ceTime = 0;
-			}
+				//Profiles.predicates.clear();
+				//Profiles.tests.clear();
+				//Profiles.testsSet.clear();
+				//SearchBasedTestGenerator.ceTime = 0;
+			//}
 		}
 	}
 

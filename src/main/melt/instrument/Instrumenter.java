@@ -293,20 +293,12 @@ public class Instrumenter implements Serializable {
 				MethodInvocation newInvocation = ast.newMethodInvocation();
 				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
 				newInvocation.setExpression(qualifiedName);
-				if (nestedLoops == 0 && type == Predicate.TYPE.IF) {
-					newInvocation.setName(ast.newSimpleName("add11"));
-				} else if (nestedLoops > 0 && type == Predicate.TYPE.IF) {
-					newInvocation.setName(ast.newSimpleName("add12"));
-				} else {
-					newInvocation.setName(ast.newSimpleName("add2"));
-				}
+				newInvocation.setName(ast.newSimpleName("add"));
 				NumberLiteral literal1 = ast.newNumberLiteral(String.valueOf(index));
 				newInvocation.arguments().add(literal1);
 				BooleanLiteral literal2 = ast.newBooleanLiteral(branch);
 				newInvocation.arguments().add(literal2);
-				if (type != Predicate.TYPE.IF) {
-					newInvocation.arguments().add(ast.newQualifiedName(ast.newQualifiedName(ast.newName(new String[] {"melt", "instrument", "Predicate"}), ast.newSimpleName("TYPE")), ast.newSimpleName(type.toString())));
-				}
+				newInvocation.arguments().add(ast.newQualifiedName(ast.newQualifiedName(ast.newName(new String[] {"melt", "instrument", "Predicate"}), ast.newSimpleName("TYPE")), ast.newSimpleName(type.toString())));
 				Statement newStatement = ast.newExpressionStatement(newInvocation);
 				return newStatement;
 			}
@@ -430,11 +422,12 @@ public class Instrumenter implements Serializable {
 					MethodInvocation newInvocation = ast.newMethodInvocation();
 					QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
 					newInvocation.setExpression(qualifiedName);
-					newInvocation.setName(ast.newSimpleName("add0"));
+					newInvocation.setName(ast.newSimpleName("add"));
 					NumberLiteral literal1 = ast.newNumberLiteral("-1");
 					newInvocation.arguments().add(literal1);
 					BooleanLiteral literal2 = ast.newBooleanLiteral(false);
 					newInvocation.arguments().add(literal2);
+					newInvocation.arguments().add(ast.newNullLiteral());
 					Statement newStatement = ast.newExpressionStatement(newInvocation);
 					
 					ListRewrite listRewrite = rewriter.getListRewrite(node.getParent(), Block.STATEMENTS_PROPERTY);

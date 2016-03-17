@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import melt.instrument.Instrumenter;
 import melt.learn.ProfileAnalyzer;
@@ -142,11 +143,35 @@ public class DataAnalyzer {
 		
 		reader.close();
 	}
+	public static void compareMutation() throws IOException {
+		File file1 = new File("/home/bhchen/Desktop/1");
+		BufferedReader reader1 = new BufferedReader(new FileReader(file1));
+		String line = null;
+		HashSet<String> mutants1 = new HashSet<String>();
+		while ((line = reader1.readLine()) != null) {
+			mutants1.add(line.substring(20));
+		}
+		reader1.close();
+		
+		File file2 = new File("/home/bhchen/Desktop/2");
+		BufferedReader reader2 = new BufferedReader(new FileReader(file2));
+		line = null;
+		HashSet<String> mutants2 = new HashSet<String>();
+		while ((line = reader2.readLine()) != null) {
+			mutants2.add(line.substring(20));
+		}
+		reader2.close();
+		
+		System.out.println(mutants1.size() + " " + mutants2.size());
+		mutants2.addAll(mutants1);
+		System.out.println(mutants2.size());
+	}
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Gammq.melt");
+		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.melt");
 		//DataAnalyzer.extractTestsFromCELogs();
-		DataAnalyzer.extractFromLogs();
+		//DataAnalyzer.extractFromLogs();
+		//DataAnalyzer.compareMutation();
 	}
 
 }

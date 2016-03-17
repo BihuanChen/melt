@@ -211,14 +211,14 @@ public class ConcolicExecution {
 		System.out.println(cons);
 		jdart.statistics();*/
 		
-		/*ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.jpf");
-		Object[] obj = new Object[]{64280000, 54070000, -24.9007132884};
+		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.jpf");
+		Object[] obj = new Object[]{-21726575, -31759238, -360617.35284389555};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations("dt.original.Fisher.exe(Fisher.java:117)", melt.Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations("dt.original.Fisher.exe(Fisher.java:121)", melt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
-		jdart.statistics();*/
+		jdart.statistics();
 	}
 
 }

@@ -115,10 +115,10 @@ public class TestSuiteGenProblem extends Problem {
 				initialTests.add(new TestCase(Util.randomTest()));
 			}
 			// print the initial tests
-			System.err.println("debugging " + initialTests.size() + " initial tests");
-			for (int i = 0; i < initialTests.size(); i++) {
-				System.err.println("debugging " + initialTests.get(i));
-			}
+			//System.err.println("debugging " + initialTests.size() + " initial tests");
+			//for (int i = 0; i < initialTests.size(); i++) {
+			//	System.err.println("debugging " + initialTests.get(i));
+			//}
 		}
 		Variable[] variables = new Variable[numberOfVariables_];
 		int size = initialTests.size();

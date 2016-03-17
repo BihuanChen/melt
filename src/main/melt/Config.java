@@ -92,7 +92,7 @@ public class Config {
 		System.out.println("[melt] mainclass = " + MAINCLASS);
 		
 		FILTER = MAINCLASS.substring(0, MAINCLASS.indexOf("."));
-		System.out.println("[ml-tesitng] filter = " + FILTER);
+		System.out.println("[melt] filter = " + FILTER);
 		
 		ENTRYMETHOD = prop.getProperty("entrymethod");
 		if (ENTRYMETHOD == null) {
