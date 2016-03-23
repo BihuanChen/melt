@@ -3,6 +3,7 @@ package melt;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import melt.instrument.Instrumenter;
+import melt.instrument.Predicate;
 import melt.learn.ProfileAnalyzer;
 import melt.test.Profiles;
 import melt.test.TestCase;
@@ -21,9 +23,9 @@ import melt.test.run.TestRunnerClient;
 public class DataAnalyzer {
 
 	public static void extractTestsFromCELogs() throws IOException, ClassNotFoundException {
-		String program = "Gammq";
+		String program = "Triangle";
 		String algo = "CT";
-		File file = new File("/media/bhchen/Data/data/melt/" + program + "/" + algo + "/results-1");
+		File file = new File("/media/bhchen/Data/data/melt/" + program + "/" + algo + "/results-10");
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = null;
 
@@ -33,8 +35,9 @@ public class DataAnalyzer {
 			if (line.contains("th run")) {
 				if (count > 0) {
 					System.out.println("the " + count + " th run");
+					System.out.println(tests.size() + " tests");
 					ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
-					Profiles.predicates.addAll(((Instrumenter)oin.readObject()).getPredicates());
+					Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 					oin.close();
 					
 					ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("/media/bhchen/Data/data/melt/" + program + "/" + algo + "/tests-" + count)));
@@ -94,7 +97,7 @@ public class DataAnalyzer {
 	}
 	
 	public static void extractFromLogs() throws IOException, ClassNotFoundException {
-		String program = "Gammq";
+		String program = "Median";
 		String algo = "MELT";
 		File file = new File("/media/bhchen/Data/data/melt/" + program + "/" + algo + "/results");
 		BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -168,9 +171,9 @@ public class DataAnalyzer {
 	}
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.melt");
+		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.melt");
 		//DataAnalyzer.extractTestsFromCELogs();
-		//DataAnalyzer.extractFromLogs();
+		DataAnalyzer.extractFromLogs();
 		//DataAnalyzer.compareMutation();
 	}
 

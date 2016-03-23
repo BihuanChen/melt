@@ -205,8 +205,8 @@ public class MELT {
 		long t3 = System.currentTimeMillis();
 		System.out.println("[melt] " + Config.FORMAT.format(t3));
 		System.out.println("[melt] predicates deserialized in " + (t2 - t1) + " ms");
-		System.out.println("[melt] " + testSize + " tests run in " + testTime + " ms");
-		System.out.println("[melt] " + testSize + " tests generated in " + geneTime + " ms");
+		System.out.println("[melt] " + testSize + "(" + redundant + ") tests run in " + testTime + " ms");
+		System.out.println("[melt] " + testSize + "(" + redundant + ") tests generated in " + geneTime + " ms");
 		System.out.println("[melt] concolic execution in " + SearchBasedTestGenerator.ceTime + " ms");
 		System.out.println("[melt] melt in " + (t3 - t2) + " ms");
 	}
@@ -534,17 +534,17 @@ public class MELT {
 	}
 		
 	public static void main(String[] args) throws Exception {
-		boolean mark = false;
+		boolean inst = false;
 		
-		String algo = "MELT";
-		String[] program = {"Fisher"};
-		long[] timeout = {206600};
+		String algo = "RT";
+		String[] program = {"Median"};
+		long[] timeout = {30};
 		
 		for (int k = 0; k < program.length; k++) {
 			Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/" + program[k] + ".melt");
 			
 			// static part
-			if (mark) {
+			if (inst) {
 				MELT.instrument();
 				if (Config.TAINT.equals("static")) {
 					MELT.doStaticTaintAnalysis();
@@ -553,9 +553,9 @@ public class MELT {
 			}
 			
 			// dynamic part
-			/*TestRunnerClient runner1 = new TestRunnerClient(false);
+			TestRunnerClient runner1 = new TestRunnerClient(false);
 			TestRunnerClient runner2 = new TestRunnerClient(true);
-			for (int i = 2; i <= 2; i++) {
+			for (int i = 7; i <= 10; i++) {
 				System.out.println("[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MELT.run(runner1, runner2);
@@ -573,11 +573,11 @@ public class MELT {
 					Thread th = new Thread(task);
 					th.start();
 					try {
-						task.get(18L, TimeUnit.SECONDS);
+						task.get(2L, TimeUnit.SECONDS);
 					} catch (TimeoutException e) {
 						//e.printStackTrace();
 						System.out.println("timeout");
-					}					
+					}
 					th.stop();
 				} else {
 					MELT.runRandom(timeout[k], algo);
@@ -588,19 +588,19 @@ public class MELT {
 					Profiles.tests.get(j).setValuation(null);
 				}
 				oout.writeObject(Profiles.tests);
-				oout.close();*/
-				ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + 2)));
+				oout.close();
+				ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
 				@SuppressWarnings("unchecked")
 				ArrayList<TestCase> testCases = (ArrayList<TestCase>)oin.readObject();
 				oin.close();
 				
 				MELT.computeMutationScore(testCases);
 				
-				//Profiles.predicates.clear();
-				//Profiles.tests.clear();
-				//Profiles.testsSet.clear();
-				//SearchBasedTestGenerator.ceTime = 0;
-			//}
+				Profiles.predicates.clear();
+				Profiles.tests.clear();
+				Profiles.testsSet.clear();
+				SearchBasedTestGenerator.ceTime = 0;
+			}
 		}
 	}
 

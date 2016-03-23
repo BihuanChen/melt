@@ -1,8 +1,13 @@
 package melt.test.run;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 
+import melt.instrument.Predicate;
 import melt.test.Profiles;
 
 public class TestRunnerClient {
@@ -29,18 +34,25 @@ public class TestRunnerClient {
 		}
 	}
 	
-	public static void main(String[] args) throws IOException {
-		melt.Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.melt");
-		TestRunnerClient client = new TestRunnerClient(false);
-		Object[] test1 = new Object[]{-68424864, 93502598, 6.488842318872845E7};
-		client.run(test1);
-		Profiles.printTaints();
-		Profiles.taints.clear();
+	@SuppressWarnings("unchecked")
+	public static void main(String[] args) throws IOException, ClassNotFoundException {
+		melt.Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Median.melt");
 		
-		Object[] test2 = new Object[]{-26898996, -2293003, 3.251309129702559E7};
-		client.run(test2);
-		Profiles.printTaints();
-		Profiles.taints.clear();
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/home/bhchen/workspace/testing/melt/dt.original.Median.pred")));
+		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
+		oin.close();
+		Profiles.printPredicates();
+		
+		TestRunnerClient client = new TestRunnerClient(true);
+		Object[] test1 = new Object[]{44961304, -94974295, -83362496, -52795572, -4822247};
+		client.run(test1);
+		//Profiles.printTaints();
+		//Profiles.taints.clear();
+		
+		//Object[] test2 = new Object[]{-26898996, -2293003, 3.251309129702559E7};
+		//client.run(test2);
+		//Profiles.printTaints();
+		//Profiles.taints.clear();
 	}
 	
 }
