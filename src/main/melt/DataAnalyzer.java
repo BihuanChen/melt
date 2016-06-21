@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import java_cup.internal_error;
 import melt.instrument.Instrumenter;
 import melt.instrument.Predicate;
 import melt.learn.ProfileAnalyzer;
@@ -23,7 +24,7 @@ import melt.test.run.TestRunnerClient;
 public class DataAnalyzer {
 
 	public static void extractTestsFromCELogs() throws IOException, ClassNotFoundException {
-		String program = "Triangle";
+		String program = "Median";
 		String algo = "CT";
 		File file = new File("/media/bhchen/Data/data/melt/" + program + "/" + algo + "/results-10");
 		BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -97,7 +98,7 @@ public class DataAnalyzer {
 	}
 	
 	public static void extractFromLogs() throws IOException, ClassNotFoundException {
-		String program = "Median";
+		String program = "TCAS";
 		String algo = "MELT";
 		File file = new File("/media/bhchen/Data/data/melt/" + program + "/" + algo + "/results");
 		BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -115,13 +116,13 @@ public class DataAnalyzer {
 			}
 		}*/
 		
-		while ((line = reader.readLine()) != null) {
+		/*while ((line = reader.readLine()) != null) {
 			if (line.contains("mutation score")) {
 				System.out.println(Double.valueOf(line.substring(line.indexOf("=") + 2)) * 100);
 			}
-		}
+		}*/
 		
-		/*double coverage = 0;
+		double coverage = 0;
 		boolean error = false;
 		while ((line = reader.readLine()) != null) {
 			if (line.contains("th run")) {
@@ -142,7 +143,7 @@ public class DataAnalyzer {
 				}
 			}
 		}
-		System.out.println(coverage * 100);*/
+		System.out.println(coverage * 100);
 		
 		reader.close();
 	}
@@ -171,7 +172,7 @@ public class DataAnalyzer {
 	}
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Triangle2.melt");
+		Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tcas/TCAS.melt");
 		//DataAnalyzer.extractTestsFromCELogs();
 		DataAnalyzer.extractFromLogs();
 		//DataAnalyzer.compareMutation();

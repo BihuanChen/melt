@@ -73,7 +73,13 @@ public class GuidedMutation extends Mutation {
 		} else if (cls == Short.class) {
 			test[index] = (short)PseudoRandom.randInt(Config.MIN_SHORT, Config.MAX_SHORT);
 		} else if (cls == Integer.class) {
-			test[index] = PseudoRandom.randInt(Config.MIN_INT, Config.MAX_INT);
+			Integer varMin = Config.varMinIntMap.get(Config.PARAMETERS[index]);
+			Integer varMax = Config.varMaxIntMap.get(Config.PARAMETERS[index]);
+			if (varMin != null && varMax != null) {
+				test[index] = PseudoRandom.randInt(varMin, varMax);
+			} else {
+				test[index] = PseudoRandom.randInt(Config.MIN_INT, Config.MAX_INT);
+			}
 		} else if (cls == Long.class) {
 			test[index] = (long)PseudoRandom.randDouble(Config.MIN_LONG, Config.MAX_LONG);
 		} else if (cls == Float.class) {

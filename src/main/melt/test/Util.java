@@ -68,7 +68,13 @@ public class Util {
 				} else if (Config.CLS[i] == short.class) {
 					test[i] = (short) (new Random().nextInt(Config.MAX_SHORT - Config.MIN_SHORT + 1) + Config.MIN_SHORT);
 				} else if (Config.CLS[i] == int.class) {
-					test[i] = new Random().nextInt(Config.MAX_INT - Config.MIN_INT + 1) + Config.MIN_INT;
+					Integer varMin = Config.varMinIntMap.get(Config.PARAMETERS[i]);
+					Integer varMax = Config.varMaxIntMap.get(Config.PARAMETERS[i]);
+					if ( varMin != null && varMax != null) {
+						test[i] = new Random().nextInt(varMax - varMin + 1) + varMin;
+					} else {
+						test[i] = new Random().nextInt(Config.MAX_INT - Config.MIN_INT + 1) + Config.MIN_INT;
+					}
 				} else if (Config.CLS[i] == long.class) {
 					test[i] = (long) (new Random().nextDouble() * (Config.MAX_LONG - Config.MIN_LONG + 1) + Config.MIN_LONG);
 				} else if (Config.CLS[i] == float.class) {
@@ -92,7 +98,13 @@ public class Util {
 			} else if (Config.CLS[i] == short.class) {
 				test[i] = (short) (new Random().nextInt(Config.MAX_SHORT - Config.MIN_SHORT + 1) + Config.MIN_SHORT);
 			} else if (Config.CLS[i] == int.class) {
-				test[i] = new Random().nextInt(Config.MAX_INT - Config.MIN_INT + 1) + Config.MIN_INT;
+				Integer varMin = Config.varMinIntMap.get(Config.PARAMETERS[i]);
+				Integer varMax = Config.varMaxIntMap.get(Config.PARAMETERS[i]);
+				if ( varMin != null && varMax != null) {
+					test[i] = new Random().nextInt(varMax - varMin + 1) + varMin;
+				} else {
+					test[i] = new Random().nextInt(Config.MAX_INT - Config.MIN_INT + 1) + Config.MIN_INT;
+				}
 			} else if (Config.CLS[i] == long.class) {
 				test[i] = (long) (new Random().nextDouble() * (Config.MAX_LONG - Config.MIN_LONG + 1) + Config.MIN_LONG);
 			} else if (Config.CLS[i] == float.class) {

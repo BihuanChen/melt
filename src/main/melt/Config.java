@@ -3,7 +3,10 @@ package melt;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 
 public class Config {
@@ -60,6 +63,9 @@ public class Config {
 	public static float MAX_FLOAT = 7;
 	public static double MIN_DOUBLE = -8;
 	public static double MAX_DOUBLE = 7;
+	
+	public static Map<String, Integer> varMinIntMap;
+	public static Map<String, Integer> varMaxIntMap;
 	
 	public static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
@@ -213,6 +219,23 @@ public class Config {
 		}
 		System.out.println("[melt] min.int = " + MIN_INT);
 		System.out.println("[melt] max.int = " + MAX_INT);
+		
+		varMinIntMap = new HashMap<String, Integer>();
+		varMaxIntMap = new HashMap<String, Integer>();
+		
+		for (Enumeration<?> e = prop.keys(); e.hasMoreElements(); ) {
+			String k = e.nextElement().toString();
+			if (k.startsWith("min.int_")) {
+				String name = k.substring(8);
+				varMinIntMap.put(name, Integer.valueOf(prop.getProperty(k)));
+			}
+			if (k.startsWith("max.int_")) {
+				String name = k.substring(8);
+				varMaxIntMap.put(name, Integer.valueOf(prop.getProperty(k)));
+			}
+		}
+		System.out.println("[MELT] min.int_ = " + varMinIntMap);
+		System.out.println("[MELT] max.int_ = " + varMaxIntMap);
 		
 		p = prop.getProperty("min.long");
 		if (p != null) {

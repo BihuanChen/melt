@@ -211,11 +211,11 @@ public class ConcolicExecution {
 		System.out.println(cons);
 		jdart.statistics();*/
 		
-		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Fisher.jpf");
-		Object[] obj = new Object[]{-21726575, -31759238, -360617.35284389555};
+		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark2-jpf/src/tcas/TCAS.jpf");
+		Object[] obj = new Object[]{11, true, false, -847, -278, 85, 2, -269, 84, 0, 2, false};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations("dt.original.Fisher.exe(Fisher.java:121)", melt.Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations("tcas.TCAS.Inhibit_Biased_Climb(TCAS.java:52)", melt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
 		jdart.statistics();

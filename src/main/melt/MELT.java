@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -23,6 +24,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import java_cup.internal_error;
 import melt.dependency.StaticDependencyAnalyzer;
 import melt.instrument.Instrumenter;
 import melt.instrument.Predicate;
@@ -187,7 +189,7 @@ public class MELT {
 			}
 			System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
 			System.out.println("[melt] finish the " + (++count) + " th set of tests");
-			//analyzer.printNodes();
+			analyzer.printNodes();
 			analyzer.coverage(targetNode);			
 			// find an partially explored branch to be covered
 			targetNode = analyzer.findUnexploredBranch();
@@ -500,10 +502,19 @@ public class MELT {
 						InvocationTargetException ex_m = (objs[1] == null) ? null : (InvocationTargetException)objs[1];
 						
 						if (ex_o == null && ex_m == null) {
-							if (!res_o.equals(res_m)) {
-								killed[i] = true;
-								numOfKilled += 1;
-								System.out.println(Config.FORMAT.format(System.currentTimeMillis()) + " " + files[i].getName());
+							if (res_o.getClass().isArray()) {
+								// TODO generalize to all kinds of arrays
+								if (!Arrays.equals((int[])res_o, (int[])res_m)) {
+									killed[i] = true;
+									numOfKilled += 1;
+									System.out.println(Config.FORMAT.format(System.currentTimeMillis()) + " " + files[i].getName());
+								}
+							} else {
+								if (!res_o.equals(res_m)) {
+									killed[i] = true;
+									numOfKilled += 1;
+									System.out.println(Config.FORMAT.format(System.currentTimeMillis()) + " " + files[i].getName());
+								}
 							}
 						} else if (ex_o != null && ex_m != null) {
 							if (!ex_o.getCause().getClass().equals(ex_m.getCause().getClass()) || !ex_o.getCause().getMessage().equals(ex_m.getCause().getMessage())) {
@@ -536,12 +547,12 @@ public class MELT {
 	public static void main(String[] args) throws Exception {
 		boolean inst = false;
 		
-		String algo = "RT";
-		String[] program = {"Median"};
-		long[] timeout = {30};
+		String algo = "MELT";
+		String[] program = {"TCAS"};
+		long[] timeout = {20};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tcas/" + program[k] + ".melt");
 			
 			// static part
 			if (inst) {
@@ -555,8 +566,8 @@ public class MELT {
 			// dynamic part
 			TestRunnerClient runner1 = new TestRunnerClient(false);
 			TestRunnerClient runner2 = new TestRunnerClient(true);
-			for (int i = 7; i <= 10; i++) {
-				System.out.println("[melt] the " + i + " th run");
+			for (int i = 9; i <= 9; i++) {
+				System.out.println("\n [melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MELT.run(runner1, runner2);
 				} else if (algo.equals("CT")) {
@@ -573,7 +584,7 @@ public class MELT {
 					Thread th = new Thread(task);
 					th.start();
 					try {
-						task.get(2L, TimeUnit.SECONDS);
+						task.get(timeout[k], TimeUnit.MILLISECONDS);
 					} catch (TimeoutException e) {
 						//e.printStackTrace();
 						System.out.println("timeout");
@@ -589,12 +600,13 @@ public class MELT {
 				}
 				oout.writeObject(Profiles.tests);
 				oout.close();
-				ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
+				
+				/*ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
 				@SuppressWarnings("unchecked")
 				ArrayList<TestCase> testCases = (ArrayList<TestCase>)oin.readObject();
 				oin.close();
 				
-				MELT.computeMutationScore(testCases);
+				MELT.computeMutationScore(testCases);*/
 				
 				Profiles.predicates.clear();
 				Profiles.tests.clear();
