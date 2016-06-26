@@ -52,7 +52,7 @@ public class ConcolicTestGenerator extends TestGenerator {
 		Predicate p = Profiles.predicates.get(target.getPredicate());
 		String className = p.getClassName();
 		String srcLoc = className + "." + p.getMethodName() + "(" + className.substring(className.lastIndexOf(".") + 1) + ".java:" + p.getLineNumber() + ")";
-		System.out.println("[melt] target branch for concolic execution is " + srcLoc);
+		System.out.println("[melt] target branch for concolic execution is " + srcLoc + ", " + p.getExpression());
 		// run concolic execution to get tests and branch constraints
 		ConcolicExecution jdart = ConcolicExecution.getInstance(Config.JPFCONFIG);
 		jdart.run(test);

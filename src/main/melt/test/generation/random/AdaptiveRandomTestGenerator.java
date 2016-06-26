@@ -178,7 +178,13 @@ public class AdaptiveRandomTestGenerator extends TestGenerator {
 							} else if (cls == Short.class) {
 								newPop[j].test[k] = (short)PseudoRandom.randInt(Config.MIN_SHORT, Config.MAX_SHORT);
 							} else if (cls == Integer.class) {
-								newPop[j].test[k] = PseudoRandom.randInt(Config.MIN_INT, Config.MAX_INT);
+								Integer varMin = Config.varMinIntMap.get(Config.PARAMETERS[k]);
+								Integer varMax = Config.varMaxIntMap.get(Config.PARAMETERS[k]);
+								if (varMin != null && varMax != null) {
+									newPop[j].test[k] = PseudoRandom.randInt(varMin, varMax);
+								} else {
+									newPop[j].test[k] = PseudoRandom.randInt(Config.MIN_INT, Config.MAX_INT);
+								}
 							} else if (cls == Long.class) {
 								newPop[j].test[k] = (long)PseudoRandom.randDouble(Config.MIN_LONG, Config.MAX_LONG);
 							} else if (cls == Float.class) {

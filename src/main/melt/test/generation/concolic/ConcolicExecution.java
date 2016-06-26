@@ -125,9 +125,18 @@ public class ConcolicExecution {
 			@Override
 			public void edit(MethodCall m) throws CannotCompileException {
 				if (m.getMethodName().equals(methodName)) {
-					String args = test[0].toString();
+					String args = "";
+					if (melt.Config.CLS[0] == float.class) {
+						args = test[0].toString() + "f";
+					} else {
+						args = test[0].toString();
+					}
 					for (int i = 1; i < test.length; i++) {
-						args += ", " + test[i].toString();
+						if (melt.Config.CLS[i] == float.class) {
+							args += ", " + test[i].toString() + "f";
+						} else {
+							args += ", " + test[i].toString();
+						}
 					}
 					m.replace("$_ = $0." + methodName + "(" + args + ");");
 				}
@@ -211,11 +220,11 @@ public class ConcolicExecution {
 		System.out.println(cons);
 		jdart.statistics();*/
 		
-		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark2-jpf/src/tcas/TCAS.jpf");
-		Object[] obj = new Object[]{11, true, false, -847, -278, 85, 2, -269, 84, 0, 2, false};
+		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark2-jpf/src/raytrace/Raytrace.jpf");
+		Object[] obj = new Object[]{2.0133568E7, -8.22872E7, -3.029348E7, 664640.0, 6.0012832E7, 3.6247312E7, -7.6004136E7, -2.6039232E7, -6440888.0, 1.977488E7, -1.9161888E7, 6.665088E7, 2.7242192E7, -1453832.0, -4.4165504E7, -3603480.0, -8.3085536E7, 7.1358848E7, -8.1043504E7, 53393604, 2.5487176E7, -3.2513312E7, -2122728.0, 4.9397792E7, -2.4590184E7, 6.7652576E7};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations("tcas.TCAS.Inhibit_Biased_Climb(TCAS.java:52)", melt.Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations("raytrace.Surface.Shade(Surface.java:73)", melt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
 		jdart.statistics();

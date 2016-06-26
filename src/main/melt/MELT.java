@@ -24,7 +24,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import java_cup.internal_error;
 import melt.dependency.StaticDependencyAnalyzer;
 import melt.instrument.Instrumenter;
 import melt.instrument.Predicate;
@@ -178,7 +177,7 @@ public class MELT {
 					//runner2.run(testCase.getTest());
 					while (!task1.isDone() || !task2.isDone()) {} 
 					long delta = System.currentTimeMillis() - t;
-					System.out.println("time " + delta);
+					//System.out.println("time " + delta);
 					testTime += delta;
 					Profiles.tests.add(testCase);
 					Profiles.testsSet.add(testCase);
@@ -189,7 +188,7 @@ public class MELT {
 			}
 			System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
 			System.out.println("[melt] finish the " + (++count) + " th set of tests");
-			analyzer.printNodes();
+			//analyzer.printNodes();
 			analyzer.coverage(targetNode);			
 			// find an partially explored branch to be covered
 			targetNode = analyzer.findUnexploredBranch();
@@ -436,6 +435,7 @@ public class MELT {
 		oneLearner.buildInstancesAndClassifier();
 	}
 	
+	// mutation testing used for benchmark 1, replaced by muJava
 	public static void computeMutationScore(ArrayList<TestCase> testCases) {
 		HashSet<TestCase> tests = new HashSet<TestCase>(testCases);
 		System.out.println("\n[melt] " + testCases.size() + " tests to " + tests.size() + " tests");
@@ -448,6 +448,7 @@ public class MELT {
 			URLClassLoader cl = new URLClassLoader(cp);
 			
 			File[] files = new File(Config.MUTATION_CLASSPATH + Config.MUTATION_PACKAGENAME.replace(".", "/")).listFiles();
+			java.util.Arrays.sort(files);
 			boolean[] killed = new boolean[files.length];
 			double numOfKilled = 0;
 			for (int i = 0; i < files.length; i++) {
@@ -535,24 +536,16 @@ public class MELT {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void testMutationScore() throws IOException {
-		Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Bessj.melt");
-		ArrayList<TestCase> testCases = new ArrayList<TestCase>();
-		testCases.add(new TestCase(new Object[]{0, 2}));
-		testCases.add(new TestCase(new Object[]{1, 2}));
-		MELT.computeMutationScore(testCases);
-	}
 		
 	public static void main(String[] args) throws Exception {
 		boolean inst = false;
 		
 		String algo = "MELT";
-		String[] program = {"TCAS"};
-		long[] timeout = {20};
+		String[] program = {"Raytrace"};
+		long[] timeout = {4000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tcas/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/raytrace/" + program[k] + ".melt");
 			
 			// static part
 			if (inst) {
@@ -566,8 +559,8 @@ public class MELT {
 			// dynamic part
 			TestRunnerClient runner1 = new TestRunnerClient(false);
 			TestRunnerClient runner2 = new TestRunnerClient(true);
-			for (int i = 9; i <= 9; i++) {
-				System.out.println("\n [melt] the " + i + " th run");
+			for (int i = 0; i <= 4; i++) {
+				System.out.println("\n[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MELT.run(runner1, runner2);
 				} else if (algo.equals("CT")) {
@@ -601,11 +594,11 @@ public class MELT {
 				oout.writeObject(Profiles.tests);
 				oout.close();
 				
+				// replaced by muJava
 				/*ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
 				@SuppressWarnings("unchecked")
 				ArrayList<TestCase> testCases = (ArrayList<TestCase>)oin.readObject();
 				oin.close();
-				
 				MELT.computeMutationScore(testCases);*/
 				
 				Profiles.predicates.clear();

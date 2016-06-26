@@ -70,7 +70,8 @@ public class Instrumenter implements Serializable {
 				updateLineNumbersFile(root);
 			}
 		} else {
-			File[] files = root.listFiles();	 
+			File[] files = root.listFiles();
+			java.util.Arrays.sort(files);
 			for (File f : files) {
 				updateLineNumbers(f);
 			}
@@ -140,7 +141,8 @@ public class Instrumenter implements Serializable {
 				instrumentFile(root);
 			}
 		} else {
-			File[] files = root.listFiles();	 
+			File[] files = root.listFiles();
+			java.util.Arrays.sort(files);
 			for (File f : files) {
 				instrument(f);
 			}
@@ -457,7 +459,8 @@ public class Instrumenter implements Serializable {
 				formatFile(root);
 			}
 		} else {
-			File[] files = root.listFiles();	 
+			File[] files = root.listFiles();
+			java.util.Arrays.sort(files);
 			for (File f : files) {
 				format(f);
 			}

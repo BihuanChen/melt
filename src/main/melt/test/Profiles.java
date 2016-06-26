@@ -59,7 +59,9 @@ public class Profiles {
 		} else {
 			if (type != TYPE.IF && index != loopPairStack.peek().getPredicateIndex()) {
 				loopPairStack.peek().addToInnerPairs(p);
-				loopPairStack.push(p);
+				if (value) {
+					loopPairStack.push(p);
+				}
 			} else if (type != TYPE.IF && index == loopPairStack.peek().getPredicateIndex()) {
 				loopPairStack.pop();
 				
