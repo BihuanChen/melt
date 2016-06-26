@@ -45,6 +45,9 @@ public class Instrumenter implements Serializable {
 	
 	private ArrayList<Predicate> predicates;
 	
+	// used for update line number
+	private int id = 0;
+
 	public Instrumenter() {
 		predicates = new ArrayList<Predicate>();
 	}
@@ -93,8 +96,6 @@ public class Instrumenter implements Serializable {
 				
 		cu.recordModifications();
 		cu.accept(new ASTVisitor() {
-
-			private int id = 0;
 			
 			@Override
 			public boolean visit(ForStatement forStatement) {

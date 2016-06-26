@@ -60,10 +60,10 @@ public class MELT {
 		// update line number information
 		long t3 = System.currentTimeMillis();
 		instrumenter.updateLineNumbers(project);
-		
+
 		// serialize the predicates
 		long t4 = System.currentTimeMillis();
-		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File(Config.MAINCLASS + ".pred")));
+		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		oout.writeObject(instrumenter.getPredicates());
 		oout.close();
 		
@@ -78,7 +78,7 @@ public class MELT {
 	public static void doStaticTaintAnalysis() throws FileNotFoundException, IOException, ClassNotFoundException {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		@SuppressWarnings("unchecked")
 		ArrayList<Predicate> predicates = (ArrayList<Predicate>)oin.readObject();
 		oin.close();
@@ -102,7 +102,7 @@ public class MELT {
 		
 		// serialize the predicates
 		long t3 = System.currentTimeMillis();
-		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File(Config.MAINCLASS + ".pred")));
+		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		oout.writeObject(predicates);
 		oout.close();
 		
@@ -116,7 +116,7 @@ public class MELT {
 	public static void run(final TestRunnerClient runner1, final TestRunnerClient runner2) throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
@@ -216,7 +216,7 @@ public class MELT {
 	public static void runRandom(long timeout, String algo) throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
@@ -273,7 +273,7 @@ public class MELT {
 	public static void runConcolic() throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
@@ -314,7 +314,7 @@ public class MELT {
 	
 	@SuppressWarnings("unchecked")
 	public static void test1() throws Exception {
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		Profiles.printPredicates();
@@ -394,7 +394,7 @@ public class MELT {
 	
 	@SuppressWarnings("unchecked")
 	public static void test2() throws Exception {
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File(Config.MAINCLASS + ".pred")));
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		Profiles.printPredicates();
@@ -538,7 +538,7 @@ public class MELT {
 	}
 		
 	public static void main(String[] args) throws Exception {
-		boolean inst = false;
+		boolean inst = true;
 		
 		String algo = "MELT";
 		String[] program = {"Raytrace"};
