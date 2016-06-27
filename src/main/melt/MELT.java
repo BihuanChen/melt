@@ -538,14 +538,14 @@ public class MELT {
 	}
 		
 	public static void main(String[] args) throws Exception {
-		boolean inst = true;
+		boolean inst = false;
 		
 		String algo = "MELT";
-		String[] program = {"Raytrace"};
-		long[] timeout = {4000};
+		String[] program = {"MinePump"};
+		long[] timeout = {216000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/raytrace/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/minepump/" + program[k] + ".melt");
 			
 			// static part
 			if (inst) {

@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import melt.Config;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -90,6 +92,9 @@ public class Instrumenter implements Serializable {
 		
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource(document.get().toCharArray());
+		Map<?, ?> options = JavaCore.getOptions();
+		JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
+		parser.setCompilerOptions(options);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 
 		final CompilationUnit cu = (CompilationUnit)parser.createAST(null);
@@ -159,6 +164,9 @@ public class Instrumenter implements Serializable {
 		
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource(document.get().toCharArray());
+		Map<?, ?> options = JavaCore.getOptions();
+		JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
+		parser.setCompilerOptions(options);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 
 		final CompilationUnit cu = (CompilationUnit)parser.createAST(null);
@@ -330,7 +338,11 @@ public class Instrumenter implements Serializable {
 			@Override
 			public boolean visit(MethodDeclaration methodDeclaration) {
 				methodName = methodDeclaration.getName().getFullyQualifiedName();
-
+				// match with the constraints from concolic execution
+				if (methodName.equals(className.substring(className.lastIndexOf(".") + 1))) {
+					methodName = "<init>";
+				}
+				
 				int size = 0;
 				List<?> parameters = methodDeclaration.parameters();
 				signature = "(";
@@ -474,6 +486,9 @@ public class Instrumenter implements Serializable {
 
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource(document.get().toCharArray());
+		Map<?, ?> options = JavaCore.getOptions();
+		JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
+		parser.setCompilerOptions(options);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 
 		final CompilationUnit cu = (CompilationUnit)parser.createAST(null);
