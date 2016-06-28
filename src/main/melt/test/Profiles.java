@@ -67,7 +67,7 @@ public class Profiles {
 				
 				PairArrayList ps = loopPairStack.isEmpty() ? executedPredicates : loopPairStack.peek().getInnerPairs();				
 				int size = ps.size();
-				if ((type == TYPE.FOR || type == TYPE.WHILE) && size >= 2){
+				if ((type == TYPE.FOR || type == TYPE.FOREACH || type == TYPE.WHILE) && size >= 2){
 					Pair p1 = ps.get(size - 1);
 					Pair p2 = ps.get(size - 2);
 					if (p1.getPredicateIndex() == index && p1.isPredicateValue() 

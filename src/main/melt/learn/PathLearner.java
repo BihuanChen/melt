@@ -40,7 +40,7 @@ public class PathLearner {
 			} else {
 				Predicate.TYPE type = Profiles.predicates.get(ps.getNode().getPredicate()).getType();
 				PredicateArc arc = ps.getNode().getSourceTrueBranch();
-				if ((type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) && !ps.getBranch() && arc != null) {
+				if ((type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) && !ps.getBranch() && arc != null) {
 					HashSet<ArrayList<Step>> newTraces = new HashSet<ArrayList<Step>>();
 					Iterator<ArrayList<Step>> iterator = traces.iterator();
 					while (iterator.hasNext()) {

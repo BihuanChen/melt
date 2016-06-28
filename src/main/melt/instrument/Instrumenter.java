@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
@@ -108,6 +109,12 @@ public class Instrumenter implements Serializable {
 				return super.visit(forStatement);
 			}
 			
+			@Override
+			public boolean visit(EnhancedForStatement foreachsStatement) {
+				updateLineNumber(cu.getLineNumber(foreachsStatement.getStartPosition()));
+				return super.visit(foreachsStatement);
+			}
+
 			@Override
 			public boolean visit(WhileStatement whileStatement) {
 				updateLineNumber(cu.getLineNumber(whileStatement.getStartPosition()));
@@ -264,6 +271,13 @@ public class Instrumenter implements Serializable {
 				return super.visit(forStatement);
 			}
 			
+			@Override
+			public boolean visit(EnhancedForStatement foreachStatement) {
+				nestedLoops++;
+				visit(foreachStatement, foreachStatement.getExpression(), foreachStatement.getBody(), foreachStatement.getParent(), Predicate.TYPE.FOREACH);
+				return super.visit(foreachStatement);
+			}
+
 			@Override
 			public boolean visit(WhileStatement whileStatement) {
 				nestedLoops++;
@@ -423,6 +437,12 @@ public class Instrumenter implements Serializable {
 			}
 
 			@Override
+			public void endVisit(EnhancedForStatement node) {
+				nestedLoops--;
+				super.endVisit(node);
+			}
+
+			@Override
 			public void endVisit(WhileStatement node) {
 				nestedLoops--;
 				super.endVisit(node);
@@ -503,6 +523,11 @@ public class Instrumenter implements Serializable {
 				return super.visit(forStatement);
 			}
 			
+			public boolean visit(EnhancedForStatement foreachStatement) {
+				insertBraces(foreachStatement.getBody());
+				return super.visit(foreachStatement);
+			}
+
 			public boolean visit(WhileStatement whileStatement) {
 				insertBraces(whileStatement.getBody());
 				return super.visit(whileStatement);

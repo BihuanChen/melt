@@ -113,7 +113,7 @@ public class PredicateNode {
 				if (sourceTrueBranch != null && sourceFalseBranch != null && isIfConditionLearnable()) {
 					twoBranchesLearner = new TwoBranchesLearner(this);
 				}
-			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
+			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
 					twoBranchesLearner = new TwoBranchesLearner(this);
 				}
@@ -142,7 +142,7 @@ public class PredicateNode {
 				if (sourceTrueBranch != null && sourceFalseBranch != null) {
 					covered = true;
 				}
-			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
+			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
 					covered = true;
 				}

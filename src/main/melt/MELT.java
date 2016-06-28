@@ -243,6 +243,7 @@ public class MELT {
 				System.out.println("[melt] wrong name for the random testing tool");
 				System.exit(0);
 			}
+
 			testSize += testCases.size();
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
@@ -538,14 +539,14 @@ public class MELT {
 	}
 		
 	public static void main(String[] args) throws Exception {
-		boolean inst = false;
+		boolean inst = true;
 		
 		String algo = "MELT";
-		String[] program = {"MinePump"};
-		long[] timeout = {216000};
+		String[] program = {"MerArbiter"};
+		long[] timeout = {16000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/minepump/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/merarbiter/" + program[k] + ".melt");
 			
 			// static part
 			if (inst) {

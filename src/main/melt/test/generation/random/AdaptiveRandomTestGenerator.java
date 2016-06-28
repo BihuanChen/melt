@@ -242,7 +242,7 @@ public class AdaptiveRandomTestGenerator extends TestGenerator {
 	                maxIndex = i;
 	            }
 	        }
-	        if (max > 0) {
+	        if (max >= 0) {
 	        	testCases.add(new TestCase(pop[maxIndex].test));
 	        	if (testCases.size() == Config.TESTS_SIZE) {
 	        		return testCases;

@@ -72,7 +72,7 @@ public class ProfileAnalyzer {
 			// if yes, push the loop branch into the stack for later references
 			boolean isLoopBranch = false;
 			Predicate.TYPE type = Profiles.predicates.get(index).getType();
-			if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
+			if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				isLoopBranch = true;
 				if (loopBranchStack.size() == 0 || loopBranchStack.peek().getPredicate() != index) {
 					loopBranchStack.push(current);

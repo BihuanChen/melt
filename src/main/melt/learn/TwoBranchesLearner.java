@@ -112,7 +112,7 @@ public class TwoBranchesLearner {
 					Integer i = iterator.next();
 					createInstance(i, Profiles.tests.get(i), "F");
 				}
-			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
+			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				Iterator<Integer> iterator = tTests.iterator();
 				while (iterator.hasNext()) {
 					Integer i = iterator.next();

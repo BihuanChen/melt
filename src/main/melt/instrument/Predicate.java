@@ -17,7 +17,7 @@ public class Predicate implements Serializable {
 	private String expression;
 	
 	// four types: if, do, while, and for
-	public enum TYPE {IF, DO, WHILE, FOR}
+	public enum TYPE {IF, DO, WHILE, FOR, FOREACH}
 	private TYPE type;
 	
 	// indexes of the inputs that the predicate depends on
