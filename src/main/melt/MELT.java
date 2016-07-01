@@ -47,32 +47,19 @@ import org.eclipse.text.edits.MalformedTreeException;
 public class MELT {
 		
 	public static void instrument() throws MalformedTreeException, IOException, BadLocationException {
-		// format the source code
 		long t1 = System.currentTimeMillis();
-		File project = new File(Config.SOURCEPATH);
-		Instrumenter instrumenter = new Instrumenter();
-		instrumenter.format(project);
-		
-		// instrument the source code
-		long t2 = System.currentTimeMillis();
-		instrumenter.instrument(project);
-		
-		// update line number information
-		long t3 = System.currentTimeMillis();
-		instrumenter.updateLineNumbers(project);
+		Instrumenter instrumenter = new Instrumenter(Config.SOURCEPATH);
+		instrumenter.instrument();
 
 		// serialize the predicates
-		long t4 = System.currentTimeMillis();
+		long t2 = System.currentTimeMillis();
 		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		oout.writeObject(instrumenter.getPredicates());
 		oout.close();
 		
-		long t5 = System.currentTimeMillis();
-		System.out.println("[melt] " + Config.FORMAT.format(t5));
-		System.out.println("[melt] project formatted in " + (t2 - t1) + " ms");
-		System.out.println("[melt] project instrumented in " + (t3 - t2) + " ms");
-		System.out.println("[melt] line number updated in " + (t4 - t3) + " ms");
-		System.out.println("[melt] predicates serialized in " + (t5 - t4) + " ms");
+		long t3 = System.currentTimeMillis();
+		System.out.println("[melt] project instrumented in " + (t2 - t1) + " ms");
+		System.out.println("[melt] predicates serialized in " + (t3 - t2) + " ms");
 	}
 	
 	public static void doStaticTaintAnalysis() throws FileNotFoundException, IOException, ClassNotFoundException {
@@ -97,6 +84,7 @@ public class MELT {
 				p.setDepInputs(set);				
 			} else {
 				System.err.println("[melt] inputs-branch dependency not found " + p.getExpression());
+				System.exit(0);
 			}
 		}
 		
@@ -539,14 +527,14 @@ public class MELT {
 	}
 		
 	public static void main(String[] args) throws Exception {
-		boolean inst = true;
+		boolean inst = false;
 		
 		String algo = "MELT";
-		String[] program = {"MerArbiter"};
+		String[] program = {"MinePump"};
 		long[] timeout = {16000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/merarbiter/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/minepump/" + program[k] + ".melt");
 			
 			// static part
 			if (inst) {
@@ -560,7 +548,7 @@ public class MELT {
 			// dynamic part
 			TestRunnerClient runner1 = new TestRunnerClient(false);
 			TestRunnerClient runner2 = new TestRunnerClient(true);
-			for (int i = 0; i <= 4; i++) {
+			for (int i = 5; i <= 5; i++) {
 				System.out.println("\n[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MELT.run(runner1, runner2);

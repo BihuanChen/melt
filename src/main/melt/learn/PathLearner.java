@@ -37,6 +37,7 @@ public class PathLearner {
 			Step ps = findSourceStep(node);
 			if (ps == null) {
 				System.err.println("[melt] errors in finding prefix traces");
+				System.exit(0);
 			} else {
 				Predicate.TYPE type = Profiles.predicates.get(ps.getNode().getPredicate()).getType();
 				PredicateArc arc = ps.getNode().getSourceTrueBranch();
@@ -140,6 +141,7 @@ public class PathLearner {
 			PredicateNode node = findNode(ns, srcLoc);
 			if (node == null) {
 				System.err.println("[melt] error in attaching constraints");
+				System.exit(0);
 			} else {
 				node.addConstraint(id, constraints.get(inst));
 			}

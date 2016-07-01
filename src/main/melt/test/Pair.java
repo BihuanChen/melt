@@ -57,7 +57,7 @@ public class Pair implements Serializable {
 					for (int i = 0, j = 0; i < l1 && j < l2; ) {
 						Pair p1 = this.innerPairs.get(i);
 						Pair p2 = p.innerPairs.get(j);
-						if (p1.predicateIndex != -1 && Profiles.predicates.get(p1.predicateIndex).getType() == TYPE.IF) {
+						if (p1.predicateIndex == -2 || p1.predicateIndex == -3 || (p1.predicateIndex != -1 && Profiles.predicates.get(p1.predicateIndex).getType() == TYPE.IF)) {
 							if (!p1.equals(p2)) {
 								return false;
 							} else {

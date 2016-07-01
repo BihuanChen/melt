@@ -37,6 +37,7 @@ public class ProfileAnalyzer {
 		Profiles.executedPredicates.clear();
 		if (!Profiles.consistant()) {
 			System.err.println("[melt] error in compressing executed predicates");
+			System.exit(0);
 		}
 		
 		int size = eps.size();
@@ -45,11 +46,24 @@ public class ProfileAnalyzer {
 		
 		PredicateNode current = root;
 		Deque<PredicateNode> loopBranchStack = new ArrayDeque<PredicateNode>();
+		Deque<Integer> loopRecursionLevelStack = new ArrayDeque<Integer>();
+		int recursionLevel = 0;
 		for (int i = 0; i < size; i++) {
 			// get the branch predicate information
 			Pair p = eps.get(i);
 			int index = p.getPredicateIndex();
 			boolean value = p.isPredicateValue();
+
+			if (index == -2) {
+				recursionLevel++;
+				continue;
+			}
+			if (index == -3) {
+				recursionLevel--;
+				continue;
+			}
+			
+			//System.out.println(current.getPredicate() + " --> " + p);
 			
 			// set the predicate index if not yet set
 			if (current.getPredicate() == -1) {
@@ -58,6 +72,7 @@ public class ProfileAnalyzer {
 				addToPredicatedNodes(current.getPredicate(), nodes.size() - 1);
 			} else if (current.getPredicate() != index) {
 				System.err.println("[melt] error in creating the tree structure");
+				System.exit(0);
 			}
 			
 			// attach the dynamic taint results
@@ -74,19 +89,22 @@ public class ProfileAnalyzer {
 			Predicate.TYPE type = Profiles.predicates.get(index).getType();
 			if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				isLoopBranch = true;
-				if (loopBranchStack.size() == 0 || loopBranchStack.peek().getPredicate() != index) {
+				if (loopBranchStack.size() == 0 || loopBranchStack.peek().getPredicate() != index || loopRecursionLevelStack.peek() != recursionLevel) {
 					loopBranchStack.push(current);
+					loopRecursionLevelStack.push(recursionLevel);
 				}
 			}
 			
 			// pop if exit the loop by taking its false branch
 			if (isLoopBranch && !value) {
 				loopBranchStack.pop();
+				loopRecursionLevelStack.pop();
 			}
-			
-			// deal with loop statements in loops
+						
+			// deal with return statements in loops
 			while (i + 1 < size && eps.get(i + 1).getPredicateIndex() == -1) {
 				loopBranchStack.pop();
+				loopRecursionLevelStack.pop();
 				i++;
 			}
 			
@@ -230,6 +248,7 @@ public class ProfileAnalyzer {
 		predicatedNodes.get(predicate).add(index);
 	}
 	
+	// TODO buggy for return statements in loops, and method recursions
 	private boolean isOneIterationDoLoop (ArrayList<Pair> eps, int start, int end) {
 		Pair p1 = eps.get(start);
 		for (int i = start + 1; i < end; i++) {

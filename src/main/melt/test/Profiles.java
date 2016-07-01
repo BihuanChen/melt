@@ -19,23 +19,50 @@ public class Profiles {
 	public static HashMap<String, HashSet<Integer>> taints = new HashMap<String, HashSet<Integer>>();
 
 	// for instrumentation
-	private static PairStack loopPairStack = new PairStack();
+	private static int recursionLevel = 0;
+	private static FastStack<Pair> loopPairStack = new FastStack<Pair>();
+	private static FastStack<Integer> loopRecursionLevelStack = new FastStack<Integer>();
 			
 	public static void add(int index, boolean value, TYPE type) {
 		Pair p = new Pair(index, value);
 		
+		// exit a recursion
+		if (index == -3) {
+			recursionLevel--;
+			if (loopPairStack.isEmpty()) {
+				executedPredicates.add(p);
+			} else {
+				loopPairStack.peek().addToInnerPairs(p);
+			}
+			return;
+		}
+		
+		// enter a recursion
+		if (index == -2) {
+			recursionLevel++;
+			if (loopPairStack.isEmpty()) {
+				executedPredicates.add(p);
+			} else {
+				loopPairStack.peek().addToInnerPairs(p);
+			}
+			return;
+		}
+		
 		if (index == -1) {
 			int ret_i = loopPairStack.pop().getPredicateIndex();
+			int level_i = loopRecursionLevelStack.pop();
 			Predicate ret_pre_i = Profiles.predicates.get(ret_i);
 			boolean mark = false;
 			while (!loopPairStack.isEmpty()) {
 				loopPairStack.peek().addToInnerPairs(p);
 				int ret_j = loopPairStack.peek().getPredicateIndex();
+				int level_j = loopRecursionLevelStack.peek();
 				Predicate ret_pre_j = Profiles.predicates.get(ret_j);
-				if (ret_pre_i.getClassName().equals(ret_pre_j.getClassName()) &&
+				if (level_i == level_j && ret_pre_i.getClassName().equals(ret_pre_j.getClassName()) &&
 						ret_pre_i.getMethodName().equals(ret_pre_j.getMethodName()) &&
 						ret_pre_i.getSignature().equals(ret_pre_j.getSignature())) {
 					loopPairStack.pop();
+					loopRecursionLevelStack.pop();
 				} else {
 					mark = true;
 					break;
@@ -54,16 +81,19 @@ public class Profiles {
 				executedPredicates.add(p);
 				if (value) { // for executions that directly execute the false loop branch
 					loopPairStack.push(p);
+					loopRecursionLevelStack.push(recursionLevel);
 				}
 			}
 		} else {
-			if (type != TYPE.IF && index != loopPairStack.peek().getPredicateIndex()) {
+			if (type != TYPE.IF && (index != loopPairStack.peek().getPredicateIndex() || recursionLevel != loopRecursionLevelStack.peek())) {
 				loopPairStack.peek().addToInnerPairs(p);
 				if (value) {
 					loopPairStack.push(p);
+					loopRecursionLevelStack.push(recursionLevel);
 				}
-			} else if (type != TYPE.IF && index == loopPairStack.peek().getPredicateIndex()) {
+			} else if (type != TYPE.IF && index == loopPairStack.peek().getPredicateIndex() && recursionLevel == loopRecursionLevelStack.peek()) {
 				loopPairStack.pop();
+				loopRecursionLevelStack.pop();
 				
 				PairArrayList ps = loopPairStack.isEmpty() ? executedPredicates : loopPairStack.peek().getInnerPairs();				
 				int size = ps.size();
@@ -108,6 +138,7 @@ public class Profiles {
 				ps.add(p);
 				if (value) {
 					loopPairStack.push(p);
+					loopRecursionLevelStack.push(recursionLevel);
 				}
 			} else {
 				loopPairStack.peek().addToInnerPairs(p);
@@ -220,7 +251,7 @@ public class Profiles {
 	}*/
 	
 	public static boolean consistant() {
-		return loopPairStack.isEmpty();
+		return loopPairStack.isEmpty() && loopRecursionLevelStack.isEmpty() && recursionLevel == 0;
 	}
 	
 	public static void printPredicates() {

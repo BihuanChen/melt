@@ -109,6 +109,7 @@ public class TestSuiteGenProblem extends Problem {
 				}
 			} else {
 				System.err.println("[melt] error in create the initial population in ea-based test generation");
+				System.exit(0);
 			}
 			// add randomly generated test cases
 			for (int i = initialTests.size(); i < initialTestsSize; i++) {

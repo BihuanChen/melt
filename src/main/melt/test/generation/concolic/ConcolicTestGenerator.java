@@ -42,6 +42,7 @@ public class ConcolicTestGenerator extends TestGenerator {
 			test = Profiles.tests.get(testIndex).getTest();
 		} else {
 			System.err.println("[melt] error in choosing the test for concolic execution");
+			System.exit(0);
 		}
 		System.out.print("[melt] given test for concolic execution is [" + test[0]);
 		for (int i = 1; i < test.length; i++) {

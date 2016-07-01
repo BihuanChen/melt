@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -51,7 +52,10 @@ public class Instrumenter implements Serializable {
 	// used for update line number
 	private int id = 0;
 
-	public Instrumenter() {
+	private String srcPath;
+	
+	public Instrumenter(String srcPath) {
+		this.srcPath = srcPath;
 		predicates = new ArrayList<Predicate>();
 	}
 
@@ -63,6 +67,13 @@ public class Instrumenter implements Serializable {
 		this.predicates = predicates;
 	}
 
+	public void instrument() throws MalformedTreeException, IOException, BadLocationException {
+		File file = new File(srcPath);
+		this.format(file);
+		this.instrument(file);
+		this.updateLineNumbers(file);
+	}
+	
 	/**
 	 * loop a project directory to update line numbers recursively
 	 * @param root
@@ -70,7 +81,7 @@ public class Instrumenter implements Serializable {
 	 * @throws MalformedTreeException
 	 * @throws BadLocationException
 	 */
-	public void updateLineNumbers(File root) throws IOException, MalformedTreeException, BadLocationException {
+	private void updateLineNumbers(File root) throws IOException, MalformedTreeException, BadLocationException {
 		if (root.isFile()) {
 			if (root.getName().endsWith(".java")) {
 				updateLineNumbersFile(root);
@@ -148,7 +159,7 @@ public class Instrumenter implements Serializable {
 	 * @throws MalformedTreeException
 	 * @throws BadLocationException
 	 */
-	public void instrument(File root) throws IOException, MalformedTreeException, BadLocationException {
+	private void instrument(File root) throws IOException, MalformedTreeException, BadLocationException {
 		if (root.isFile()) {
 			if (root.getName().endsWith(".java")) {
 				instrumentFile(root);
@@ -170,11 +181,14 @@ public class Instrumenter implements Serializable {
 		final Document document = new Document(source);
 		
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
-		parser.setSource(document.get().toCharArray());
+		parser.setResolveBindings(true);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		Map<?, ?> options = JavaCore.getOptions();
 		JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
 		parser.setCompilerOptions(options);
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setUnitName(file.getName());
+		parser.setEnvironment(new String[]{"/usr/lib/jvm/java-8-oracle/jre/lib/rt.jar"}, new String[]{srcPath.substring(0, srcPath.lastIndexOf("src") + 3)}, new String[]{"UTF-8"}, true);
+		parser.setSource(document.get().toCharArray());
 
 		final CompilationUnit cu = (CompilationUnit)parser.createAST(null);
 		final AST ast = cu.getAST();
@@ -188,6 +202,7 @@ public class Instrumenter implements Serializable {
 			private String methodName = null;
 			private String signature = null;
 			private int nestedLoops = 0;
+			private boolean hasRecursion = false;
 			
 			@Override
 			public boolean visit(ConditionalExpression conditionalExpression) {			
@@ -345,6 +360,7 @@ public class Instrumenter implements Serializable {
 					listRewrite = rewriter.getListRewrite(parent, Block.STATEMENTS_PROPERTY);
 				} else {
 					System.err.println("[melt] loop nested in unknown statements");
+					System.exit(0);
 				}
 				listRewrite.insertAfter(createCounterStmt(expression, type, false), statement, null);
 			}
@@ -385,7 +401,7 @@ public class Instrumenter implements Serializable {
 						}
 					}
 				}
-				return true;
+				return super.visit(methodDeclaration);
 			}
 			
 			@SuppressWarnings("unchecked")
@@ -419,9 +435,74 @@ public class Instrumenter implements Serializable {
 			}
 
 			@Override
-			public void endVisit(MethodDeclaration node) {
+			public void endVisit(MethodDeclaration methodDeclaration) {
+				if (hasRecursion) {
+					hasRecursion = false;
+					methodDeclaration.accept(new ASTVisitor() {
+
+						@SuppressWarnings("unchecked")
+						@Override
+						public boolean visit(MethodDeclaration node) {
+							MethodInvocation newInvocation = ast.newMethodInvocation();
+							QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
+							newInvocation.setExpression(qualifiedName);
+							newInvocation.setName(ast.newSimpleName("add"));
+							NumberLiteral literal1 = ast.newNumberLiteral("-2");
+							newInvocation.arguments().add(literal1);
+							BooleanLiteral literal2 = ast.newBooleanLiteral(false);
+							newInvocation.arguments().add(literal2);
+							newInvocation.arguments().add(ast.newNullLiteral());
+							Statement newStatement = ast.newExpressionStatement(newInvocation);
+							
+							ListRewrite listRewrite = rewriter.getListRewrite(node.getBody(), Block.STATEMENTS_PROPERTY);
+							listRewrite.insertFirst(newStatement, null);
+							
+							List<?> ss = node.getBody().statements();
+							if (!(ss.get(ss.size() - 1) instanceof ReturnStatement)) {
+								System.out.println("[melt] finish recursion normally at " + className + "." + methodName + signature);
+								MethodInvocation newInvocation1 = ast.newMethodInvocation();
+								QualifiedName qualifiedName1 = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
+								newInvocation1.setExpression(qualifiedName1);
+								newInvocation1.setName(ast.newSimpleName("add"));
+								NumberLiteral literal11 = ast.newNumberLiteral("-3");
+								newInvocation1.arguments().add(literal11);
+								BooleanLiteral literal21 = ast.newBooleanLiteral(false);
+								newInvocation1.arguments().add(literal21);
+								newInvocation1.arguments().add(ast.newNullLiteral());
+								Statement newStatement1 = ast.newExpressionStatement(newInvocation1);
+								
+								ListRewrite listRewrite1 = rewriter.getListRewrite(node.getBody(), Block.STATEMENTS_PROPERTY);
+								listRewrite1.insertLast(newStatement1, null);
+							}
+							return super.visit(node);
+						}
+
+						@SuppressWarnings("unchecked")
+						@Override
+						public boolean visit(ReturnStatement node) {
+							System.out.println("[melt] finish recursion by return at " + className + "." + methodName + signature);
+							MethodInvocation newInvocation = ast.newMethodInvocation();
+							QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
+							newInvocation.setExpression(qualifiedName);
+							newInvocation.setName(ast.newSimpleName("add"));
+							NumberLiteral literal1 = ast.newNumberLiteral("-3");
+							newInvocation.arguments().add(literal1);
+							BooleanLiteral literal2 = ast.newBooleanLiteral(false);
+							newInvocation.arguments().add(literal2);
+							newInvocation.arguments().add(ast.newNullLiteral());
+							Statement newStatement = ast.newExpressionStatement(newInvocation);
+							
+							ListRewrite listRewrite = rewriter.getListRewrite(node.getParent(), Block.STATEMENTS_PROPERTY);
+							listRewrite.insertBefore(newStatement, node, null);
+							
+							return super.visit(node);
+						}
+						
+					});
+				}
 				methodName = null;
 				signature = null;
+				super.endVisit(methodDeclaration);
 			}
 			
 			@Override
@@ -452,7 +533,7 @@ public class Instrumenter implements Serializable {
 			@Override
 			public boolean visit(ReturnStatement node) {
 				if (nestedLoops > 0) {
-					System.out.println("[melt] return statements in loops " + node);
+					System.out.println("[melt] return statements in loops at " + className + "." + methodName + signature);
 					
 					MethodInvocation newInvocation = ast.newMethodInvocation();
 					QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
@@ -470,6 +551,37 @@ public class Instrumenter implements Serializable {
 				}
 				return super.visit(node);
 			}
+			
+			@Override
+			public boolean visit(MethodInvocation methodInvocation) {
+				Expression receiver = methodInvocation.getExpression();
+				if (receiver != null && receiver.toString().equals("this")) {
+					String mn = methodInvocation.getName().getFullyQualifiedName();
+					// match with the constraints from concolic execution
+					if (mn.equals(className.substring(className.lastIndexOf(".") + 1))) {
+						mn = "<init>";
+					}
+					ITypeBinding[] tp = methodInvocation.resolveMethodBinding().getParameterTypes();
+					String sn = "(";
+					if (tp != null) {
+						int size = tp.length;
+						for (int i = 0; i < size; i++) {
+							if (i < size - 1) {
+								sn += tp[i].getName() + ",";
+							} else {
+								sn += tp[i].getName();
+							}
+						}						
+					}
+					sn += ")";
+					
+					if (mn.equals(methodName) && sn.equals(signature)) {
+						System.out.println("[melt] method recursion at " + className + "." + methodName + signature);
+						hasRecursion = true;
+					}
+				}
+				return super.visit(methodInvocation);
+			}
 
 		});
 		
@@ -486,7 +598,7 @@ public class Instrumenter implements Serializable {
 	 * @throws MalformedTreeException
 	 * @throws BadLocationException
 	 */
-	public void format(File root) throws IOException, MalformedTreeException, BadLocationException {
+	private void format(File root) throws IOException, MalformedTreeException, BadLocationException {
 		if (root.isFile()) {
 			if (root.getName().endsWith(".java")) {
 				formatFile(root);
@@ -569,11 +681,8 @@ public class Instrumenter implements Serializable {
 		try {
 			Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Remainder.melt");
 			
-			File project = new File("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Remainder.java");
-			Instrumenter instrumenter = new Instrumenter();
-			instrumenter.format(project);
-			instrumenter.instrument(project);
-			instrumenter.updateLineNumbers(project);
+			Instrumenter instrumenter = new Instrumenter("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Remainder.java");
+			instrumenter.instrument();
 			
 			ArrayList<Predicate> pList = instrumenter.getPredicates();
 			int size = pList.size();
