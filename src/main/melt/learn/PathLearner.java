@@ -41,8 +41,8 @@ public class PathLearner {
 			} else {
 				Predicate.TYPE type = Profiles.predicates.get(ps.getNode().getPredicate()).getType();
 				PredicateArc arc = ps.getNode().getSourceTrueBranch();
-				if ((type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) && !ps.getBranch() && arc != null) {
-					HashSet<ArrayList<Step>> newTraces = new HashSet<ArrayList<Step>>();
+				if ((type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) && !ps.getBranch() && arc != null && ps.getNode().getDepInputs() != null) {
+					LinkedHashSet<ArrayList<Step>> newTraces = new LinkedHashSet<ArrayList<Step>>();
 					Iterator<ArrayList<Step>> iterator = traces.iterator();
 					while (iterator.hasNext()) {
 						ArrayList<Step> newTrace = new ArrayList<Step>(iterator.next());
@@ -50,7 +50,10 @@ public class PathLearner {
 						newTrace.add(new Step(ps.getNode(), true));
 						newTraces.add(newTrace);
 					}
-					findTargetNodes(arc.getTarget(), newTraces);
+					// loops that do not have ifs inside
+					if (arc.getTarget().getPredicate() != arc.getSource().getPredicate()) {
+						findTargetNodes(arc.getTarget(), newTraces);
+					}
 					traces.addAll(newTraces);
 				}
 				findSourceNodes(ps.getNode());
@@ -66,7 +69,10 @@ public class PathLearner {
 				PredicateNode pn = iterator.next().getSource();
 				if (pn.getLevel() == node.getLevel() - 1) {
 					Step s = new Step(pn, true);
-					addToTraces(s);
+					// branches that do not depend on input are not considered since they are always touched anyway
+					if (pn.getDepInputs() != null) {
+						addToTraces(s);
+					}
 					return s;
 				}
 			}
@@ -78,7 +84,10 @@ public class PathLearner {
 				PredicateNode pn = iterator.next().getSource();
 				if (pn.getLevel() == node.getLevel() - 1) {
 					Step s = new Step(pn, false);
-					addToTraces(s);
+					// branches that do not depend on input are not considered since they are always touched anyway
+					if (pn.getDepInputs() != null) {
+						addToTraces(s);						
+					}
 					return s;
 				}
 			}
@@ -86,18 +95,21 @@ public class PathLearner {
 		return null;
 	}
 	
-	private void findTargetNodes(PredicateNode node, HashSet<ArrayList<Step>> traces) {
+	private void findTargetNodes(PredicateNode node, LinkedHashSet<ArrayList<Step>> traces) {
 		PredicateArc tArc = node.getSourceTrueBranch();
 		PredicateArc fArc = node.getSourceFalseBranch();
 		if (tArc != null && fArc != null) {
-			HashSet<ArrayList<Step>> newTraces = new HashSet<ArrayList<Step>>();
+			int length = traces.iterator().next().size();
+			LinkedHashSet<ArrayList<Step>> newTraces = new LinkedHashSet<ArrayList<Step>>();
 			Iterator<ArrayList<Step>> iterator = traces.iterator();
 			while (iterator.hasNext()) {
 				ArrayList<Step> trace = iterator.next();
 				ArrayList<Step> newTrace = new ArrayList<Step>(trace);
-				newTrace.add(new Step(node, false));
 				newTraces.add(newTrace);
-				trace.add(new Step(node, true));
+				if (node.getDepInputs() != null) {
+					newTrace.add(new Step(node, false));
+					trace.add(new Step(node, true));
+				}
 			}
 			if (tArc.getTarget().getLevel() > node.getLevel()) {
 				findTargetNodes(tArc.getTarget(), traces);
@@ -105,19 +117,25 @@ public class PathLearner {
 			if (fArc.getTarget().getLevel() > node.getLevel()) {
 				findTargetNodes(fArc.getTarget(), newTraces);
 			}
-			traces.addAll(newTraces);
+			if (length != traces.iterator().next().size() || length != newTraces.iterator().next().size()) {
+				traces.addAll(newTraces);
+			}
 		} else if (tArc != null && fArc == null) {
-			Iterator<ArrayList<Step>> iterator = traces.iterator();
-			while (iterator.hasNext()) {
-				iterator.next().add(new Step(node, true));
+			if (node.getDepInputs() != null) {
+				Iterator<ArrayList<Step>> iterator = traces.iterator();
+				while (iterator.hasNext()) {
+					iterator.next().add(new Step(node, true));
+				}
 			}
 			if (tArc.getTarget().getLevel() > node.getLevel()) {
 				findTargetNodes(tArc.getTarget(), traces);
 			}
 		} else if (tArc == null && fArc != null) {
-			Iterator<ArrayList<Step>> iterator = traces.iterator();
-			while (iterator.hasNext()) {
-				iterator.next().add(new Step(node, false));
+			if (node.getDepInputs() != null) {
+				Iterator<ArrayList<Step>> iterator = traces.iterator();
+				while (iterator.hasNext()) {
+					iterator.next().add(new Step(node, false));
+				}
 			}
 			if (fArc.getTarget().getLevel() > node.getLevel()) {
 				findTargetNodes(fArc.getTarget(), traces);

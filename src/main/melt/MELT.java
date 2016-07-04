@@ -176,7 +176,7 @@ public class MELT {
 			}
 			System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
 			System.out.println("[melt] finish the " + (++count) + " th set of tests");
-			//analyzer.printNodes();
+			analyzer.printNodes();
 			analyzer.coverage(targetNode);			
 			// find an partially explored branch to be covered
 			targetNode = analyzer.findUnexploredBranch();
@@ -529,12 +529,12 @@ public class MELT {
 	public static void main(String[] args) throws Exception {
 		boolean inst = false;
 		
-		String algo = "MELT";
-		String[] program = {"MinePump"};
-		long[] timeout = {16000};
+		String algo = "CT";
+		String[] program = {"Apollo"};
+		long[] timeout = {60000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/minepump/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/rjc/" + program[k] + ".melt");
 			
 			// static part
 			if (inst) {
@@ -548,7 +548,7 @@ public class MELT {
 			// dynamic part
 			TestRunnerClient runner1 = new TestRunnerClient(false);
 			TestRunnerClient runner2 = new TestRunnerClient(true);
-			for (int i = 5; i <= 5; i++) {
+			for (int i = 0; i <= 0; i++) {
 				System.out.println("\n[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MELT.run(runner1, runner2);
