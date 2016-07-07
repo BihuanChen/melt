@@ -58,7 +58,8 @@ public class ConcolicTestGenerator extends TestGenerator {
 		ConcolicExecution jdart = ConcolicExecution.getInstance(Config.JPFCONFIG);
 		jdart.run(test);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations(srcLoc, Config.TESTS_SIZE, cons);
+		String solver = jdart.getJpfConf().getString("symbolic.dp");
+		HashSet<Valuation> vals = jdart.getValuations(srcLoc, solver.equals("z3") ? 1 : Config.TESTS_SIZE, cons);
 		System.out.println("[melt] tests generated from concolic execution " + vals + "\n");
 		// attach constraints to corresponding nodes
 		pathLearner.attachConstraints(testIndex, cons);

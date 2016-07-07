@@ -199,6 +199,10 @@ public class ConcolicExecution {
 	    }
 	}
 
+	public Config getJpfConf() {
+		return jpfConf;
+	}
+
 	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException {
 		/*ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/jdart/src/examples/features/nested/test_bar.jpf");
 		Object[] obj = new Object[]{1.733};
@@ -220,12 +224,13 @@ public class ConcolicExecution {
 		System.out.println(cons);
 		jdart.statistics();*/
 		
-		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark2-jpf/src/raytrace/Raytrace.jpf");
-		Object[] obj = new Object[]{2.0133568E7, -8.22872E7, -3.029348E7, 664640.0, 6.0012832E7, 3.6247312E7, -7.6004136E7, -2.6039232E7, -6440888.0, 1.977488E7, -1.9161888E7, 6.665088E7, 2.7242192E7, -1453832.0, -4.4165504E7, -3603480.0, -8.3085536E7, 7.1358848E7, -8.1043504E7, 53393604, 2.5487176E7, -3.2513312E7, -2122728.0, 4.9397792E7, -2.4590184E7, 6.7652576E7};
+		melt.Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tsafe/TSAFE.melt");
+		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/benchmark2-jpf/src/tsafe/TSAFE.jpf");
+		Object[] obj = new Object[]{87.8166690171517, -53.703386742825224, 67.90922066561362, 53.856785468275916};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations("raytrace.Surface.Shade(Surface.java:73)", melt.Config.TESTS_SIZE, cons);
-		System.out.println(vals);
+		//HashSet<Valuation> vals = jdart.getValuations("tsafe.Calculator.angleXY(Calculator.java:109)", melt.Config.TESTS_SIZE, cons);
+		//System.out.println(vals);
 		System.out.println(cons);
 		jdart.statistics();
 	}

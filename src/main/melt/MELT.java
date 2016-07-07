@@ -73,7 +73,7 @@ public class MELT {
 		// analyze inputs-branch dependency statically
 		long t2 = System.currentTimeMillis();
 		String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
-		LinkedHashMap<String, HashSet<Integer>> dependency = StaticDependencyAnalyzer.doInterAnalysis(Config.CLASSPATH, Config.MAINCLASS, entryPoint);
+		LinkedHashMap<String, HashSet<Integer>> dependency = StaticDependencyAnalyzer.doInterAnalysis(Config.CLASSPATH[0], Config.MAINCLASS, entryPoint);
 	
 		int size = predicates.size();
 		for (int i = 0; i < size; i++) {
@@ -176,7 +176,7 @@ public class MELT {
 			}
 			System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
 			System.out.println("[melt] finish the " + (++count) + " th set of tests");
-			analyzer.printNodes();
+			//analyzer.printNodes();
 			analyzer.coverage(targetNode);			
 			// find an partially explored branch to be covered
 			targetNode = analyzer.findUnexploredBranch();
@@ -529,12 +529,12 @@ public class MELT {
 	public static void main(String[] args) throws Exception {
 		boolean inst = false;
 		
-		String algo = "CT";
-		String[] program = {"Apollo"};
+		String algo = "MELT";
+		String[] program = {"ConvexClip"};
 		long[] timeout = {60000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/rjc/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark3-new/src/convexclip/" + program[k] + ".melt");
 			
 			// static part
 			if (inst) {

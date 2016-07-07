@@ -63,7 +63,7 @@ public class ProfileAnalyzer {
 				continue;
 			}
 			
-			//System.out.println(current.getPredicate() + " --> " + p);
+			System.out.println(current.getPredicate() + " --> " + p);
 			
 			// set the predicate index if not yet set
 			if (current.getPredicate() == -1) {

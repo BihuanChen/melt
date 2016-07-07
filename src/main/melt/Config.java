@@ -28,7 +28,7 @@ public class Config {
 	public static String TAINT = "dynamic";
 	
 	// configuration information of the target project for static taint analysis
-	public static String CLASSPATH = null;
+	public static String[] CLASSPATH = null;
 	public static String MAINCLASS = null;
 	public static String ENTRYMETHOD = null;
 	
@@ -83,12 +83,17 @@ public class Config {
 		}
 		System.out.println("[melt] sourcepath = " + SOURCEPATH);
 		
-		CLASSPATH = prop.getProperty("classpath");
-		if (CLASSPATH == null) {
+		String cps = prop.getProperty("classpath");
+		if (cps == null) {
 			System.err.println("[melt] configuration error: class path not set");
 			System.exit(0);
 		}
-		System.out.println("[melt] classepath = " + CLASSPATH);
+		CLASSPATH = cps.split(";");
+		System.out.print("[melt] classepath = ");
+		for (int i = 0; i < CLASSPATH.length; i++) {
+			System.out.print(CLASSPATH[i] + " ");
+		}
+		System.out.println();
 		
 		MAINCLASS = prop.getProperty("mainclass");
 		if (MAINCLASS == null) {
@@ -234,8 +239,8 @@ public class Config {
 				varMaxIntMap.put(name, Integer.valueOf(prop.getProperty(k)));
 			}
 		}
-		System.out.println("[MELT] min.int_ = " + varMinIntMap);
-		System.out.println("[MELT] max.int_ = " + varMaxIntMap);
+		System.out.println("[melt] min.int_ = " + varMinIntMap);
+		System.out.println("[melt] max.int_ = " + varMaxIntMap);
 		
 		p = prop.getProperty("min.long");
 		if (p != null) {

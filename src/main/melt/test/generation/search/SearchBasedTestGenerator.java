@@ -37,7 +37,7 @@ public class SearchBasedTestGenerator extends TestGenerator {
 				return genSearchBasedTests();
 			}
 			return tcs;
-		} else if (pathLearner == null) {
+		} else if (pathLearner == null || pathLearner.getTraces() == null) {
 			return new PureRandomTestGenerator(pathLearner).generate();
 		} else {
 			return genSearchBasedTests();

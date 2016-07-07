@@ -16,8 +16,11 @@ public class TestRunnerUtil {
 	
 	public TestRunnerUtil() {
 		try {
-			File f = new File(Config.CLASSPATH);
-			URL[] cp = {f.toURI().toURL()};
+			URL[] cp = new URL[Config.CLASSPATH.length];
+			for (int i = 0; i < Config.CLASSPATH.length; i++) {
+				File f = new File(Config.CLASSPATH[i]);
+				cp[i] = f.toURI().toURL();
+			}
 			URLClassLoader cl = new URLClassLoader(cp);
 			c = cl.loadClass(Config.MAINCLASS);
 			m = c.getMethod(Config.METHOD, Config.CLS);
