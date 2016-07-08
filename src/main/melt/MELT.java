@@ -531,7 +531,7 @@ public class MELT {
 		
 		String algo = "MELT";
 		String[] program = {"ConvexClip"};
-		long[] timeout = {60000};
+		long[] timeout = {12000};
 		
 		for (int k = 0; k < program.length; k++) {
 			Config.loadProperties("/home/bhchen/workspace/testing/benchmark3-new/src/convexclip/" + program[k] + ".melt");

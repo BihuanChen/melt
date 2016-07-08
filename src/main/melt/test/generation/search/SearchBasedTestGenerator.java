@@ -2,7 +2,6 @@ package melt.test.generation.search;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import jmetal.core.Algorithm;
 import jmetal.core.Operator;
@@ -82,8 +81,18 @@ public class SearchBasedTestGenerator extends TestGenerator {
 
 	    // Get the results
 	    HashSet<TestCase> tests = new HashSet<TestCase>();
-	    HashMap<Integer, HashSet<TestCase>> satisfiedTests = new HashMap<Integer, HashSet<TestCase>>(problem.getNumberOfObjectives());
 	    
+	    // add all the tests from the population
+	    for (int i = 0; i < population.size(); i++) {
+	    	Solution solution = population.get(i);
+	    	for (int j = 0; j < solution.numberOfVariables(); j++) {
+	    		TestVar tv = (TestVar)solution.getDecisionVariables()[j];
+	    		tests.add(tv.getTest());
+	    	}
+	    }
+	    
+	    /*// selectively choose the tests from the population
+	    HashMap<Integer, HashSet<TestCase>> satisfiedTests = new HashMap<Integer, HashSet<TestCase>>(problem.getNumberOfObjectives());
 	    for (int i = 0; i < population.size(); i++) {
 	    	Solution solution = population.get(i);
 	    	for (int j = 0; j < solution.numberOfVariables(); j++) {
@@ -105,7 +114,6 @@ public class SearchBasedTestGenerator extends TestGenerator {
 	    		}
 	    	}
 	    }
-	    
 	    if (satisfiedTests.size() != 0) {
 		    Iterator<Integer> iterator = satisfiedTests.keySet().iterator();
 		    while (iterator.hasNext()) {
@@ -117,7 +125,8 @@ public class SearchBasedTestGenerator extends TestGenerator {
 		    		}
 		    	}
 		    }
-	    }
+	    }*/
+	    
 		return tests;
 	}
 	

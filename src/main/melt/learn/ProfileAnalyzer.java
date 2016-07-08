@@ -63,7 +63,7 @@ public class ProfileAnalyzer {
 				continue;
 			}
 			
-			System.out.println(current.getPredicate() + " --> " + p);
+			//System.out.println(current.getPredicate() + " --> " + p);
 			
 			// set the predicate index if not yet set
 			if (current.getPredicate() == -1) {
@@ -175,33 +175,23 @@ public class ProfileAnalyzer {
 	// find an unexplored branch systematically
 	private PredicateNode systematic() {
 		// locate the level and corresponding unexplored branches for further selection
-		ArrayList<PredicateNode> pSet = null;
 		int ls = leveledNodes.size();
 		for (int i = 0; i < ls; i++) {
-			pSet = new ArrayList<PredicateNode>();
 			Iterator<Integer> iterator = leveledNodes.get(i).iterator();
 			while (iterator.hasNext()) {
 				PredicateNode node = nodes.get(iterator.next());
-				if (node.getDepInputs() != null && node.getAttempts() < Config.MAX_ATTEMPTS) {
-					if (!node.isCovered()) {
-						pSet.add(node);
+				if (node.getDepInputs() != null) {
+					if (node.getAttempts() < Config.MAX_ATTEMPTS) {
+						if (!node.isCovered()) {
+							return node;
+						}
 					}
 				}
 			}
-			if (pSet.size() > 0) {
-				break;
-			}
 		}
-		// TODO more heuristics (e.g., using predicatedNodes) rather than randomly?
-		if (pSet.size() > 0) {
-			int ran = (int)Math.random() * pSet.size();
-			pSet.get(ran).incAttempts();
-			return pSet.get(ran);
-		} else {
-			return null;
-		}
+		return null;
 	}
-	
+		
 	public void coverage(PredicateNode target) {
 		if (target != null) {
 			System.out.println("[melt] target branch " + (target.isCovered() ? "covered" : "not covered"));;

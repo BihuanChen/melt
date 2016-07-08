@@ -12,7 +12,7 @@ import melt.instrument.Predicate;
 import melt.test.Profiles;
 
 public class PredicateNode {
-
+	
 	private int predicate; // -1 represents a leaf node
 	private int level; // the distance to the root node
 	
@@ -154,12 +154,15 @@ public class PredicateNode {
 	}
 
 	private boolean isLoopBodyNotExecuted() {
-		HashSet<Integer> tTests = new HashSet<Integer>(sourceTrueBranch.getTests());
-		Iterator<Integer> iterator = sourceFalseBranch.getTests().iterator();
-		while (iterator.hasNext()) {
-			Integer i = iterator.next();
-			if (!tTests.contains(i)) {
-				return true;
+		// may be null for do loops
+		if (sourceTrueBranch.getTests() != null) {
+			HashSet<Integer> tTests = new HashSet<Integer>(sourceTrueBranch.getTests());
+			Iterator<Integer> iterator = sourceFalseBranch.getTests().iterator();
+			while (iterator.hasNext()) {
+				Integer i = iterator.next();
+				if (!tTests.contains(i)) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -176,7 +179,7 @@ public class PredicateNode {
 		
 		return size != ttSize && size != ftSize;
 	}
-	
+
 	public LinkedHashMap<String, Expression<Boolean>> getConstraints() {
 		return constraints;
 	}
