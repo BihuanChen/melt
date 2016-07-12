@@ -413,6 +413,8 @@ public class Instrumenter implements Serializable {
 				    invocation.setName(ast.newSimpleName("taintedByte"));
 				} else if (cls == short.class) {
 					invocation.setName(ast.newSimpleName("taintedShort"));
+				} else if (cls == char.class) {
+					invocation.setName(ast.newSimpleName("taintedChar"));
 				} else if (cls == int.class) {
 					invocation.setName(ast.newSimpleName("taintedInt"));
 				} else if (cls == long.class) {
@@ -423,6 +425,8 @@ public class Instrumenter implements Serializable {
 					invocation.setName(ast.newSimpleName("taintedDouble"));
 				} else if (cls == boolean.class) {
 					invocation.setName(ast.newSimpleName("taintedBoolean"));
+				} else {
+					System.err.println("[melt] unsupported input type " + cls);
 				}
 			    invocation.arguments().add(ast.newSimpleName(parameter));
 			    invocation.arguments().add(ast.newNumberLiteral(String.valueOf(tag)));

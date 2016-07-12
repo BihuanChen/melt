@@ -21,6 +21,8 @@ public class Util {
 				type = BuiltinTypes.SINT8;
 			} else if (cls == Short.class) {
 				type = BuiltinTypes.SINT16;
+			} else if (cls == Character.class) {
+				type = BuiltinTypes.UINT16;
 			} else if (cls == Integer.class) {
 				type = BuiltinTypes.SINT32;
 			} else if (cls == Long.class) {
@@ -45,6 +47,8 @@ public class Util {
 				value = (byte)valuation.getValue(v);
 			} else if (v.getResultType() == Short.class) {
 				value = (short)valuation.getValue(v);
+			} else if (v.getResultType() == Character.class) {
+				value = (char)valuation.getValue(v);
 			} else if (v.getResultType() == Integer.class) {
 				value = (int)valuation.getValue(v);
 			} else if (v.getResultType() == Long.class) {
@@ -67,6 +71,8 @@ public class Util {
 					test[i] = (byte) (new Random().nextInt(Config.MAX_BYTE - Config.MIN_BYTE + 1) + Config.MIN_BYTE);
 				} else if (Config.CLS[i] == short.class) {
 					test[i] = (short) (new Random().nextInt(Config.MAX_SHORT - Config.MIN_SHORT + 1) + Config.MIN_SHORT);
+				} else if (Config.CLS[i] == char.class) {
+					test[i] = (char) (new Random().nextInt(Config.MAX_CHAR - Config.MIN_CHAR + 1) + Config.MIN_CHAR);
 				} else if (Config.CLS[i] == int.class) {
 					Integer varMin = Config.varMinIntMap.get(Config.PARAMETERS[i]);
 					Integer varMax = Config.varMaxIntMap.get(Config.PARAMETERS[i]);
@@ -97,6 +103,8 @@ public class Util {
 				test[i] = (byte) (new Random().nextInt(Config.MAX_BYTE - Config.MIN_BYTE + 1) + Config.MIN_BYTE);
 			} else if (Config.CLS[i] == short.class) {
 				test[i] = (short) (new Random().nextInt(Config.MAX_SHORT - Config.MIN_SHORT + 1) + Config.MIN_SHORT);
+			} else if (Config.CLS[i] == char.class) {
+				test[i] = (char) (new Random().nextInt(Config.MAX_CHAR - Config.MIN_CHAR + 1) + Config.MIN_CHAR);
 			} else if (Config.CLS[i] == int.class) {
 				Integer varMin = Config.varMinIntMap.get(Config.PARAMETERS[i]);
 				Integer varMax = Config.varMaxIntMap.get(Config.PARAMETERS[i]);

@@ -177,6 +177,8 @@ public class AdaptiveRandomTestGenerator extends TestGenerator {
 								newPop[j].test[k] = (byte)PseudoRandom.randInt(Config.MIN_BYTE, Config.MAX_BYTE);
 							} else if (cls == Short.class) {
 								newPop[j].test[k] = (short)PseudoRandom.randInt(Config.MIN_SHORT, Config.MAX_SHORT);
+							} else if (cls == Character.class) {
+								newPop[j].test[k] = (char)PseudoRandom.randInt(Config.MIN_CHAR, Config.MAX_CHAR);
 							} else if (cls == Integer.class) {
 								Integer varMin = Config.varMinIntMap.get(Config.PARAMETERS[k]);
 								Integer varMax = Config.varMaxIntMap.get(Config.PARAMETERS[k]);
@@ -260,6 +262,8 @@ public class AdaptiveRandomTestGenerator extends TestGenerator {
 				dist += ((byte)t1[i] - (byte)t2[i]) * ((byte)t1[i] - (byte)t2[i]);
 			} else if (Config.CLS[i] == short.class) {
 				dist += ((short)t1[i] - (short)t2[i]) * ((short)t1[i] - (short)t2[i]);
+			} else if (Config.CLS[i] == char.class) {
+				dist += ((char)t1[i] - (char)t2[i]) * ((char)t1[i] - (char)t2[i]);
 			} else if (Config.CLS[i] == int.class) {
 				dist += ((int)t1[i] - (int)t2[i]) * ((int)t1[i] - (int)t2[i]);				
 			} else if (Config.CLS[i] == long.class) {

@@ -183,6 +183,7 @@ public class ProfileAnalyzer {
 				if (node.getDepInputs() != null) {
 					if (node.getAttempts() < Config.MAX_ATTEMPTS) {
 						if (!node.isCovered()) {
+							node.incAttempts();
 							return node;
 						}
 					}

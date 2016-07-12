@@ -55,6 +55,8 @@ public class Config {
 	public static byte MAX_BYTE = 100;
 	public static short MIN_SHORT = -100;
 	public static short MAX_SHORT = 100;
+	public static char MIN_CHAR = 0;
+	public static char MAX_CHAR = 65535;
 	public static int MIN_INT = -100;
 	public static int MAX_INT = 100;
 	public static long MIN_LONG = -100;
@@ -303,6 +305,8 @@ public class Config {
 				CLS[i] = byte.class;
 			} else if (pair[1].equals("short")) {
 				CLS[i] = short.class;
+			} else if (pair[1].equals("char")) {
+				CLS[i] = char.class;
 			} else if (pair[1].equals("int")) {
 				CLS[i] = int.class;
 			} else if (pair[1].equals("long")) {
