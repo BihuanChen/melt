@@ -1,6 +1,7 @@
 package melt.test.run;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -24,7 +25,8 @@ public class TestRunnerUtil {
 			URLClassLoader cl = new URLClassLoader(cp);
 			c = cl.loadClass(Config.MAINCLASS);
 			m = c.getMethod(Config.METHOD, Config.CLS);
-		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | MalformedURLException e) {
+			cl.close();
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | IOException e) {
 			e.printStackTrace();
 		}
 	}

@@ -525,16 +525,16 @@ public class MELT {
 			e.printStackTrace();
 		}
 	}
-		
+	
 	public static void main(String[] args) throws Exception {
 		boolean inst = false;
 		
 		String algo = "RT";
-		String[] program = {"Schedule2"};
-		long[] timeout = {44000};
+		String[] program = {"Replace"};
+		long[] timeout = {10000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/schedule2/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/replace/" + program[k] + ".melt");
 			
 			// static part
 			if (inst) {
@@ -548,7 +548,7 @@ public class MELT {
 			// dynamic part
 			TestRunnerClient runner1 = new TestRunnerClient(false);
 			TestRunnerClient runner2 = new TestRunnerClient(true);
-			for (int i = 0; i <= 4; i++) {
+			for (int i = 0; i <= 0; i++) {
 				System.out.println("\n[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MELT.run(runner1, runner2);

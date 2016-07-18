@@ -128,12 +128,16 @@ public class ConcolicExecution {
 					String args = "";
 					if (melt.Config.CLS[0] == float.class) {
 						args = test[0].toString() + "f";
+					} else if (melt.Config.CLS[0] == char.class) {
+						args = "(char)" + Character.getNumericValue(test[0].toString().charAt(0));
 					} else {
 						args = test[0].toString();
 					}
 					for (int i = 1; i < test.length; i++) {
 						if (melt.Config.CLS[i] == float.class) {
 							args += ", " + test[i].toString() + "f";
+						} else if (melt.Config.CLS[i] == char.class) {
+							args += ", (char)" + Character.getNumericValue(test[i].toString().charAt(0));
 						} else {
 							args += ", " + test[i].toString();
 						}

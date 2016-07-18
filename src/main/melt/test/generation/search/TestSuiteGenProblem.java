@@ -24,8 +24,8 @@ public class TestSuiteGenProblem extends Problem {
 	public TestSuiteGenProblem(PathLearner pathLearner) {
 		learner = pathLearner;
 		if (learner.getTraces() == null) {
-			numberOfVariables_ = 1;
-			numberOfObjectives_ = 1;
+			numberOfVariables_ = 0;
+			numberOfObjectives_ = 0;
 		} else {
 			numberOfVariables_ = learner.getTraces().size();
 			numberOfObjectives_ = learner.getTraces().size();

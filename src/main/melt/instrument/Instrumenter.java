@@ -3,6 +3,7 @@ package melt.instrument;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -559,7 +561,9 @@ public class Instrumenter implements Serializable {
 			@Override
 			public boolean visit(MethodInvocation methodInvocation) {
 				Expression receiver = methodInvocation.getExpression();
-				if (receiver != null && receiver.toString().equals("this")) {
+				IMethodBinding imb = methodInvocation.resolveMethodBinding();
+				if ((receiver != null && receiver.toString().equals("this")) || 
+						(receiver == null && ((imb.getModifiers() & Modifier.STATIC) > 0))) {
 					String mn = methodInvocation.getName().getFullyQualifiedName();
 					// match with the constraints from concolic execution
 					if (mn.equals(className.substring(className.lastIndexOf(".") + 1))) {

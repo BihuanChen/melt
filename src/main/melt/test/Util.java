@@ -5,12 +5,15 @@ import java.util.Random;
 
 import melt.Config;
 import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.api.ValuationEntry;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
+import gov.nasa.jpf.jdart.ConcolicUtil;
 
 public class Util {
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Valuation testToValuation(Object[] test) {
 		Valuation valuation = new Valuation();
 		int size = test.length;
@@ -34,7 +37,10 @@ public class Util {
 			} else if (cls == Boolean.class) {
 				type = BuiltinTypes.BOOL;
 			}
-			valuation.setParsedValue(Variable.create(type, Config.PARAMETERS[i]), test[i].toString());
+			//valuation.setParsedValue(Variable.create(type, Config.PARAMETERS[i]), test[i].toString());
+			Variable<?> var = Variable.create(type, Config.PARAMETERS[i]);
+			Object obj = ConcolicUtil.fromString(type, test[i].toString());
+			valuation.addEntry(new ValuationEntry(var, obj));
 		}
 		return valuation;
 	}
@@ -72,7 +78,7 @@ public class Util {
 				} else if (Config.CLS[i] == short.class) {
 					test[i] = (short) (new Random().nextInt(Config.MAX_SHORT - Config.MIN_SHORT + 1) + Config.MIN_SHORT);
 				} else if (Config.CLS[i] == char.class) {
-					test[i] = (char) (new Random().nextInt(Config.MAX_CHAR - Config.MIN_CHAR + 1) + Config.MIN_CHAR);
+					test[i] = (char)(new Random().nextInt(Config.MAX_CHAR - Config.MIN_CHAR + 1) + Config.MIN_CHAR);
 				} else if (Config.CLS[i] == int.class) {
 					Integer varMin = Config.varMinIntMap.get(Config.PARAMETERS[i]);
 					Integer varMax = Config.varMaxIntMap.get(Config.PARAMETERS[i]);

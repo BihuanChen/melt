@@ -205,7 +205,10 @@ public class OneBranchLearner {
 			Iterator<String> iterator = constraints.keySet().iterator();
 			int counter = 0;
 			while (iterator.hasNext()) {
-				boolean b = constraints.get(iterator.next()).evaluate(testCase.getValuation());
+				String str = iterator.next();
+				System.out.println(constraints.get(str));
+				System.out.println(testCase.getValuation());
+				boolean b = constraints.get(str).evaluate(testCase.getValuation());
 				instance.setValue(test.length + 1 + counter, b ? "true" : "false");
 				counter++;
 			}
@@ -220,6 +223,8 @@ public class OneBranchLearner {
 			return (double)(byte)obj;
 		} else if (obj instanceof Short) {
 			return (double)(short)obj;
+		} else if (obj instanceof Character) {
+			return (double)(char)obj;
 		} else if (obj instanceof Integer) {
 			return (double)(int)obj;
 		} else if (obj instanceof Long) {

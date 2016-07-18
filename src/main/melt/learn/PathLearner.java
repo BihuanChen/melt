@@ -158,8 +158,7 @@ public class PathLearner {
 			}
 			PredicateNode node = findNode(ns, srcLoc);
 			if (node == null) {
-				System.err.println("[melt] error in attaching constraints");
-				System.exit(0);
+				System.out.println("[melt] fail to attach constraints for " + srcLoc);
 			} else {
 				node.addConstraint(id, constraints.get(inst));
 			}

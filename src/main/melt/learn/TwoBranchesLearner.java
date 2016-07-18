@@ -267,6 +267,8 @@ public class TwoBranchesLearner {
 			return (double)(byte)obj;
 		} else if (obj instanceof Short) {
 			return (double)(short)obj;
+		} else if (obj instanceof Character) {
+			return (double)(char)obj;
 		} else if (obj instanceof Integer) {
 			return (double)(int)obj;
 		} else if (obj instanceof Long) {
