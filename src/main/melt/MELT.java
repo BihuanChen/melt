@@ -4,7 +4,6 @@ import gov.nasa.jpf.constraints.api.Valuation;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -18,13 +17,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import melt.dependency.StaticDependencyAnalyzer;
 import melt.instrument.Instrumenter;
 import melt.instrument.Predicate;
 import melt.learn.OneBranchLearner;
@@ -39,7 +36,8 @@ import melt.test.generation.concolic.ConcolicExecution;
 import melt.test.generation.random.AdaptiveRandomTestGenerator;
 import melt.test.generation.random.PureRandomTestGenerator;
 import melt.test.generation.search.SearchBasedTestGenerator;
-import melt.test.run.TestRunnerClient;
+import melt.test.run.TaintRunner;
+import melt.test.run.TestRunner;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -62,46 +60,8 @@ public class MELT {
 		System.out.println("[melt] predicates serialized in " + (t3 - t2) + " ms");
 	}
 	
-	public static void doStaticTaintAnalysis() throws FileNotFoundException, IOException, ClassNotFoundException {
-		// deserialize the predicates
-		long t1 = System.currentTimeMillis();
-		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
-		@SuppressWarnings("unchecked")
-		ArrayList<Predicate> predicates = (ArrayList<Predicate>)oin.readObject();
-		oin.close();
-	
-		// analyze inputs-branch dependency statically
-		long t2 = System.currentTimeMillis();
-		String entryPoint = "<" + Config.MAINCLASS + ": " + Config.ENTRYMETHOD + ">";
-		LinkedHashMap<String, HashSet<Integer>> dependency = StaticDependencyAnalyzer.doInterAnalysis(Config.CLASSPATH[0], Config.MAINCLASS, entryPoint);
-	
-		int size = predicates.size();
-		for (int i = 0; i < size; i++) {
-			Predicate p = predicates.get(i);
-			String id = p.getClassName() + " " + p.getLineNumber();
-			HashSet<Integer> set = dependency.get(id);
-			if (set != null) {
-				p.setDepInputs(set);				
-			} else {
-				System.err.println("[melt] inputs-branch dependency not found " + p.getExpression());
-				System.exit(0);
-			}
-		}
-		
-		// serialize the predicates
-		long t3 = System.currentTimeMillis();
-		ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
-		oout.writeObject(predicates);
-		oout.close();
-		
-		long t4 = System.currentTimeMillis();
-		System.out.println("[melt] predicates deserialized in " + (t2 - t1) + " ms");
-		System.out.println("[melt] taint analyzed in " + (t3 - t2) + " ms");
-		System.out.println("[melt] predicates serialized in " + (t4 - t3) + " ms");
-	}
-	
 	@SuppressWarnings("unchecked")
-	public static void run(final TestRunnerClient runner1, final TestRunnerClient runner2) throws Exception {
+	public static void run() throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
@@ -140,21 +100,20 @@ public class MELT {
 						@Override
 						public void run() {
 							try {
-								runner1.run(testCase.getTest());
-							} catch (MalformedURLException e) {
+								TaintRunner.run(testCase.getTest());
+							} catch (ClassNotFoundException | IOException | InterruptedException e) {
 								e.printStackTrace();
 							}
 						}
 					}, null);
 					Thread th1 = new Thread(task1);
 					th1.start();
-					//runner1.run(testCase.getTest());
 					// get executed predicates
 					FutureTask<?> task2 = new FutureTask<Void>(new Runnable() {
 						@Override
 						public void run() {
 							try {
-								runner2.run(testCase.getTest());
+								TestRunner.run(testCase.getTest());
 							} catch (MalformedURLException e) {
 								e.printStackTrace();
 							}
@@ -162,7 +121,6 @@ public class MELT {
 					}, null);
 					Thread th2 = new Thread(task2);
 					th2.start();
-					//runner2.run(testCase.getTest());
 					while (!task1.isDone() || !task2.isDone()) {} 
 					long delta = System.currentTimeMillis() - t;
 					//System.out.println("time " + delta);
@@ -212,7 +170,6 @@ public class MELT {
 		
 		// running random testing
 		long t2 = System.currentTimeMillis();
-		TestRunnerClient runner = new TestRunnerClient(true);
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 
 		long testTime = 0;
@@ -237,7 +194,7 @@ public class MELT {
 			while (iterator.hasNext()) {
 				TestCase testCase = iterator.next();
 				long t = System.currentTimeMillis();
-				runner.run(testCase.getTest());
+				TestRunner.run(testCase.getTest());
 				testTime += System.currentTimeMillis() - t;
 				Profiles.tests.add(testCase);
 				analyzer.update();
@@ -270,7 +227,6 @@ public class MELT {
 		
 		// running concolic testing
 		long t2 = System.currentTimeMillis();
-		TestRunnerClient runner = new TestRunnerClient(true);
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 
 		long testTime = 0;
@@ -285,7 +241,7 @@ public class MELT {
 		while (iterator.hasNext()) {
 			Object[] test = Util.valuationToTest(iterator.next());
 			long t = System.currentTimeMillis();
-			runner.run(test);
+			TestRunner.run(test);
 			testTime += System.currentTimeMillis() - t;
 			Profiles.tests.add(new TestCase(test));
 			analyzer.update();
@@ -309,10 +265,9 @@ public class MELT {
 		Profiles.printPredicates();
 		
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
-		TestRunnerClient runner = new TestRunnerClient(false);
 		
 		TestCase testInput1 = new TestCase(new Object[]{(byte)-1, (byte)1, (byte)1});
-		runner.run(testInput1.getTest());
+		TestRunner.run(testInput1.getTest());
 		Profiles.tests.add(testInput1);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -323,7 +278,7 @@ public class MELT {
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 				
 		TestCase testInput2 = new TestCase(new Object[]{(byte)2, (byte)-1, (byte)1});
-		runner.run(testInput2.getTest());
+		TestRunner.run(testInput2.getTest());
 		Profiles.tests.add(testInput2);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -334,7 +289,7 @@ public class MELT {
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 		
 		TestCase testInput3 = new TestCase(new Object[]{(byte)2, (byte)2, (byte)1});
-		runner.run(testInput3.getTest());
+		TestRunner.run(testInput3.getTest());
 		Profiles.tests.add(testInput3);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -354,7 +309,7 @@ public class MELT {
 
 		
 		TestCase testInput4 = new TestCase(new Object[]{(byte)3, (byte)3, (byte)-1});
-		runner.run(testInput4.getTest());
+		TestRunner.run(testInput4.getTest());
 		Profiles.tests.add(testInput4);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -389,10 +344,9 @@ public class MELT {
 		Profiles.printPredicates();
 		
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
-		TestRunnerClient runner = new TestRunnerClient(false);
 		
 		TestCase test1 = new TestCase(new Object[]{1, -2});
-		runner.run(test1.getTest());
+		TestRunner.run(test1.getTest());
 		Profiles.tests.add(test1);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -403,7 +357,7 @@ public class MELT {
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 				
 		TestCase test2 = new TestCase(new Object[]{1, 2});
-		runner.run(test2.getTest());
+		TestRunner.run(test2.getTest());
 		Profiles.tests.add(test2);
 		Profiles.printExecutedPredicates();
 		analyzer.update();
@@ -445,6 +399,7 @@ public class MELT {
 			}
 						
 			Class<?> c = cl.loadClass(Config.MAINCLASS);
+			cl.close();
 			Method m = c.getMethod(Config.METHOD, Config.CLS);
 			Object res_o = null;
 			InvocationTargetException ex_o = null;
@@ -521,7 +476,7 @@ public class MELT {
 				}
 			}
 			System.out.println("[melt] mutation score is " + numOfKilled + " / " + files.length + " = " + (numOfKilled / files.length) + "\n");
-		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InstantiationException | MalformedURLException | ClassNotFoundException | NoSuchMethodException | InterruptedException | ExecutionException e) {
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InstantiationException | ClassNotFoundException | NoSuchMethodException | InterruptedException | ExecutionException | IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -529,9 +484,9 @@ public class MELT {
 	public static void main(String[] args) throws Exception {
 		boolean inst = false;
 		
-		String algo = "RT";
+		String algo = "MELT";
 		String[] program = {"Replace"};
-		long[] timeout = {10000};
+		long[] timeout = {60000};
 		
 		for (int k = 0; k < program.length; k++) {
 			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/replace/" + program[k] + ".melt");
@@ -539,19 +494,14 @@ public class MELT {
 			// static part
 			if (inst) {
 				MELT.instrument();
-				if (Config.TAINT.equals("static")) {
-					MELT.doStaticTaintAnalysis();
-				}
 				return;
 			}
 			
 			// dynamic part
-			TestRunnerClient runner1 = new TestRunnerClient(false);
-			TestRunnerClient runner2 = new TestRunnerClient(true);
 			for (int i = 0; i <= 0; i++) {
 				System.out.println("\n[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
-					MELT.run(runner1, runner2);
+					MELT.run();
 				} else if (algo.equals("CT")) {
 					FutureTask<?> task = new FutureTask<Void>(new Runnable() {
 						@Override

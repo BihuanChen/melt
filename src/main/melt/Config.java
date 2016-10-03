@@ -24,9 +24,6 @@ public class Config {
 	// configuration information of the target project for instrumentation
 	public static String SOURCEPATH = null;
 	
-	// configuration information for taint analysis
-	public static String TAINT = "dynamic";
-	
 	// configuration information of the target project for static taint analysis
 	public static String[] CLASSPATH = null;
 	public static String MAINCLASS = null;

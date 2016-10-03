@@ -1,9 +1,6 @@
 package melt.instrument;
 
 import java.io.Serializable;
-import java.util.HashSet;
-
-import melt.Config;
 
 public class Predicate implements Serializable {
 
@@ -19,10 +16,6 @@ public class Predicate implements Serializable {
 	// four types: if, do, while, and for
 	public enum TYPE {IF, DO, WHILE, FOR, FOREACH}
 	private TYPE type;
-	
-	// indexes of the inputs that the predicate depends on
-	private HashSet<Integer> depInputs;
-	private HashSet<Integer> notDepInputs;
 	
 	public Predicate(String className, String methodName, String signature, int lineNumber, String expression, TYPE type) {
 		this.className = className;
@@ -81,29 +74,11 @@ public class Predicate implements Serializable {
 		this.type = type;
 	}
 
-	public HashSet<Integer> getDepInputs() {
-		return depInputs;
-	}
-	
-	public HashSet<Integer> getNotDepInputs() {
-		return notDepInputs;
-	}
-
-	// only called when using static taint analysis
-	public void setDepInputs(HashSet<Integer> depInputs) {
-		this.depInputs = depInputs;
-		notDepInputs = new HashSet<Integer>();
-		for (int i = 0; i < Config.CLS.length; i++) {
-			notDepInputs.add(i);
-		}
-		notDepInputs.removeAll(depInputs);
-	}
-
 	@Override
 	public String toString() {
 		return "Predicate [ className = " + className + ", methodName = "
 				+ methodName + ", signature = " + signature + ", lineNumber = " + lineNumber + ", expression = "
-				+ expression + ", type = " + type + ", depInputs = " + depInputs + " ]";
+				+ expression + ", type = " + type + " ]";
 	}
 
 }

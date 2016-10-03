@@ -203,19 +203,11 @@ public class PredicateNode {
 	}
 
 	public HashSet<Integer> getDepInputs() {
-		if (Config.TAINT.equals("dynamic")) {
-			return depInputs;
-		} else {//if (Config.TAINT.equals("static")){
-			return Profiles.predicates.get(predicate).getDepInputs();
-		}
+		return depInputs;
 	}
 	
 	public HashSet<Integer> getNotDepInputs() {
-		if (Config.TAINT.equals("dynamic")) {
-			return notDepInputs;
-		} else {//if (Config.TAINT.equals("static")){
-			return Profiles.predicates.get(predicate).getNotDepInputs();
-		}
+		return notDepInputs;
 	}
 
 	// only called when using dynamic taint analysis
