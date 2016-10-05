@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import melt.instrument.Predicate;
-import melt.instrument.Predicate.TYPE;
+import melt.core.Predicate;
+import melt.core.Predicate.TYPE;
 
 public class Profiles {
 	

@@ -54,6 +54,7 @@ public class Config {
 	public static double MIN_DOUBLE = -8;
 	public static double MAX_DOUBLE = 7;
 	
+	//TODO support other primitive types for variables' minimum and maximum
 	public static Map<String, Integer> varMinIntMap;
 	public static Map<String, Integer> varMaxIntMap;
 	

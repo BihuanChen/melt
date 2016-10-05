@@ -8,7 +8,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import melt.Config;
-import melt.instrument.Predicate;
+import melt.core.Predicate;
+import melt.core.PredicateArc;
+import melt.core.PredicateNode;
 import melt.test.Pair;
 import melt.test.PairArrayList;
 import melt.test.Profiles;

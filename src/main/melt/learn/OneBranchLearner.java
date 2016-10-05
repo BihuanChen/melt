@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import melt.Config;
+import melt.core.PredicateArc;
+import melt.core.PredicateNode;
 import melt.test.Profiles;
 import melt.test.TestCase;
 import weka.classifiers.Classifier;

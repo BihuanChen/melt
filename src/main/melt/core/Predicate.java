@@ -1,4 +1,4 @@
-package melt.instrument;
+package melt.core;
 
 import java.io.Serializable;
 
@@ -13,7 +13,7 @@ public class Predicate implements Serializable {
 	
 	private String expression;
 	
-	// four types: if, do, while, and for
+	// four types of conditionals: if, do, while, and for
 	public enum TYPE {IF, DO, WHILE, FOR, FOREACH}
 	private TYPE type;
 	

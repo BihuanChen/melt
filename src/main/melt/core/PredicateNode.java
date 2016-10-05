@@ -1,4 +1,4 @@
-package melt.learn;
+package melt.core;
 
 import gov.nasa.jpf.constraints.api.Expression;
 
@@ -8,7 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import melt.Config;
-import melt.instrument.Predicate;
+import melt.learn.OneBranchLearner;
+import melt.learn.TwoBranchesLearner;
 import melt.test.Profiles;
 
 public class PredicateNode {

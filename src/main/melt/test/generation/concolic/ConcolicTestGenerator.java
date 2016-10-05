@@ -9,9 +9,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import melt.Config;
-import melt.instrument.Predicate;
+import melt.core.Predicate;
+import melt.core.PredicateNode;
 import melt.learn.PathLearner;
-import melt.learn.PredicateNode;
 import melt.test.Profiles;
 import melt.test.TestCase;
 import melt.test.Util;

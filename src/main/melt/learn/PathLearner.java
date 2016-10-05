@@ -10,7 +10,9 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 import melt.Config;
-import melt.instrument.Predicate;
+import melt.core.Predicate;
+import melt.core.PredicateArc;
+import melt.core.PredicateNode;
 import melt.test.Profiles;
 import melt.test.TestCase;
 import melt.test.generation.search.TestVar;

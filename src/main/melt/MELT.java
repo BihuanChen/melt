@@ -17,11 +17,11 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import melt.core.Predicate;
+import melt.core.PredicateNode;
 import melt.instrument.Instrumenter;
-import melt.instrument.Predicate;
 import melt.learn.OneBranchLearner;
 import melt.learn.PathLearner;
-import melt.learn.PredicateNode;
 import melt.learn.ProfileAnalyzer;
 import melt.learn.TwoBranchesLearner;
 import melt.test.Profiles;

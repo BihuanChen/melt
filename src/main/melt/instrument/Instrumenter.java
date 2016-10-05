@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import melt.Config;
+import melt.core.Predicate;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.JavaCore;
@@ -50,11 +51,10 @@ public class Instrumenter implements Serializable {
 	private static final long serialVersionUID = 6585501767998527830L;
 	
 	private ArrayList<Predicate> predicates;
+	private String srcPath;
 	
 	// used for update line number
 	private int id = 0;
-
-	private String srcPath;
 	
 	public Instrumenter(String srcPath) {
 		this.srcPath = srcPath;
@@ -75,7 +75,7 @@ public class Instrumenter implements Serializable {
 		this.instrument(file);
 		this.updateLineNumbers(file);
 	}
-	
+		
 	/**
 	 * loop a project directory to update line numbers recursively
 	 * @param root
@@ -309,52 +309,9 @@ public class Instrumenter implements Serializable {
 				return super.visit(doStatement);
 			}
 			
-			@Override
-			public boolean visit(IfStatement ifStatement) {
-				//int lineNum = cu.getLineNumber(ifStatement.getStartPosition());
-				Expression expression = ifStatement.getExpression();
-				
-				ListRewrite listRewrite = rewriter.getListRewrite(ifStatement.getThenStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(expression, Predicate.TYPE.IF, true), null);
-
-				listRewrite = rewriter.getListRewrite(ifStatement.getElseStatement(), Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(expression, Predicate.TYPE.IF, false), null);
-				
-				return super.visit(ifStatement);
-			}
-			
-			@SuppressWarnings("unchecked")
-			private Statement createCounterStmt(Expression expression, Predicate.TYPE type, boolean branch) {
-				// add the branch predicate
-				if (branch) {
-					Predicate predicate = new Predicate(className, methodName, signature, 0, expression.toString(), type);
-					predicates.add(predicate);
-				}
-				int index = predicates.size() - 1;
-				// create the counter statement
-				MethodInvocation newInvocation = ast.newMethodInvocation();
-				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
-				newInvocation.setExpression(qualifiedName);
-				newInvocation.setName(ast.newSimpleName("add"));
-				NumberLiteral literal1 = ast.newNumberLiteral(String.valueOf(index));
-				newInvocation.arguments().add(literal1);
-				BooleanLiteral literal2 = ast.newBooleanLiteral(branch);
-				newInvocation.arguments().add(literal2);
-				newInvocation.arguments().add(ast.newQualifiedName(ast.newQualifiedName(ast.newName(new String[] {"melt", "instrument", "Predicate"}), ast.newSimpleName("TYPE")), ast.newSimpleName(type.toString())));
-				Statement newStatement = ast.newExpressionStatement(newInvocation);
-				return newStatement;
-			}
-			
-			private void visit(Statement statement, Expression expression, Statement body, ASTNode parent, Predicate.TYPE type) {	
-				/*int lineNum;
-				if (statement instanceof DoStatement) {
-					lineNum = cu.getLineNumber(((DoStatement)statement).getExpression().getStartPosition());
-				} else {
-					lineNum = cu.getLineNumber(statement.getStartPosition());
-				}*/
-				
+			private void visit(Statement statement, Expression expression, Statement body, ASTNode parent, Predicate.TYPE type) {
 				ListRewrite listRewrite = rewriter.getListRewrite(body, Block.STATEMENTS_PROPERTY);
-				listRewrite.insertFirst(createCounterStmt(expression, type, true), null);
+				listRewrite.insertFirst(createBranchRecordStmt(expression, type, true), null);
 				
 				if (parent instanceof SwitchStatement) {
 					listRewrite = rewriter.getListRewrite(parent, SwitchStatement.STATEMENTS_PROPERTY);
@@ -364,13 +321,48 @@ public class Instrumenter implements Serializable {
 					System.err.println("[melt] loop nested in unknown statements");
 					System.exit(0);
 				}
-				listRewrite.insertAfter(createCounterStmt(expression, type, false), statement, null);
+				listRewrite.insertAfter(createBranchRecordStmt(expression, type, false), statement, null);
 			}
 			
 			@Override
+			public boolean visit(IfStatement ifStatement) {
+				Expression expression = ifStatement.getExpression();
+				
+				ListRewrite listRewrite = rewriter.getListRewrite(ifStatement.getThenStatement(), Block.STATEMENTS_PROPERTY);
+				listRewrite.insertFirst(createBranchRecordStmt(expression, Predicate.TYPE.IF, true), null);
+
+				listRewrite = rewriter.getListRewrite(ifStatement.getElseStatement(), Block.STATEMENTS_PROPERTY);
+				listRewrite.insertFirst(createBranchRecordStmt(expression, Predicate.TYPE.IF, false), null);
+				
+				return super.visit(ifStatement);
+			}
+			
+			@SuppressWarnings("unchecked")
+			private Statement createBranchRecordStmt(Expression expression, Predicate.TYPE type, boolean branch) {
+				// add the branch predicate
+				if (branch) {
+					Predicate predicate = new Predicate(className, methodName, signature, 0, expression.toString(), type);
+					predicates.add(predicate);
+				}
+				int index = predicates.size() - 1;
+				// create the branch record statement
+				MethodInvocation newInvocation = ast.newMethodInvocation();
+				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
+				newInvocation.setExpression(qualifiedName);
+				newInvocation.setName(ast.newSimpleName("add"));
+				NumberLiteral literal1 = ast.newNumberLiteral(String.valueOf(index));
+				newInvocation.arguments().add(literal1);
+				BooleanLiteral literal2 = ast.newBooleanLiteral(branch);
+				newInvocation.arguments().add(literal2);
+				newInvocation.arguments().add(ast.newQualifiedName(ast.newQualifiedName(ast.newName(new String[] {"melt", "core", "Predicate"}), ast.newSimpleName("TYPE")), ast.newSimpleName(type.toString())));
+				Statement newStatement = ast.newExpressionStatement(newInvocation);
+				return newStatement;
+			}
+				
+			@Override
 			public boolean visit(MethodDeclaration methodDeclaration) {
 				methodName = methodDeclaration.getName().getFullyQualifiedName();
-				// match with the constraints from concolic execution
+				// to match with the constraints from concolic execution
 				if (methodName.equals(className.substring(className.lastIndexOf(".") + 1))) {
 					methodName = "<init>";
 				}
@@ -409,6 +401,7 @@ public class Instrumenter implements Serializable {
 			@SuppressWarnings("unchecked")
 			private Statement createAssignmentStatement(String parameter, Class<?> cls, int tag) {
 			    MethodInvocation invocation = ast.newMethodInvocation();
+			    //TODO data-flow-enabled or control-flow-enabled taint analysis (using Tainter or MultiTainter respectively)
 			    QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "columbia", "cs", "psl", "phosphor", "runtime"}), ast.newSimpleName("Tainter"));
 			    invocation.setExpression(qualifiedName);
 			    if (cls == byte.class) {
@@ -565,7 +558,7 @@ public class Instrumenter implements Serializable {
 				if ((receiver != null && receiver.toString().equals("this")) || 
 						(receiver == null && ((imb.getModifiers() & Modifier.STATIC) > 0))) {
 					String mn = methodInvocation.getName().getFullyQualifiedName();
-					// match with the constraints from concolic execution
+					// to match with the constraints from concolic execution
 					if (mn.equals(className.substring(className.lastIndexOf(".") + 1))) {
 						mn = "<init>";
 					}

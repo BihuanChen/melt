@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import melt.learn.PredicateNode;
+import melt.core.PredicateNode;
 import melt.test.TestCase;
 import jmetal.core.Variable;
 

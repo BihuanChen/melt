@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import melt.core.PredicateNode;
 import melt.learn.PathLearner;
-import melt.learn.PredicateNode;
 import melt.test.Profiles;
 import melt.test.TestCase;
 import melt.test.Util;

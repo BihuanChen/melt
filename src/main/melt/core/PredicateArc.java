@@ -1,4 +1,4 @@
-package melt.learn;
+package melt.core;
 
 import java.util.ArrayList;
 
