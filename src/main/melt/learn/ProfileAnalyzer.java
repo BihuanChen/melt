@@ -157,21 +157,8 @@ public class ProfileAnalyzer {
 		Profiles.taints.clear();
 	}
 	
-	public PredicateNode findUnexploredBranch() {
-		if (Config.MODE == Config.Mode.RANDOM) {
-			return random();
-		} else { // mode == Mode.SYSTEMATIC
-			return systematic();
-		}
-	}
-	
-	// TODO find an unexplored branch randomly
-	private PredicateNode random() {
-		return null;
-	}
-	
 	// find an unexplored branch systematically
-	private PredicateNode systematic() {
+	public PredicateNode findUnexploredBranch() {
 		// locate the level and corresponding unexplored branches for further selection
 		int ls = leveledNodes.size();
 		for (int i = 0; i < ls; i++) {

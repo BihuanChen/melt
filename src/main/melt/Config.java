@@ -11,11 +11,9 @@ import java.util.Properties;
 
 public class Config {
 
-	public enum Mode {RANDOM, SYSTEMATIC} 
 	public enum Model {J48, NAIVEBAYES, LIBSVM, RANDOMFOREST}
 
 	// default configuration parameters of melt
-	public static Mode MODE = Mode.SYSTEMATIC; 		// find an unexplored branch either randomly or systematically
 	public static int MAX_ATTEMPTS = 3; 			// the maximum number of attempts to cover an unexplored branch
 	public static Model MODEL = Model.RANDOMFOREST; // the applied classification model
 	public static int LEARN_THRESHOLD = 5;			// the threshold for re-learn the model
@@ -29,17 +27,10 @@ public class Config {
 	public static String MAINCLASS = null;
 	public static String ENTRYMETHOD = null;
 	
-	// filter package name for taint analysis
-	public static String FILTER = null;
-	
 	// configuration file for concolic execution
 	public static String JPFCONFIG = null;
 	// skip branches that may have extremely long symbolic constraints
 	public static HashSet<String> SKIPPED_BRANCH = null;
-	
-	// configuration for mutation score computation
-	public static String MUTATION_CLASSPATH = null;
-	public static String MUTATION_PACKAGENAME = null;
 	
 	// reflection information for running tests
 	public static String METHOD = null;
@@ -101,9 +92,6 @@ public class Config {
 		}
 		System.out.println("[melt] mainclass = " + MAINCLASS);
 		
-		FILTER = MAINCLASS.substring(0, MAINCLASS.indexOf("."));
-		System.out.println("[melt] filter = " + FILTER);
-		
 		ENTRYMETHOD = prop.getProperty("entrymethod");
 		if (ENTRYMETHOD == null) {
 			System.err.println("[melt] configuration error: entry method not set");
@@ -126,29 +114,6 @@ public class Config {
 				SKIPPED_BRANCH.add(ss[i]);
 			}
 		}
-		
-		MUTATION_CLASSPATH = prop.getProperty("mutation.classpath");
-		if (MUTATION_CLASSPATH != null) {
-			System.out.println("[melt] mutation.classpath = " + MUTATION_CLASSPATH);
-		}
-		
-		MUTATION_PACKAGENAME = prop.getProperty("mutation.packagename");
-		if (MUTATION_PACKAGENAME != null) {
-			System.out.println("[melt] mutation.packagename = " + MUTATION_PACKAGENAME);
-		}
-		
-		/*String p = prop.getProperty("exploration.mode");
-		if (p != null) {
-			if (p.equals("systematic")) {
-				MODE = Mode.SYSTEMATIC;
-			} else if (p.equals("random")) {
-				MODE = Mode.RANDOM;
-			} else {
-				System.err.println("[melt] configuration error: incorrect exploration mode (systematic or random)");
-				System.exit(0);
-			}
-		}
-		System.out.println("[melt] exploration.mode = " + MODE.toString().toLowerCase());*/
 				
 		String p = prop.getProperty("classification.model");
 		if (p != null) {
