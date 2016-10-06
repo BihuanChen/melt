@@ -2,15 +2,14 @@ package melt.core;
 
 import gov.nasa.jpf.constraints.api.Expression;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 import melt.Config;
 import melt.learn.OneBranchLearner;
-import melt.learn.TwoBranchesLearner;
-import melt.test.Profiles;
+import melt.learn.TwoBranchLearner;
 
 public class PredicateNode {
 	
@@ -20,18 +19,18 @@ public class PredicateNode {
 	private PredicateArc sourceTrueBranch;
 	private PredicateArc sourceFalseBranch;
 	
-	private ArrayList<PredicateArc> targetTrueBranches;
-	private ArrayList<PredicateArc> targetFalseBranches;
+	private LinkedList<PredicateArc> targetTrueBranches;
+	private LinkedList<PredicateArc> targetFalseBranches;
 	
 	private int attempts;
 	
-	private TwoBranchesLearner twoBranchesLearner;
 	private OneBranchLearner oneBranchLearner;
+	private TwoBranchLearner twoBranchLearner;
 	
 	private boolean covered = false;
 	
 	private LinkedHashMap<String, Expression<Boolean>> constraints;
-	private int oldConSize;
+	private int conIndex; // the starting index of the to-be-modeled constraints as features in trainting
 	
 	private HashSet<Integer> depInputs;
 	private HashSet<Integer> notDepInputs;
@@ -41,7 +40,7 @@ public class PredicateNode {
 		this.predicate = -1;
 		this.level = -1;
 		this.attempts = 0;
-		this.oldConSize = 0;
+		this.conIndex = 0;
 		this.depDirty = true;
 	}
 
@@ -77,24 +76,24 @@ public class PredicateNode {
 		this.sourceFalseBranch = sourceFalseBranch;
 	}
 
-	public ArrayList<PredicateArc> getTargetTrueBranches() {
+	public LinkedList<PredicateArc> getTargetTrueBranches() {
 		return targetTrueBranches;
 	}
 
 	public void addTargetTrueBranch(PredicateArc targetTrueBranch) {
 		if (targetTrueBranches == null) {
-			targetTrueBranches = new ArrayList<PredicateArc>();
+			targetTrueBranches = new LinkedList<PredicateArc>();
 		}
 		targetTrueBranches.add(targetTrueBranch);
 	}
 
-	public ArrayList<PredicateArc> getTargetFalseBranches() {
+	public LinkedList<PredicateArc> getTargetFalseBranches() {
 		return targetFalseBranches;
 	}
 
 	public void addTargetFalseBranch(PredicateArc targetFalseBranch) {
 		if (targetFalseBranches == null) {
-			targetFalseBranches = new ArrayList<PredicateArc>();
+			targetFalseBranches = new LinkedList<PredicateArc>();
 		}
 		targetFalseBranches.add(targetFalseBranch);
 	}
@@ -107,56 +106,38 @@ public class PredicateNode {
 		this.attempts++;
 	}
 
-	public TwoBranchesLearner getTwoBranchesLearner() throws Exception {
-		if (twoBranchesLearner == null && getDepInputs() != null) {
-			Predicate.TYPE type = Profiles.predicates.get(predicate).getType();
+	public TwoBranchLearner getTwoBranchesLearner() throws Exception {
+		if (twoBranchLearner == null && getDepInputs() != null) {
+			Predicate.TYPE type = Profile.predicates.get(predicate).getType();
 			if (type == Predicate.TYPE.IF) {
-				if (sourceTrueBranch != null && sourceFalseBranch != null && isIfConditionLearnable()) {
-					twoBranchesLearner = new TwoBranchesLearner(this);
-				}
-			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
-				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
-					twoBranchesLearner = new TwoBranchesLearner(this);
+				if (sourceTrueBranch != null && sourceFalseBranch != null && isIfLearnable()) {
+					twoBranchLearner = new TwoBranchLearner(this);
 				}
 			} else {
-				System.err.println("[melt] unknown conditional statement");
+				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
+					twoBranchLearner = new TwoBranchLearner(this);
+				}
 			}
 		}
-		return twoBranchesLearner;
+		return twoBranchLearner;
 	}
 	
-	public OneBranchLearner getOneBranchLearner() throws Exception {
-		if (!covered && oneBranchLearner == null) {
-			oneBranchLearner = new OneBranchLearner(this);
-		}
-		return oneBranchLearner;
+	// the true and false branch may contain the same tests when if conditionals are in loops
+	private boolean isIfLearnable() {
+		HashSet<Integer> tt = new HashSet<Integer>(sourceTrueBranch.getTriggerTests());
+		HashSet<Integer> ft = new HashSet<Integer>(sourceFalseBranch.getTriggerTests());
+		
+		int ttSize = tt.size();
+		int ftSize = ft.size();
+		tt.retainAll(ft);
+		int size = tt.size();
+		
+		return size != ttSize && size != ftSize;
 	}
-
-	public void setOneBranchLearner(OneBranchLearner oneBranchLearner) {
-		this.oneBranchLearner = oneBranchLearner;
-	}
-
-	public boolean isCovered() {
-		if (!covered) {
-			Predicate.TYPE type = Profiles.predicates.get(predicate).getType();
-			if (type == Predicate.TYPE.IF) {
-				if (sourceTrueBranch != null && sourceFalseBranch != null) {
-					covered = true;
-				}
-			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
-				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
-					covered = true;
-				}
-			} else {
-				System.err.println("[melt] unknown conditional statement");
-			}
-		}
-		return covered;
-	}
-
+	
+	// if there exists a test that only executes the false branch of a loop
 	private boolean isLoopBodyNotExecuted() {
-		// may be null for do loops
-		if (sourceTrueBranch.getTriggerTests() != null) {
+		if (sourceTrueBranch.getTriggerTests() != null) { 	// may be null for do loops
 			HashSet<Integer> tTests = new HashSet<Integer>(sourceTrueBranch.getTriggerTests());
 			Iterator<Integer> iterator = sourceFalseBranch.getTriggerTests().iterator();
 			while (iterator.hasNext()) {
@@ -169,16 +150,31 @@ public class PredicateNode {
 		return false;
 	}
 	
-	private boolean isIfConditionLearnable() {
-		ArrayList<Integer> tt = new ArrayList<Integer>(sourceTrueBranch.getTriggerTests());
-		ArrayList<Integer> ft = new ArrayList<Integer>(sourceFalseBranch.getTriggerTests());
-		
-		int ttSize = tt.size();
-		int ftSize = ft.size();
-		tt.retainAll(ft);
-		int size = tt.size();
-		
-		return size != ttSize && size != ftSize;
+	public OneBranchLearner getOneBranchLearner() throws Exception {
+		if (!isCovered() && oneBranchLearner == null) {
+			oneBranchLearner = new OneBranchLearner(this);
+		}
+		return oneBranchLearner;
+	}
+
+	public void setOneBranchLearner(OneBranchLearner oneBranchLearner) {
+		this.oneBranchLearner = oneBranchLearner;
+	}
+
+	public boolean isCovered() {
+		if (!covered) {
+			Predicate.TYPE type = Profile.predicates.get(predicate).getType();
+			if (type == Predicate.TYPE.IF) {
+				if (sourceTrueBranch != null && sourceFalseBranch != null) {
+					covered = true;
+				}
+			} else {
+				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
+					covered = true;
+				}
+			}
+		}
+		return covered;
 	}
 
 	public LinkedHashMap<String, Expression<Boolean>> getConstraints() {
@@ -195,12 +191,12 @@ public class PredicateNode {
 		}
 	}
 
-	public int getOldConSize() {
-		return oldConSize;
+	public int getConIndex() {
+		return conIndex;
 	}
 
-	public void setOldConSize(int oldConSize) {
-		this.oldConSize = oldConSize;
+	public void setConIndex(int conIndex) {
+		this.conIndex = conIndex;
 	}
 
 	public HashSet<Integer> getDepInputs() {
@@ -211,7 +207,6 @@ public class PredicateNode {
 		return notDepInputs;
 	}
 
-	// only called when using dynamic taint analysis
 	public void addToDepInputs(HashSet<Integer> newDepInputs) {
 		if (newDepInputs == null) {
 			return;

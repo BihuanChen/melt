@@ -11,11 +11,11 @@ import java.util.Iterator;
 import melt.Config;
 import melt.core.Predicate;
 import melt.core.PredicateNode;
+import melt.core.Profile;
 import melt.learn.PathLearner;
-import melt.test.Profiles;
-import melt.test.TestCase;
-import melt.test.Util;
 import melt.test.generation.TestGenerator;
+import melt.test.util.TestCase;
+import melt.test.util.Util;
 
 public class ConcolicTestGenerator extends TestGenerator {
 
@@ -36,10 +36,10 @@ public class ConcolicTestGenerator extends TestGenerator {
 		int testIndex = -1;
 		if (target.getSourceTrueBranch() != null) {
 			testIndex = target.getSourceTrueBranch().getTriggerTests().get(0);
-			test = Profiles.tests.get(testIndex).getTest();
+			test = Profile.tests.get(testIndex).getTest();
 		} else if (target.getSourceFalseBranch() != null) {
 			testIndex = target.getSourceFalseBranch().getTriggerTests().get(0);
-			test = Profiles.tests.get(testIndex).getTest();
+			test = Profile.tests.get(testIndex).getTest();
 		} else {
 			System.err.println("[melt] error in choosing the test for concolic execution");
 			System.exit(0);
@@ -50,7 +50,7 @@ public class ConcolicTestGenerator extends TestGenerator {
 		}
 		System.out.println("]");
 		// get the source information for the target branch
-		Predicate p = Profiles.predicates.get(target.getPredicate());
+		Predicate p = Profile.predicates.get(target.getPredicate());
 		String className = p.getClassName();
 		String srcLoc = className + "." + p.getMethodName() + "(" + className.substring(className.lastIndexOf(".") + 1) + ".java:" + p.getLineNumber() + ")";
 		System.out.println("[melt] target branch for concolic execution is " + srcLoc + ", " + p.getExpression());

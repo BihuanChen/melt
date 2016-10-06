@@ -20,19 +20,19 @@ import java.util.concurrent.TimeoutException;
 import melt.core.Predicate;
 import melt.core.PredicateNode;
 import melt.core.ProfileAnalyzer;
+import melt.core.Profile;
 import melt.instrument.Instrumenter;
 import melt.learn.OneBranchLearner;
 import melt.learn.PathLearner;
-import melt.learn.TwoBranchesLearner;
-import melt.test.Profiles;
-import melt.test.TestCase;
-import melt.test.Util;
+import melt.learn.TwoBranchLearner;
 import melt.test.generation.concolic.ConcolicExecution;
 import melt.test.generation.random.AdaptiveRandomTestGenerator;
 import melt.test.generation.random.PureRandomTestGenerator;
 import melt.test.generation.search.SearchBasedTestGenerator;
 import melt.test.run.TaintRunner;
 import melt.test.run.TestRunner;
+import melt.test.util.TestCase;
+import melt.test.util.Util;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -61,10 +61,10 @@ public class MELT {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
+		Profile.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
-		Profiles.printPredicates();
+		Profile.printPredicates();
 		
 		// run melt
 		long t2 = System.currentTimeMillis();
@@ -88,7 +88,7 @@ public class MELT {
 			while (iterator.hasNext()) {
 				final TestCase testCase = iterator.next();
 				System.out.println("[melt]" + testCase);
-				if (!Profiles.testsSet.contains(testCase)) {
+				if (!Profile.testsSet.contains(testCase)) {
 					long t = System.currentTimeMillis();
 					// get taint results
 					FutureTask<?> task1 = new FutureTask<Void>(new Runnable() {
@@ -117,8 +117,8 @@ public class MELT {
 					while (!task1.isDone() || !task2.isDone()) {} 
 					long delta = System.currentTimeMillis() - t;
 					testTime += delta;
-					Profiles.tests.add(testCase);
-					Profiles.testsSet.add(testCase);
+					Profile.tests.add(testCase);
+					Profile.testsSet.add(testCase);
 					analyzer.update();
 				} else {
 					redundant++;
@@ -155,10 +155,10 @@ public class MELT {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
+		Profile.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
-		Profiles.printPredicates();
+		Profile.printPredicates();
 		
 		// run random testing
 		long t2 = System.currentTimeMillis();
@@ -188,7 +188,7 @@ public class MELT {
 				long t = System.currentTimeMillis();
 				TestRunner.run(testCase.getTest());
 				testTime += System.currentTimeMillis() - t;
-				Profiles.tests.add(testCase);
+				Profile.tests.add(testCase);
 				analyzer.update();
 			}
 			System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
@@ -234,10 +234,10 @@ public class MELT {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
+		Profile.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
-		Profiles.printPredicates();
+		Profile.printPredicates();
 		
 		// running concolic testing
 		long t2 = System.currentTimeMillis();
@@ -257,7 +257,7 @@ public class MELT {
 			long t = System.currentTimeMillis();
 			TestRunner.run(test);
 			testTime += System.currentTimeMillis() - t;
-			Profiles.tests.add(new TestCase(test));
+			Profile.tests.add(new TestCase(test));
 			analyzer.update();
 		}
 		System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
@@ -274,16 +274,16 @@ public class MELT {
 	@SuppressWarnings("unchecked")
 	public static void test1() throws Exception {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
+		Profile.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
-		Profiles.printPredicates();
+		Profile.printPredicates();
 		
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
 		TestCase testInput1 = new TestCase(new Object[]{(byte)-1, (byte)1, (byte)1});
 		TestRunner.run(testInput1.getTest());
-		Profiles.tests.add(testInput1);
-		Profiles.printExecutedPredicates();
+		Profile.tests.add(testInput1);
+		Profile.printExecutedPredicates();
 		analyzer.update();
 		analyzer.printNodes();
 		PredicateNode node = analyzer.findUnexploredBranch();
@@ -293,8 +293,8 @@ public class MELT {
 				
 		TestCase testInput2 = new TestCase(new Object[]{(byte)2, (byte)-1, (byte)1});
 		TestRunner.run(testInput2.getTest());
-		Profiles.tests.add(testInput2);
-		Profiles.printExecutedPredicates();
+		Profile.tests.add(testInput2);
+		Profile.printExecutedPredicates();
 		analyzer.update();
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
@@ -304,8 +304,8 @@ public class MELT {
 		
 		TestCase testInput3 = new TestCase(new Object[]{(byte)2, (byte)2, (byte)1});
 		TestRunner.run(testInput3.getTest());
-		Profiles.tests.add(testInput3);
-		Profiles.printExecutedPredicates();
+		Profile.tests.add(testInput3);
+		Profile.printExecutedPredicates();
 		analyzer.update();
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
@@ -314,7 +314,7 @@ public class MELT {
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 
 		
-		TwoBranchesLearner twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
+		TwoBranchLearner twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
 		double[] probs = twoLearner.classifiyInstance(new TestCase(new Object[]{3, 1, 4}));
 		System.out.println("[melt] " + probs[0] + ", " + probs[1]);
@@ -324,8 +324,8 @@ public class MELT {
 		
 		TestCase testInput4 = new TestCase(new Object[]{(byte)3, (byte)3, (byte)-1});
 		TestRunner.run(testInput4.getTest());
-		Profiles.tests.add(testInput4);
-		Profiles.printExecutedPredicates();
+		Profile.tests.add(testInput4);
+		Profile.printExecutedPredicates();
 		analyzer.update();
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
@@ -351,16 +351,16 @@ public class MELT {
 	@SuppressWarnings("unchecked")
 	public static void test2() throws Exception {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
-		Profiles.predicates.addAll((ArrayList<Predicate>)oin.readObject());
+		Profile.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
-		Profiles.printPredicates();
+		Profile.printPredicates();
 		
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
 		TestCase test1 = new TestCase(new Object[]{1, -2});
 		TestRunner.run(test1.getTest());
-		Profiles.tests.add(test1);
-		Profiles.printExecutedPredicates();
+		Profile.tests.add(test1);
+		Profile.printExecutedPredicates();
 		analyzer.update();
 		analyzer.printNodes();
 		PredicateNode node = analyzer.findUnexploredBranch();
@@ -370,8 +370,8 @@ public class MELT {
 				
 		TestCase test2 = new TestCase(new Object[]{1, 2});
 		TestRunner.run(test2.getTest());
-		Profiles.tests.add(test2);
-		Profiles.printExecutedPredicates();
+		Profile.tests.add(test2);
+		Profile.printExecutedPredicates();
 		analyzer.update();
 		analyzer.printNodes();
 		node = analyzer.findUnexploredBranch();
@@ -379,7 +379,7 @@ public class MELT {
 		pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 		
-		TwoBranchesLearner twoLearner = analyzer.getNodes().get(1).getTwoBranchesLearner();
+		TwoBranchLearner twoLearner = analyzer.getNodes().get(1).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
 		twoLearner = analyzer.getNodes().get(1).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
@@ -418,15 +418,15 @@ public class MELT {
 				}
 				
 				ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(new File("/media/bhchen/Data/data/melt/" + program[k] + "/" + algo + "/tests-" + i)));
-				for (int j = 0; j < Profiles.tests.size(); j++) {
-					Profiles.tests.get(j).setValuation(null);
+				for (int j = 0; j < Profile.tests.size(); j++) {
+					Profile.tests.get(j).setValuation(null);
 				}
-				oout.writeObject(Profiles.tests);
+				oout.writeObject(Profile.tests);
 				oout.close();
 				
-				Profiles.predicates.clear();
-				Profiles.tests.clear();
-				Profiles.testsSet.clear();
+				Profile.predicates.clear();
+				Profile.tests.clear();
+				Profile.testsSet.clear();
 				SearchBasedTestGenerator.ceTime = 0;
 			}
 		}

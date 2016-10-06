@@ -1,4 +1,4 @@
-package melt.test;
+package melt.test.util;
 
 import java.io.Serializable;
 import java.util.Arrays;

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import melt.test.Util;
+import melt.test.util.Util;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;

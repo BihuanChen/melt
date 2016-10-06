@@ -3,7 +3,7 @@ package melt.test.generation;
 import java.util.HashSet;
 
 import melt.learn.PathLearner;
-import melt.test.TestCase;
+import melt.test.util.TestCase;
 
 public abstract class TestGenerator {
 

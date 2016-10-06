@@ -6,12 +6,12 @@ import java.util.Iterator;
 
 import jmetal.util.PseudoRandom;
 import melt.Config;
+import melt.core.Profile;
 import melt.learn.PathLearner;
-import melt.test.Profiles;
-import melt.test.TestCase;
-import melt.test.Util;
 import melt.test.generation.TestGenerator;
 import melt.test.generation.concolic.ConcolicTestGenerator;
+import melt.test.util.TestCase;
+import melt.test.util.Util;
 
 public class AdaptiveRandomTestGenerator extends TestGenerator {
 	
@@ -52,10 +52,10 @@ public class AdaptiveRandomTestGenerator extends TestGenerator {
 				}
 			}
 			// compute the minimum distances
-			int size = Profiles.tests.size();
+			int size = Profile.tests.size();
 			for (int i = 0; i < size; i++) {
 				for (int j = 0; j < k; j++) {
-					double dist = this.distance(candidates.get(j).getTest(), Profiles.tests.get(i).getTest());
+					double dist = this.distance(candidates.get(j).getTest(), Profile.tests.get(i).getTest());
 					if (dist < minDist[j]) {
 						minDist[j] = dist;
 					}
@@ -112,9 +112,9 @@ public class AdaptiveRandomTestGenerator extends TestGenerator {
 				if (pathLearner == null || pathLearner.isValidTest(tc)) {
 					double dist;
 					double min = Double.MAX_VALUE;
-					int size = Profiles.tests.size();
+					int size = Profile.tests.size();
 					for (int j = 0; j < size; j++) {
-						dist = this.distance(pop[i].test, Profiles.tests.get(j).getTest());
+						dist = this.distance(pop[i].test, Profile.tests.get(j).getTest());
 						if (dist < min) {
 							min = dist;
 						}
@@ -205,9 +205,9 @@ public class AdaptiveRandomTestGenerator extends TestGenerator {
 	                	if (pathLearner == null || pathLearner.isValidTest(new TestCase(newPop[j].test))) {
 		                	double dist;
 		                	double min = Double.MAX_VALUE;
-		                	int size = Profiles.tests.size();
+		                	int size = Profile.tests.size();
 		    				for (int k = 0; k < size; k++) {
-		    					dist = this.distance(newPop[j].test, Profiles.tests.get(k).getTest());
+		    					dist = this.distance(newPop[j].test, Profile.tests.get(k).getTest());
 		    					if (dist < min) {
 		    						min = dist;
 		    					}

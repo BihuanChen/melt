@@ -347,7 +347,7 @@ public class Instrumenter implements Serializable {
 				int index = predicates.size() - 1;
 				// create the branch record statement
 				MethodInvocation newInvocation = ast.newMethodInvocation();
-				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
+				QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "core"}), ast.newSimpleName("Profile"));
 				newInvocation.setExpression(qualifiedName);
 				newInvocation.setName(ast.newSimpleName("add"));
 				NumberLiteral literal1 = ast.newNumberLiteral(String.valueOf(index));
@@ -443,7 +443,7 @@ public class Instrumenter implements Serializable {
 						@Override
 						public boolean visit(MethodDeclaration node) {
 							MethodInvocation newInvocation = ast.newMethodInvocation();
-							QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
+							QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "core"}), ast.newSimpleName("Profile"));
 							newInvocation.setExpression(qualifiedName);
 							newInvocation.setName(ast.newSimpleName("add"));
 							NumberLiteral literal1 = ast.newNumberLiteral("-2");
@@ -460,7 +460,7 @@ public class Instrumenter implements Serializable {
 							if (!(ss.get(ss.size() - 1) instanceof ReturnStatement)) {
 								System.out.println("[melt] finish recursion normally at " + className + "." + methodName + signature);
 								MethodInvocation newInvocation1 = ast.newMethodInvocation();
-								QualifiedName qualifiedName1 = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
+								QualifiedName qualifiedName1 = ast.newQualifiedName(ast.newName(new String[] {"melt", "core"}), ast.newSimpleName("Profile"));
 								newInvocation1.setExpression(qualifiedName1);
 								newInvocation1.setName(ast.newSimpleName("add"));
 								NumberLiteral literal11 = ast.newNumberLiteral("-3");
@@ -481,7 +481,7 @@ public class Instrumenter implements Serializable {
 						public boolean visit(ReturnStatement node) {
 							System.out.println("[melt] finish recursion by return at " + className + "." + methodName + signature);
 							MethodInvocation newInvocation = ast.newMethodInvocation();
-							QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
+							QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "core"}), ast.newSimpleName("Profile"));
 							newInvocation.setExpression(qualifiedName);
 							newInvocation.setName(ast.newSimpleName("add"));
 							NumberLiteral literal1 = ast.newNumberLiteral("-3");
@@ -535,7 +535,7 @@ public class Instrumenter implements Serializable {
 					System.out.println("[melt] return statements in loops at " + className + "." + methodName + signature);
 					
 					MethodInvocation newInvocation = ast.newMethodInvocation();
-					QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "test"}), ast.newSimpleName("Profiles"));
+					QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"melt", "core"}), ast.newSimpleName("Profile"));
 					newInvocation.setExpression(qualifiedName);
 					newInvocation.setName(ast.newSimpleName("add"));
 					NumberLiteral literal1 = ast.newNumberLiteral("-1");

@@ -14,10 +14,10 @@ import jmetal.operators.selection.BinaryTournament;
 import jmetal.util.comparators.DominanceComparator;
 import melt.Config;
 import melt.learn.PathLearner;
-import melt.test.TestCase;
 import melt.test.generation.TestGenerator;
 import melt.test.generation.concolic.ConcolicTestGenerator;
 import melt.test.generation.random.PureRandomTestGenerator;
+import melt.test.util.TestCase;
 
 public class SearchBasedTestGenerator extends TestGenerator {
 

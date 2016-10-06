@@ -8,9 +8,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import melt.Config;
-import melt.test.Pair;
-import melt.test.PairArrayList;
-import melt.test.Profiles;
+import melt.test.util.Pair;
+import melt.test.util.PairArrayList;
 
 public class ProfileAnalyzer {
 
@@ -32,16 +31,16 @@ public class ProfileAnalyzer {
 
 	public void update() {
 		ArrayList<Pair> eps = new ArrayList<Pair>();
-		getExecutedPredicates(Profiles.executedPredicates, eps);
-		Profiles.executedPredicates.clear();
-		if (!Profiles.consistant()) {
+		getExecutedPredicates(Profile.executedPredicates, eps);
+		Profile.executedPredicates.clear();
+		if (!Profile.consistant()) {
 			System.err.println("[melt] error in compressing executed predicates");
 			System.exit(0);
 		}
 		
 		int size = eps.size();
 		if (size == 0) { return; }
-		int testIndex = Profiles.tests.size() - 1;
+		int testIndex = Profile.tests.size() - 1;
 		
 		PredicateNode current = root;
 		Deque<PredicateNode> loopBranchStack = new ArrayDeque<PredicateNode>();
@@ -51,7 +50,7 @@ public class ProfileAnalyzer {
 			// get the branch predicate information
 			Pair p = eps.get(i);
 			int index = p.getPredicateIndex();
-			boolean value = p.isPredicateValue();
+			boolean value = p.getPredicateValue();
 
 			if (index == -2) {
 				recursionLevel++;
@@ -75,15 +74,15 @@ public class ProfileAnalyzer {
 			}
 			
 			// attach the dynamic taint results
-			Predicate pd = Profiles.predicates.get(index);
+			Predicate pd = Profile.predicates.get(index);
 			String key = pd.getClassName() + "@" + pd.getLineNumber();
-			HashSet<Integer> newDepInputs = Profiles.taints.get(key);
+			HashSet<Integer> newDepInputs = Profile.taints.get(key);
 			current.addToDepInputs(newDepInputs);
 			
 			// check if the current branch is a loop branch;
 			// if yes, push the loop branch into the stack for later references
 			boolean isLoopBranch = false;
-			Predicate.TYPE type = Profiles.predicates.get(index).getType();
+			Predicate.TYPE type = Profile.predicates.get(index).getType();
 			if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				isLoopBranch = true;
 				if (loopBranchStack.size() == 0 || loopBranchStack.peek().getPredicate() != index || loopRecursionLevelStack.peek() != recursionLevel) {
@@ -148,12 +147,12 @@ public class ProfileAnalyzer {
 			
 			// avoid associating a test input to a loop branch for multiple times
 			if (branch.getTriggerTests() == null || branch.getTriggerTests().get(branch.getTriggerTests().size() - 1) != testIndex) {
-				if (!(Profiles.predicates.get(branch.getSource().getPredicate()).getType() == Predicate.TYPE.DO && value && isOneIterationDoLoop(eps, i, size))) {
+				if (!(Profile.predicates.get(branch.getSource().getPredicate()).getType() == Predicate.TYPE.DO && value && isOneIterationDoLoop(eps, i, size))) {
 					branch.addToTriggerTests(testIndex);
 				}
 			}
 		}
-		Profiles.taints.clear();
+		Profile.taints.clear();
 	}
 	
 	// find an unexplored branch systematically
@@ -198,7 +197,7 @@ public class ProfileAnalyzer {
 			}
 			System.out.println("[melt] coverage for predicate(" + predicate + ") achieved " + cn + " / " + ns.size());
 		}
-		System.out.println("[melt] overall coverage achieved " + pn + " / " + predicatedNodes.size() + " / " + Profiles.predicates.size() + "\n");
+		System.out.println("[melt] overall coverage achieved " + pn + " / " + predicatedNodes.size() + " / " + Profile.predicates.size() + "\n");
 	}
 	
 	public void printNodes() {
@@ -228,9 +227,9 @@ public class ProfileAnalyzer {
 		Pair p1 = eps.get(start);
 		for (int i = start + 1; i < end; i++) {
 			Pair p2 = eps.get(i);
-			if (p2.getPredicateIndex() == p1.getPredicateIndex() && p2.isPredicateValue()) {
+			if (p2.getPredicateIndex() == p1.getPredicateIndex() && p2.getPredicateValue()) {
 				return false;
-			} else if (p2.getPredicateIndex() == p1.getPredicateIndex() && !p2.isPredicateValue()) {
+			} else if (p2.getPredicateIndex() == p1.getPredicateIndex() && !p2.getPredicateValue()) {
 				break;
 			}
 		}

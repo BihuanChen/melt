@@ -12,8 +12,8 @@ import melt.Config;
 import melt.core.Predicate;
 import melt.core.PredicateArc;
 import melt.core.PredicateNode;
-import melt.test.Profiles;
-import melt.test.TestCase;
+import melt.core.Profile;
+import melt.test.util.TestCase;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.functions.LibSVM;
@@ -27,7 +27,7 @@ import weka.core.Instances;
 import weka.core.Utils;
 import weka.filters.unsupervised.attribute.Remove;
 
-public class TwoBranchesLearner {
+public class TwoBranchLearner {
 
 	private PredicateNode node;
 
@@ -36,9 +36,9 @@ public class TwoBranchesLearner {
 	
 	private ArrayList<Integer> tests; // the id of tests that correspond to instances
 		
-	public TwoBranchesLearner(PredicateNode node) throws Exception {
+	public TwoBranchLearner(PredicateNode node) throws Exception {
 		this.node = node;
-		this.node.setOldConSize(0);
+		this.node.setConIndex(0);
 		
 		this.node.getSourceTrueBranch().setIndex(0);
 		this.node.getSourceFalseBranch().setIndex(0);
@@ -98,13 +98,13 @@ public class TwoBranchesLearner {
 			HashSet<Integer> fTests = new HashSet<Integer>(fb.getTriggerTests().subList(fb.getIndex(), fb.getTriggerTests().size()));
 			fb.setIndex(fb.getTriggerTests().size());
 			
-			Predicate.TYPE type = Profiles.predicates.get(node.getPredicate()).getType();
+			Predicate.TYPE type = Profile.predicates.get(node.getPredicate()).getType();
 			if (type == Predicate.TYPE.IF) {
 				Iterator<Integer> iterator = tTests.iterator();
 				while (iterator.hasNext()) {
 					Integer i = iterator.next();
 					if (!fTests.contains(i)) {
-						createInstance(i, Profiles.tests.get(i), "T");
+						createInstance(i, Profile.tests.get(i), "T");
 					} else {
 						fTests.remove(i);
 					}
@@ -112,19 +112,19 @@ public class TwoBranchesLearner {
 				iterator = fTests.iterator();
 				while (iterator.hasNext()) {
 					Integer i = iterator.next();
-					createInstance(i, Profiles.tests.get(i), "F");
+					createInstance(i, Profile.tests.get(i), "F");
 				}
 			} else if (type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) {
 				Iterator<Integer> iterator = tTests.iterator();
 				while (iterator.hasNext()) {
 					Integer i = iterator.next();
-					createInstance(i, Profiles.tests.get(i), "T");
+					createInstance(i, Profile.tests.get(i), "T");
 				}
 				iterator = fTests.iterator();
 				while (iterator.hasNext()) {
 					Integer i = iterator.next();
 					if (!tTests.contains(i)) {
-						createInstance(i, Profiles.tests.get(i), "F");
+						createInstance(i, Profile.tests.get(i), "F");
 					}
 				}
 			} else {
@@ -200,14 +200,14 @@ public class TwoBranchesLearner {
 		// add new attributes and update instances
 		boolean flag = false;
 		LinkedHashMap<String, Expression<Boolean>> constraints = node.getConstraints();
-		if (constraints != null && constraints.size() > node.getOldConSize()) {
+		if (constraints != null && constraints.size() > node.getConIndex()) {
 			Iterator<String> iterator = constraints.keySet().iterator();
 			int counter = 0;
 			ArrayList<Expression<Boolean>> newConstraints = new ArrayList<Expression<Boolean>>();
 			// add new attributes
 			while (iterator.hasNext()) {
 				String id = iterator.next();
-				if (counter >= node.getOldConSize()) {
+				if (counter >= node.getConIndex()) {
 					newConstraints.add(constraints.get(id));
 					FastVector fv = new FastVector(2);
 					fv.addElement("false");
@@ -220,11 +220,11 @@ public class TwoBranchesLearner {
 			for (int i = 0; i < instances.numInstances(); i++) {
 				for (int j = 0; j < newConstraints.size(); j++) {
 					flag = true;
-					boolean b = newConstraints.get(j).evaluate(Profiles.tests.get(tests.get(i)).getValuation());
+					boolean b = newConstraints.get(j).evaluate(Profile.tests.get(tests.get(i)).getValuation());
 					instances.instance(i).setValue(instances.numAttributes() - newConstraints.size() + j, b ? "true" : "false");
 				}
 			}
-			node.setOldConSize(constraints.size());
+			node.setConIndex(constraints.size());
 		}
 		return flag;
 	}

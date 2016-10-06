@@ -1,28 +1,36 @@
-package melt.test;
+package melt.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import melt.core.Predicate;
 import melt.core.Predicate.TYPE;
+import melt.test.util.FastStack;
+import melt.test.util.Pair;
+import melt.test.util.PairArrayList;
+import melt.test.util.TestCase;
 
-public class Profiles {
+public class Profile {
 	
+	// static info (collected during instrumentation)
 	public static ArrayList<Predicate> predicates = new ArrayList<Predicate>();
+
+	// dynamic info
 	public static ArrayList<TestCase> tests = new ArrayList<TestCase>();
 	public static HashSet<TestCase> testsSet = new HashSet<TestCase>();
 	
-	// dynamic info
 	public static PairArrayList executedPredicates = new PairArrayList();
 	public static HashMap<String, HashSet<Integer>> taints = new HashMap<String, HashSet<Integer>>();
 
-	// for instrumentation
+	// compress the executed predicates for loops and recursions
 	private static int recursionLevel = 0;
 	private static FastStack<Pair> loopPairStack = new FastStack<Pair>();
 	private static FastStack<Integer> loopRecursionLevelStack = new FastStack<Integer>();
 			
+	// dummy add for concolic execution
+	//public static void add(int index, boolean value, TYPE type) {}
+	
 	public static void add(int index, boolean value, TYPE type) {
 		Pair p = new Pair(index, value);
 		
@@ -51,13 +59,13 @@ public class Profiles {
 		if (index == -1) {
 			int ret_i = loopPairStack.pop().getPredicateIndex();
 			int level_i = loopRecursionLevelStack.pop();
-			Predicate ret_pre_i = Profiles.predicates.get(ret_i);
+			Predicate ret_pre_i = Profile.predicates.get(ret_i);
 			boolean mark = false;
 			while (!loopPairStack.isEmpty()) {
 				loopPairStack.peek().addToInnerPairs(p);
 				int ret_j = loopPairStack.peek().getPredicateIndex();
 				int level_j = loopRecursionLevelStack.peek();
-				Predicate ret_pre_j = Profiles.predicates.get(ret_j);
+				Predicate ret_pre_j = Profile.predicates.get(ret_j);
 				if (level_i == level_j && ret_pre_i.getClassName().equals(ret_pre_j.getClassName()) &&
 						ret_pre_i.getMethodName().equals(ret_pre_j.getMethodName()) &&
 						ret_pre_i.getSignature().equals(ret_pre_j.getSignature())) {
@@ -100,11 +108,11 @@ public class Profiles {
 				if ((type == TYPE.FOR || type == TYPE.FOREACH || type == TYPE.WHILE) && size >= 2){
 					Pair p1 = ps.get(size - 1);
 					Pair p2 = ps.get(size - 2);
-					if (p1.getPredicateIndex() == index && p1.isPredicateValue() 
-							&& p2.getPredicateIndex() == index && p2.isPredicateValue()) {
+					if (p1.getPredicateIndex() == index && p1.getPredicateValue() 
+							&& p2.getPredicateIndex() == index && p2.getPredicateValue()) {
 						for (int i = size - 2; i >= 0; i--) {
 							Pair pt = ps.get(i);
-							if (pt.getPredicateIndex() == index && pt.isPredicateValue()) {
+							if (pt.getPredicateIndex() == index && pt.getPredicateValue()) {
 								if (p1.equals(pt)) {
 									ps.remove(size - 1);
 									break;
@@ -118,12 +126,12 @@ public class Profiles {
 					Pair p1 = ps.get(size - 1);
 					Pair p2 = ps.get(size - 2);
 					Pair p3 = ps.get(size - 3);
-					if (p1.getPredicateIndex() == index && p1.isPredicateValue() 
-							&& p2.getPredicateIndex() == index && p2.isPredicateValue() 
-							&& p3.getPredicateIndex() == index && p3.isPredicateValue()) {
+					if (p1.getPredicateIndex() == index && p1.getPredicateValue() 
+							&& p2.getPredicateIndex() == index && p2.getPredicateValue() 
+							&& p3.getPredicateIndex() == index && p3.getPredicateValue()) {
 						for (int i = size - 2; i >= 0; i--) {
 							Pair pt = ps.get(i);
-							if (pt.getPredicateIndex() == index && pt.isPredicateValue()) {
+							if (pt.getPredicateIndex() == index && pt.getPredicateValue()) {
 								if (p1.equals(pt)) {
 									ps.remove(size - 1);
 									break;
@@ -145,110 +153,6 @@ public class Profiles {
 			}
 		}
 	}
-	
-	// dummy add for concolic execution
-	//public static void add(int index, boolean value, TYPE type) {}
-	
-	// return statement in loops, i.e., index = -1
-	/*public static void add0(int index, boolean value) {
-		Pair p = new Pair(index, value);
-		
-		int ret_i = loopPairStack.pop().getPredicateIndex();
-		Predicate ret_pre_i = Profiles.predicates.get(ret_i);
-		
-		boolean mark = false;
-		while (!loopPairStack.isEmpty()) {
-			loopPairStack.peek().addToInnerPairs(p);
-			int ret_j = loopPairStack.peek().getPredicateIndex();
-			Predicate ret_pre_j = Profiles.predicates.get(ret_j);
-			if (ret_pre_i.getClassName().equals(ret_pre_j.getClassName()) &&
-					ret_pre_i.getMethodName().equals(ret_pre_j.getMethodName()) &&
-					ret_pre_i.getSignature().equals(ret_pre_j.getSignature())) {
-				loopPairStack.pop();
-			} else {
-				mark = true;
-				break;
-			}
-		}
-		if (!mark) {
-			executedPredicates.add(p);
-		}
-	}*/
-	
-	// if statements that not in loops
-	/*public static void add11(int index, boolean value) {
-		Pair p = new Pair(index, value);
-		executedPredicates.add(p);
-	}*/
-	
-	// if statements in loops
-	/*public static void add12(int index, boolean value) {
-		Pair p = new Pair(index, value);
-		loopPairStack.peek().addToInnerPairs(p);
-	}*/
-	
-	// loop statements
-	/*public static void add2(int index, boolean value, TYPE type) {
-		Pair p = new Pair(index, value);
-
-		if (loopPairStack.isEmpty()) {
-			executedPredicates.add(p);
-			if (value) { // for executions that directly execute the false loop branch
-				loopPairStack.push(p);
-			}
-		} else if (index != loopPairStack.peek().getPredicateIndex()) {
-			loopPairStack.peek().addToInnerPairs(p);
-			loopPairStack.push(p);
-		} else {
-			loopPairStack.pop();
-
-			PairArrayList ps = loopPairStack.isEmpty() ? executedPredicates : loopPairStack.peek().getInnerPairs();
-			
-			int size = ps.size();
-			if ((type == TYPE.FOR || type == TYPE.WHILE) && size >= 2){
-				Pair p1 = ps.get(size - 1);
-				Pair p2 = ps.get(size - 2);
-				if (p1.getPredicateIndex() == index && p1.isPredicateValue() 
-						&& p2.getPredicateIndex() == index && p2.isPredicateValue()) {
-					for (int i = size - 2; i >= 0; i--) {
-						Pair pt = ps.get(i);
-						if (pt.getPredicateIndex() == index && pt.isPredicateValue()) {
-							if (p1.equals(pt)) {
-								ps.remove(size - 1);
-								break;
-							}
-						} else {
-							break;
-						}
-					}
-				}
-			} else if (type == TYPE.DO && size >= 3) {
-				Pair p1 = ps.get(size - 1);
-				Pair p2 = ps.get(size - 2);
-				Pair p3 = ps.get(size - 3);
-				if (p1.getPredicateIndex() == index && p1.isPredicateValue() 
-						&& p2.getPredicateIndex() == index && p2.isPredicateValue() 
-						&& p3.getPredicateIndex() == index && p3.isPredicateValue()) {
-					for (int i = size - 2; i >= 0; i--) {
-						Pair pt = ps.get(i);
-						if (pt.getPredicateIndex() == index && pt.isPredicateValue()) {
-							if (p1.equals(pt)) {
-								ps.remove(size - 1);
-								break;
-							}
-						} else {
-							break;
-						}
-					}
-				}
-			}
-			
-			ps.add(p);
-			if (value) {
-				loopPairStack.push(p);
-			}
-		}
-	}*/
 	
 	public static boolean consistant() {
 		return loopPairStack.isEmpty() && loopRecursionLevelStack.isEmpty() && recursionLevel == 0;
@@ -275,16 +179,16 @@ public class Profiles {
 		int size = executedPredicates.size();
 		System.out.println("[melt] predicates");
 		for (int i = 0; i < size; i++) {
-			System.out.println(executedPredicates.get(i).getPredicateIndex() + " (" + executedPredicates.get(i).isPredicateValue() + ")");
+			System.out.println(executedPredicates.get(i).getPredicateIndex() + " (" + executedPredicates.get(i).getPredicateValue() + ")");
 			print(executedPredicates.get(i).getInnerPairs());
 		}
 	}
 	
-	public static void print(PairArrayList list) {
+	private static void print(PairArrayList list) {
 		if (list != null) {
 			int size = list.size();
 			for (int i = 0; i < size; i++) {
-				System.out.println(list.get(i).getPredicateIndex() + " (" + list.get(i).isPredicateValue() + ")");
+				System.out.println(list.get(i).getPredicateIndex() + " (" + list.get(i).getPredicateValue() + ")");
 				print(list.get(i).getInnerPairs());
 			}
 		}

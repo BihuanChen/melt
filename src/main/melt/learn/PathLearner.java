@@ -8,14 +8,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 
 import melt.Config;
 import melt.core.Predicate;
 import melt.core.PredicateArc;
 import melt.core.PredicateNode;
-import melt.test.Profiles;
-import melt.test.TestCase;
+import melt.core.Profile;
 import melt.test.generation.search.TestVar;
+import melt.test.util.TestCase;
 
 public class PathLearner {
 
@@ -23,7 +24,7 @@ public class PathLearner {
 	private PredicateNode target;
 	
 	private OneBranchLearner oneLearner = null;
-	private HashSet<TwoBranchesLearner> twoLearners = new HashSet<TwoBranchesLearner>();
+	private HashSet<TwoBranchLearner> twoLearners = new HashSet<TwoBranchLearner>();
 	
 	private LinkedHashSet<ArrayList<Step>> traces;
 
@@ -41,7 +42,7 @@ public class PathLearner {
 				System.err.println("[melt] errors in finding prefix traces");
 				System.exit(0);
 			} else {
-				Predicate.TYPE type = Profiles.predicates.get(ps.getNode().getPredicate()).getType();
+				Predicate.TYPE type = Profile.predicates.get(ps.getNode().getPredicate()).getType();
 				PredicateArc arc = ps.getNode().getSourceTrueBranch();
 				if ((type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) && !ps.getBranch() && arc != null && ps.getNode().getDepInputs() != null) {
 					LinkedHashSet<ArrayList<Step>> newTraces = new LinkedHashSet<ArrayList<Step>>();
@@ -64,7 +65,7 @@ public class PathLearner {
 	}
 	
 	private Step findSourceStep(PredicateNode node) {
-		ArrayList<PredicateArc> arcs = node.getTargetTrueBranches();
+		LinkedList<PredicateArc> arcs = node.getTargetTrueBranches();
 		if (arcs != null) {
 			Iterator<PredicateArc> iterator = arcs.iterator();
 			while (iterator.hasNext()) {
@@ -201,7 +202,7 @@ public class PathLearner {
 	}
 	
 	private String getSrcLoc(PredicateNode node) {
-		Predicate p = Profiles.predicates.get(node.getPredicate());
+		Predicate p = Profile.predicates.get(node.getPredicate());
 		String className = p.getClassName();
 		String srcLoc = className + "." + p.getMethodName() + "(" + className.substring(className.lastIndexOf(".") + 1) + ".java:" + p.getLineNumber() + ")";
 		return srcLoc;
@@ -224,7 +225,7 @@ public class PathLearner {
 				int size = trace.size();
 				boolean valid = true;
 				for (int i = 0 ; i < size; i++) {
-					TwoBranchesLearner twoLearner = trace.get(i).getNode().getTwoBranchesLearner();
+					TwoBranchLearner twoLearner = trace.get(i).getNode().getTwoBranchesLearner();
 					if (twoLearner != null) {
 						if (!twoLearners.contains(twoLearner)) {
 							twoLearner.buildInstancesAndClassifier();
@@ -263,7 +264,7 @@ public class PathLearner {
 				int size = trace.size();
 				for (int i = 0 ; i < size; i++) {
 					Step step = trace.get(i);
-					TwoBranchesLearner twoLearner = step.getNode().getTwoBranchesLearner();
+					TwoBranchLearner twoLearner = step.getNode().getTwoBranchesLearner();
 					if (twoLearner != null) {
 						if (!twoLearners.contains(twoLearner)) {
 							twoLearner.buildInstancesAndClassifier();

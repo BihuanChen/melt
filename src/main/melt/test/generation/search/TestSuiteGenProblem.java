@@ -5,10 +5,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import melt.core.PredicateNode;
+import melt.core.Profile;
 import melt.learn.PathLearner;
-import melt.test.Profiles;
-import melt.test.TestCase;
-import melt.test.Util;
+import melt.test.util.TestCase;
+import melt.test.util.Util;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.Variable;
@@ -100,12 +100,12 @@ public class TestSuiteGenProblem extends Problem {
 			if (target.getSourceTrueBranch() != null) {
 				int size = target.getSourceTrueBranch().getTriggerTests().size();
 				for (int i = 0; i < size; i++) {
-					initialTests.add(Profiles.tests.get(target.getSourceTrueBranch().getTriggerTests().get(i)));
+					initialTests.add(Profile.tests.get(target.getSourceTrueBranch().getTriggerTests().get(i)));
 				}
 			} else if (target.getSourceFalseBranch() != null) {
 				int size = target.getSourceFalseBranch().getTriggerTests().size();
 				for (int i = 0; i < size; i++) {
-					initialTests.add(Profiles.tests.get(target.getSourceFalseBranch().getTriggerTests().get(i)));
+					initialTests.add(Profile.tests.get(target.getSourceFalseBranch().getTriggerTests().get(i)));
 				}
 			} else {
 				System.err.println("[melt] error in create the initial population in ea-based test generation");

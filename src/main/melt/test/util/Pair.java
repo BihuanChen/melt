@@ -1,8 +1,9 @@
-package melt.test;
+package melt.test.util;
 
 import java.io.Serializable;
 
 import melt.core.Predicate;
+import melt.core.Profile;
 import melt.core.Predicate.TYPE;
 
 public class Pair implements Serializable {
@@ -27,7 +28,7 @@ public class Pair implements Serializable {
 		this.predicateIndex = predicateIndex;
 	}
 
-	public boolean isPredicateValue() {
+	public boolean getPredicateValue() {
 		return predicateValue;
 	}
 
@@ -57,7 +58,7 @@ public class Pair implements Serializable {
 					for (int i = 0, j = 0; i < l1 && j < l2; ) {
 						Pair p1 = this.innerPairs.get(i);
 						Pair p2 = p.innerPairs.get(j);
-						if (p1.predicateIndex == -2 || p1.predicateIndex == -3 || (p1.predicateIndex != -1 && Profiles.predicates.get(p1.predicateIndex).getType() == TYPE.IF)) {
+						if (p1.predicateIndex == -2 || p1.predicateIndex == -3 || (p1.predicateIndex != -1 && Profile.predicates.get(p1.predicateIndex).getType() == TYPE.IF)) {
 							if (!p1.equals(p2)) {
 								return false;
 							} else {
@@ -97,14 +98,14 @@ public class Pair implements Serializable {
 	}
 	
 	public static void main(String[] args) {
-		Profiles.predicates.add(new Predicate("", "", "", 0, "", TYPE.IF));
-		Profiles.predicates.add(new Predicate("", "", "", 1, "", TYPE.FOR));
-		Profiles.predicates.add(new Predicate("", "", "", 2, "", TYPE.IF));
-		Profiles.predicates.add(new Predicate("", "", "", 3, "", TYPE.IF));
-		Profiles.predicates.add(new Predicate("", "", "", 4, "", TYPE.FOR));
-		Profiles.predicates.add(new Predicate("", "", "", 5, "", TYPE.IF));
-		Profiles.predicates.add(new Predicate("", "", "", 6, "", TYPE.IF));
-		Profiles.predicates.add(new Predicate("", "", "", 7, "", TYPE.IF));
+		Profile.predicates.add(new Predicate("", "", "", 0, "", TYPE.IF));
+		Profile.predicates.add(new Predicate("", "", "", 1, "", TYPE.FOR));
+		Profile.predicates.add(new Predicate("", "", "", 2, "", TYPE.IF));
+		Profile.predicates.add(new Predicate("", "", "", 3, "", TYPE.IF));
+		Profile.predicates.add(new Predicate("", "", "", 4, "", TYPE.FOR));
+		Profile.predicates.add(new Predicate("", "", "", 5, "", TYPE.IF));
+		Profile.predicates.add(new Predicate("", "", "", 6, "", TYPE.IF));
+		Profile.predicates.add(new Predicate("", "", "", 7, "", TYPE.IF));
 		
 		Pair l1 = new Pair(1, true);
 		l1.addToInnerPairs(new Pair(2, true));

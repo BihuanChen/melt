@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import melt.core.PredicateNode;
-import melt.test.TestCase;
+import melt.test.util.TestCase;
 import jmetal.core.Variable;
 
 public class TestVar extends Variable {

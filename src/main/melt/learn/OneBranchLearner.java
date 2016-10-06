@@ -10,8 +10,8 @@ import java.util.LinkedHashMap;
 import melt.Config;
 import melt.core.PredicateArc;
 import melt.core.PredicateNode;
-import melt.test.Profiles;
-import melt.test.TestCase;
+import melt.core.Profile;
+import melt.test.util.TestCase;
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.LibSVM;
 import weka.classifiers.meta.FilteredClassifier;
@@ -85,7 +85,7 @@ public class OneBranchLearner {
 			Iterator<Integer> iterator = tTests != null ? tTests.iterator() : fTests.iterator();
 			while (iterator.hasNext()) {
 				Integer i = iterator.next();
-				createInstance(i, Profiles.tests.get(i));
+				createInstance(i, Profile.tests.get(i));
 			}			
 		}
 		if (changed1 || changed2 || changed3) {
@@ -155,14 +155,14 @@ public class OneBranchLearner {
 		// add new attributes and update instances
 		boolean flag = false;
 		LinkedHashMap<String, Expression<Boolean>> constraints = node.getConstraints();
-		if (constraints != null && constraints.size() > node.getOldConSize()) {
+		if (constraints != null && constraints.size() > node.getConIndex()) {
 			Iterator<String> iterator = constraints.keySet().iterator();
 			int counter = 0;
 			ArrayList<Expression<Boolean>> newConstraints = new ArrayList<Expression<Boolean>>();
 			// add new attributes
 			while (iterator.hasNext()) {
 				String id = iterator.next();
-				if (counter >= node.getOldConSize()) {
+				if (counter >= node.getConIndex()) {
 					newConstraints.add(constraints.get(id));
 					FastVector fv = new FastVector(2);
 					fv.addElement("false");
@@ -175,11 +175,11 @@ public class OneBranchLearner {
 			for (int i = 0; i < instances.numInstances(); i++) {
 				for (int j = 0; j < newConstraints.size(); j++) {
 					flag = true;
-					boolean b = newConstraints.get(j).evaluate(Profiles.tests.get(tests.get(i)).getValuation());
+					boolean b = newConstraints.get(j).evaluate(Profile.tests.get(tests.get(i)).getValuation());
 					instances.instance(i).setValue(instances.numAttributes() - newConstraints.size() + j, b ? "true" : "false");
 				}
 			}
-			node.setOldConSize(constraints.size());
+			node.setConIndex(constraints.size());
 		}
 		return flag;
 	}

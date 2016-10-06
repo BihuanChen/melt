@@ -4,9 +4,9 @@ import java.util.HashSet;
 
 import melt.Config;
 import melt.learn.PathLearner;
-import melt.test.TestCase;
 import melt.test.generation.TestGenerator;
 import melt.test.generation.concolic.ConcolicTestGenerator;
+import melt.test.util.TestCase;
 
 public class PureRandomTestGenerator extends TestGenerator {
 
@@ -27,7 +27,7 @@ public class PureRandomTestGenerator extends TestGenerator {
 	private HashSet<TestCase> genPureRandomTests() throws Exception {
 		HashSet<TestCase> testCases = new HashSet<TestCase>(Config.TESTS_SIZE);
 		while (true) {
-			TestCase testCase = new TestCase(melt.test.Util.randomTest());
+			TestCase testCase = new TestCase(melt.test.util.Util.randomTest());
 			// check if the test is valid
 			if (pathLearner == null || pathLearner.isValidTest(testCase)) {
 				testCases.add(testCase);
