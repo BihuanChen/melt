@@ -65,21 +65,21 @@ public class OneBranchLearner {
 		PredicateArc tb = node.getSourceTrueBranch();
 		PredicateArc fb = node.getSourceFalseBranch();
 		boolean changed2 = false;
-		if (changed1 || changed3 || (tb != null && tb.getOldSize() == 0) || (fb != null && fb.getOldSize() == 0) || 
-				(tb != null && (tb.getTests().size() - tb.getOldSize()) > Config.LEARN_THRESHOLD) || (fb !=null && (fb.getTests().size() - fb.getOldSize()) > Config.LEARN_THRESHOLD)) {
+		if (changed1 || changed3 || (tb != null && tb.getIndex() == 0) || (fb != null && fb.getIndex() == 0) || 
+				(tb != null && (tb.getTriggerTests().size() - tb.getIndex()) > Config.LEARN_THRESHOLD) || (fb !=null && (fb.getTriggerTests().size() - fb.getIndex()) > Config.LEARN_THRESHOLD)) {
 			changed2 = true;
 		}
 		// load new tests data
 		if (changed2) {
 			HashSet<Integer> tTests = null;
 			if (tb != null) {
-				tTests = new HashSet<Integer>(tb.getTests().subList(tb.getOldSize(), tb.getTests().size()));
-				tb.setOldSize(tb.getTests().size());
+				tTests = new HashSet<Integer>(tb.getTriggerTests().subList(tb.getIndex(), tb.getTriggerTests().size()));
+				tb.setIndex(tb.getTriggerTests().size());
 			}
 			HashSet<Integer> fTests = null;
 			if (fb != null) {
-				fTests = new HashSet<Integer>(fb.getTests().subList(fb.getOldSize(), fb.getTests().size()));
-				fb.setOldSize(fb.getTests().size());
+				fTests = new HashSet<Integer>(fb.getTriggerTests().subList(fb.getIndex(), fb.getTriggerTests().size()));
+				fb.setIndex(fb.getTriggerTests().size());
 			}
 						
 			Iterator<Integer> iterator = tTests != null ? tTests.iterator() : fTests.iterator();

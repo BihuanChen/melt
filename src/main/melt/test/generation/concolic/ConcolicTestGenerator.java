@@ -35,10 +35,10 @@ public class ConcolicTestGenerator extends TestGenerator {
 		Object[] test = null;
 		int testIndex = -1;
 		if (target.getSourceTrueBranch() != null) {
-			testIndex = target.getSourceTrueBranch().getTests().get(0);
+			testIndex = target.getSourceTrueBranch().getTriggerTests().get(0);
 			test = Profiles.tests.get(testIndex).getTest();
 		} else if (target.getSourceFalseBranch() != null) {
-			testIndex = target.getSourceFalseBranch().getTests().get(0);
+			testIndex = target.getSourceFalseBranch().getTriggerTests().get(0);
 			test = Profiles.tests.get(testIndex).getTest();
 		} else {
 			System.err.println("[melt] error in choosing the test for concolic execution");

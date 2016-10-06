@@ -6,14 +6,14 @@ public class PredicateArc {
 
 	private PredicateNode source;
 	private PredicateNode target;
-	private ArrayList<Integer> tests;
 	
-	private int oldSize;
+	private ArrayList<Integer> triggerTests;
+	private int index; // the starting index of the to-be-modeled tests for training 
 	
 	public PredicateArc(PredicateNode source, PredicateNode target) {
 		this.source = source;
 		this.target = target;
-		this.oldSize = 0;
+		this.index = 0;
 	}
 
 	public PredicateNode getSource() {
@@ -32,29 +32,29 @@ public class PredicateArc {
 		this.target = target;
 	}
 	
-	public ArrayList<Integer> getTests() {
-		return tests;
+	public ArrayList<Integer> getTriggerTests() {
+		return triggerTests;
 	}
 	
-	public void addTest(int index) {
-		if (tests == null) {
-			tests = new ArrayList<Integer>();
+	public void addToTriggerTests(int index) {
+		if (triggerTests == null) {
+			triggerTests = new ArrayList<Integer>();
 		}
-		tests.add(index);
+		triggerTests.add(index);
 	}
 
-	public int getOldSize() {
-		return oldSize;
+	public int getIndex() {
+		return index;
 	}
 
-	public void setOldSize(int oldSize) {
-		this.oldSize = oldSize;
+	public void setIndex(int index) {
+		this.index = index;
 	}
 
 	@Override
 	public String toString() {
 		return "PredicateArc [ source = " + source.getPredicate() + ", target = " + target.getPredicate()
-				+ ", oldSize = " + oldSize + " ]";// ", tests = " + tests + " ]";
+				+ ", index = " + index + " ]"; // trigger tests = " + triggerTests + " ]";
 	}
 	
 }

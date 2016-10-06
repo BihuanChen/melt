@@ -1,4 +1,4 @@
-package melt.learn;
+package melt.core;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -8,9 +8,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import melt.Config;
-import melt.core.Predicate;
-import melt.core.PredicateArc;
-import melt.core.PredicateNode;
 import melt.test.Pair;
 import melt.test.PairArrayList;
 import melt.test.Profiles;
@@ -150,9 +147,9 @@ public class ProfileAnalyzer {
 			}
 			
 			// avoid associating a test input to a loop branch for multiple times
-			if (branch.getTests() == null || branch.getTests().get(branch.getTests().size() - 1) != testIndex) {
+			if (branch.getTriggerTests() == null || branch.getTriggerTests().get(branch.getTriggerTests().size() - 1) != testIndex) {
 				if (!(Profiles.predicates.get(branch.getSource().getPredicate()).getType() == Predicate.TYPE.DO && value && isOneIterationDoLoop(eps, i, size))) {
-					branch.addTest(testIndex);
+					branch.addToTriggerTests(testIndex);
 				}
 			}
 		}

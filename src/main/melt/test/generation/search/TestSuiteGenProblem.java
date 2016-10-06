@@ -98,14 +98,14 @@ public class TestSuiteGenProblem extends Problem {
 			initialTests = new ArrayList<TestCase>();
 			PredicateNode target = learner.getTarget();
 			if (target.getSourceTrueBranch() != null) {
-				int size = target.getSourceTrueBranch().getTests().size();
+				int size = target.getSourceTrueBranch().getTriggerTests().size();
 				for (int i = 0; i < size; i++) {
-					initialTests.add(Profiles.tests.get(target.getSourceTrueBranch().getTests().get(i)));
+					initialTests.add(Profiles.tests.get(target.getSourceTrueBranch().getTriggerTests().get(i)));
 				}
 			} else if (target.getSourceFalseBranch() != null) {
-				int size = target.getSourceFalseBranch().getTests().size();
+				int size = target.getSourceFalseBranch().getTriggerTests().size();
 				for (int i = 0; i < size; i++) {
-					initialTests.add(Profiles.tests.get(target.getSourceFalseBranch().getTests().get(i)));
+					initialTests.add(Profiles.tests.get(target.getSourceFalseBranch().getTriggerTests().get(i)));
 				}
 			} else {
 				System.err.println("[melt] error in create the initial population in ea-based test generation");

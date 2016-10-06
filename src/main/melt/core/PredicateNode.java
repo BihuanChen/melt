@@ -14,7 +14,7 @@ import melt.test.Profiles;
 
 public class PredicateNode {
 	
-	private int predicate; // -1 represents a leaf node
+	private int predicate; // -1 represents a leaf node, -2 represents a hidden node
 	private int level; // the distance to the root node
 	
 	private PredicateArc sourceTrueBranch;
@@ -156,9 +156,9 @@ public class PredicateNode {
 
 	private boolean isLoopBodyNotExecuted() {
 		// may be null for do loops
-		if (sourceTrueBranch.getTests() != null) {
-			HashSet<Integer> tTests = new HashSet<Integer>(sourceTrueBranch.getTests());
-			Iterator<Integer> iterator = sourceFalseBranch.getTests().iterator();
+		if (sourceTrueBranch.getTriggerTests() != null) {
+			HashSet<Integer> tTests = new HashSet<Integer>(sourceTrueBranch.getTriggerTests());
+			Iterator<Integer> iterator = sourceFalseBranch.getTriggerTests().iterator();
 			while (iterator.hasNext()) {
 				Integer i = iterator.next();
 				if (!tTests.contains(i)) {
@@ -170,8 +170,8 @@ public class PredicateNode {
 	}
 	
 	private boolean isIfConditionLearnable() {
-		ArrayList<Integer> tt = new ArrayList<Integer>(sourceTrueBranch.getTests());
-		ArrayList<Integer> ft = new ArrayList<Integer>(sourceFalseBranch.getTests());
+		ArrayList<Integer> tt = new ArrayList<Integer>(sourceTrueBranch.getTriggerTests());
+		ArrayList<Integer> ft = new ArrayList<Integer>(sourceFalseBranch.getTriggerTests());
 		
 		int ttSize = tt.size();
 		int ftSize = ft.size();

@@ -40,8 +40,8 @@ public class TwoBranchesLearner {
 		this.node = node;
 		this.node.setOldConSize(0);
 		
-		this.node.getSourceTrueBranch().setOldSize(0);
-		this.node.getSourceFalseBranch().setOldSize(0);
+		this.node.getSourceTrueBranch().setIndex(0);
+		this.node.getSourceFalseBranch().setIndex(0);
 		this.node.setOneBranchLearner(null);
 		
 		classifier = new FilteredClassifier();
@@ -87,16 +87,16 @@ public class TwoBranchesLearner {
 		PredicateArc tb = node.getSourceTrueBranch();
 		PredicateArc fb = node.getSourceFalseBranch();
 		boolean changed2 = false;
-		if (changed1 || changed3 || (tb.getOldSize() == 0 && fb.getOldSize() == 0) || 
-				((tb.getTests().size() - tb.getOldSize()) > Config.LEARN_THRESHOLD || (fb.getTests().size() - fb.getOldSize()) > Config.LEARN_THRESHOLD)) {
+		if (changed1 || changed3 || (tb.getIndex() == 0 && fb.getIndex() == 0) || 
+				((tb.getTriggerTests().size() - tb.getIndex()) > Config.LEARN_THRESHOLD || (fb.getTriggerTests().size() - fb.getIndex()) > Config.LEARN_THRESHOLD)) {
 			changed2 = true;
 		}
 		// load new tests data
 		if (changed2) {
-			HashSet<Integer> tTests = new HashSet<Integer>(tb.getTests().subList(tb.getOldSize(), tb.getTests().size()));
-			tb.setOldSize(tb.getTests().size());
-			HashSet<Integer> fTests = new HashSet<Integer>(fb.getTests().subList(fb.getOldSize(), fb.getTests().size()));
-			fb.setOldSize(fb.getTests().size());
+			HashSet<Integer> tTests = new HashSet<Integer>(tb.getTriggerTests().subList(tb.getIndex(), tb.getTriggerTests().size()));
+			tb.setIndex(tb.getTriggerTests().size());
+			HashSet<Integer> fTests = new HashSet<Integer>(fb.getTriggerTests().subList(fb.getIndex(), fb.getTriggerTests().size()));
+			fb.setIndex(fb.getTriggerTests().size());
 			
 			Predicate.TYPE type = Profiles.predicates.get(node.getPredicate()).getType();
 			if (type == Predicate.TYPE.IF) {

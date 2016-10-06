@@ -170,14 +170,14 @@ public class PathLearner {
 	private void collectNodes(PredicateNode node, int testIndex, HashSet<PredicateNode> set) {
 		if (node.getPredicate() != -1) {
 			PredicateArc arc = node.getSourceTrueBranch();
-			if (arc != null && arc.getTests().contains(testIndex)) {
+			if (arc != null && arc.getTriggerTests().contains(testIndex)) {
 				set.add(node);
 				if (arc.getTarget().getLevel() > node.getLevel()) {
 					collectNodes(arc.getTarget(), testIndex, set);
 				}
 			}
 			arc = node.getSourceFalseBranch();
-			if (arc != null && arc.getTests().contains(testIndex)) {
+			if (arc != null && arc.getTriggerTests().contains(testIndex)) {
 				set.add(node);
 				if (arc.getTarget().getLevel() > node.getLevel()) {
 					collectNodes(arc.getTarget(), testIndex, set);

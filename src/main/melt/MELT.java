@@ -19,10 +19,10 @@ import java.util.concurrent.TimeoutException;
 
 import melt.core.Predicate;
 import melt.core.PredicateNode;
+import melt.core.ProfileAnalyzer;
 import melt.instrument.Instrumenter;
 import melt.learn.OneBranchLearner;
 import melt.learn.PathLearner;
-import melt.learn.ProfileAnalyzer;
 import melt.learn.TwoBranchesLearner;
 import melt.test.Profiles;
 import melt.test.TestCase;
