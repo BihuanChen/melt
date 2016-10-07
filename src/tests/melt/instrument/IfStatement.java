@@ -1,6 +1,6 @@
 package melt.instrument;
 
-public class TestIfStatement {
+public class IfStatement {
 
 	public void test1 (int x) {
 		if (x > 10) {

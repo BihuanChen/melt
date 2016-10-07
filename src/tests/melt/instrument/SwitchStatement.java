@@ -1,6 +1,6 @@
 package melt.instrument;
 
-public class TestSwitchStatement {
+public class SwitchStatement {
 
 	// instrumentation for switch statements is implemented but not integrated into the framework
 	

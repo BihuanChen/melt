@@ -1,6 +1,6 @@
 package melt.instrument;
 
-public class TestForStatement {
+public class ForStatement {
 
 	public void test1 (int x) {
 		int sum = 0;

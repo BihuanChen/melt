@@ -1,6 +1,6 @@
 package melt.instrument;
 
-public class TestHybrid {
+public class Hybrid {
 	
 	public void test1 (int x, int y) {
 		if (x > 0) {

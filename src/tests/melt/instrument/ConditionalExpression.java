@@ -1,6 +1,6 @@
 package melt.instrument;
 
-public class TestConditionalExpression {
+public class ConditionalExpression {
 
 	// instrumentation for conditional expressions is partially implemented and not integrated into the framework
 	
