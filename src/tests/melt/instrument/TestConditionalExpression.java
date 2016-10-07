@@ -1,4 +1,4 @@
-package melt.instrument.test1;
+package melt.instrument;
 
 public class TestConditionalExpression {
 

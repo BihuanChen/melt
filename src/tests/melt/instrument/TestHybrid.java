@@ -1,4 +1,4 @@
-package melt.instrument.test2;
+package melt.instrument;
 
 public class TestHybrid {
 	

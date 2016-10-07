@@ -86,6 +86,17 @@ public class PredicateNode {
 		}
 		targetTrueBranches.add(targetTrueBranch);
 	}
+	
+	public boolean removeTargetTrueBranch(PredicateArc targetTrueBranch) {
+		if (targetTrueBranches != null) {
+			boolean r = targetTrueBranches.remove(targetTrueBranch);
+			if (targetTrueBranches.size() == 0) {
+				targetTrueBranches = null;
+			}
+			return r;
+		}
+		return false;
+	}
 
 	public LinkedList<PredicateArc> getTargetFalseBranches() {
 		return targetFalseBranches;
@@ -96,6 +107,17 @@ public class PredicateNode {
 			targetFalseBranches = new LinkedList<PredicateArc>();
 		}
 		targetFalseBranches.add(targetFalseBranch);
+	}
+	
+	public boolean removeTargetFalseBranch(PredicateArc targetFalseBranch) {
+		if (targetFalseBranches != null) {
+			boolean r = targetFalseBranches.remove(targetFalseBranch);
+			if (targetFalseBranches.size() == 0) {
+				targetFalseBranches = null;
+			}
+			return r;
+		}
+		return false;
 	}
 
 	public int getAttempts() {

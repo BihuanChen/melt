@@ -1,4 +1,4 @@
-package melt.learn.test1;
+package melt.learn;
 
 public class TestAnalyzer {
 
