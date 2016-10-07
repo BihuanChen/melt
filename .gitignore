@@ -1,6 +1,5 @@
 /sootOutput/
 /build/
-/*.pred
 /pred/
 /default_tsafe.properties
 /tsafe.properties
