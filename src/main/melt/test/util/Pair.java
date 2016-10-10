@@ -66,6 +66,7 @@ public class Pair implements Serializable {
 								j++;
 							}
 						} else {
+							boolean flag = false;
 							for (int k = j; k < l2; k++) {
 								Pair pp = p.innerPairs.get(k);
 								if (pp.predicateIndex == p2.predicateIndex || pp.predicateIndex == -1) {
@@ -75,13 +76,16 @@ public class Pair implements Serializable {
 											j = k + 1;
 										}
 										i++;
+										flag = true;
 										break;
 									}
 								} else {
 									return false;
 								}
 							}
-							return false;
+							if (!flag) {
+								return false;
+							}
 						}
 					}
 					return true;

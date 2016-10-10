@@ -677,22 +677,5 @@ public class Instrumenter implements Serializable {
 		edit.apply(document);
 		FileUtils.write(file, document.get());
 	}
-	
-	public static void main(String[] args) {
-		try {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Remainder.melt");
-			
-			Instrumenter instrumenter = new Instrumenter("/home/bhchen/workspace/testing/benchmark1-art/src/dt/original/Remainder.java");
-			instrumenter.instrument();
-			
-			ArrayList<Predicate> pList = instrumenter.getPredicates();
-			int size = pList.size();
-			for (int i = 0; i < size; i++) {
-				System.out.println("[melt] " + pList.get(i));
-			}
-		} catch (IOException | MalformedTreeException | BadLocationException e) {
-			e.printStackTrace();
-		}
-	}
 
 }
