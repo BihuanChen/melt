@@ -1,59 +1,84 @@
 package melt.test.run;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.HashSet;
 
 import melt.Config;
+import melt.core.Profile;
 
 public class TaintRunner {
-
-	public static void run(Object[] test) throws IOException, InterruptedException, ClassNotFoundException {
-		String path = "/home/bhchen/Desktop/phosphor/jre-inst-cf/bin/java";
-		String bootClassPath = "-Xbootclasspath/a:/home/bhchen/Desktop/phosphor/taint-0.0.1-SNAPSHOT.jar:/home/bhchen/Desktop/phosphor/lib-inst-cf/melt-dummy.jar:/home/bhchen/Desktop/phosphor/lib-inst-cf/benchmark4.jar";
-		String classPath = "/home/bhchen/Desktop/phosphor/taint-runner.jar";
-
-		ProcessBuilder processBuilder = new ProcessBuilder(path, "-Xss128M", bootClassPath, "-cp", classPath, "edu.ntu.taint.runner.TaintRunner", Config.MAINCLASS, Config.METHOD, "char", "char", "char", "char", "char", "a", "2", "&", "a", "a");
-		processBuilder.redirectErrorStream(true);
-		processBuilder.redirectOutput(new File(System.getProperty("java.io.tmpdir") + "/output"));
-
-		long t2 = System.currentTimeMillis();
-		Process process = processBuilder.start();
-		
-		BufferedInputStream in = new BufferedInputStream(process.getInputStream());
-        byte[] bytes = new byte[4096];
-        while (in.read(bytes) != -1) {}
-        in.close();
-		long t3 = System.currentTimeMillis();
-		
-		process.waitFor();
-		long t4 = System.currentTimeMillis();
-		BufferedReader reader = new BufferedReader(new FileReader(new File(System.getProperty("java.io.tmpdir") + "/taint")));
+	
+	private static BufferedReader reader;
+	private static BufferedWriter writer;
+	
+	private static ObjectOutputStream oos;
+	
+	public static void run(Object[] test) throws IOException, InterruptedException {
+		// write the test to be taint-analyzed
+		setTest1(test);
+		// read the taint results
+		if (reader == null) {
+			reader = new BufferedReader(new FileReader(new File(System.getProperty("java.io.tmpdir") + "/taint-result")));
+		}
 		String line = null;
-		while ((line = reader.readLine()) != null) {
+		while ((line = reader.readLine()) == null) {
+			Thread.sleep(10);
+		}
+		do {
 			System.out.println(line);
-			/*String srcLoc = "".replace("/", ".");
-			int tag = 0;
-			Profiles.taints.put(srcLoc, new HashSet<Integer>());
+			String[] str = line.split(" ");
+			String srcLoc = str[0].replace("/", ".");
+			int tag = Integer.valueOf(str[1]);			
+			Profile.taints.put(srcLoc, new HashSet<Integer>());
 			for (int j = 0; j < Config.CLS.length; j++) {
 				int bit = (int)Math.pow(2, j);
 				if ((tag & bit) == bit) {
-					Profiles.taints.get(srcLoc).add(j);
+					Profile.taints.get(srcLoc).add(j);
 				}
-			}*/
+			}
+		} while ((line = reader.readLine()) != null);
+		System.out.println();
+	}
+	
+	public static void setTest1(Object[] test) throws IOException {
+		if (writer == null) {
+			writer = new BufferedWriter(new FileWriter(new File(System.getProperty("java.io.tmpdir") + "/taint-test"), true));
 		}
-		reader.close();
-		long t5 = System.currentTimeMillis();
-		System.out.println(t3 - t2);
-		System.out.println(t4 - t3);
-		System.out.println(t5 - t4);
+		for (int i = 0; i < test.length; i++) {
+			writer.write(test[i] + " ");
+		}
+		writer.write("\n");
+		writer.flush();
+	}
+	
+	public static void setTest2(Object[] test) throws IOException {
+		if (oos == null) {
+			oos = new ObjectOutputStream(new FileOutputStream(new File(System.getProperty("java.io.tmpdir") + "/taint-test"), true));
+		}
+		oos.writeObject(test);
+		oos.flush();
 	}
 	
 	public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
 		Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/replace/Replace.melt");
-		run(new Object[]{'a', '2', '&', 'a', 'a'});
+		for (int i = 0; i < 1; i++) {
+			long t1 = System.currentTimeMillis();
+			TaintRunner.run(new Object[]{'a', '1', '&', 'a', 'a'});
+			long t2 = System.currentTimeMillis();
+			System.out.println(t2 - t1);
+			TaintRunner.run(new Object[]{'a', '1', '&', 'a', 'a'});
+			long t3 = System.currentTimeMillis();
+			System.out.println(t3 - t2);
+			TaintRunner.run(new Object[]{'a', '1', '&', 'a', 'a'});
+			System.out.println(System.currentTimeMillis() - t3);
+		}
 	}
 
 }

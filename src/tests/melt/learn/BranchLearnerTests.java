@@ -16,7 +16,7 @@ import melt.learn.TwoBranchLearner;
 import melt.test.run.TestRunner;
 import melt.test.util.TestCase;
 
-public class BranchLearnTests {
+public class BranchLearnerTests {
 
 	@SuppressWarnings("unchecked")
 	public static void test1() throws Exception {
@@ -137,8 +137,10 @@ public class BranchLearnTests {
 		oneLearner.buildInstancesAndClassifier();
 	}
 	
-	public static void main(String[] args) {
-
+	public static void main(String[] args) throws Exception {
+		Config.loadProperties("/home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner.melt");
+		//melt.MELT.instrument();
+		test1();
 	}
 
 }

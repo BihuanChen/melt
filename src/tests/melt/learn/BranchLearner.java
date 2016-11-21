@@ -1,10 +1,6 @@
 package melt.learn;
 
-public class TestAnalyzer {
-
-	public void test(byte a, byte b, byte c) {
-		test2(a, b, c);
-	}
+public class BranchLearner {
 	
 	public void test1(byte a, byte b, byte c) {
 		if (a > 0) {
@@ -20,12 +16,15 @@ public class TestAnalyzer {
 				melt.core.Profile.add(2, true, melt.core.Predicate.TYPE.IF);
 			} else {
 				melt.core.Profile.add(2, false, melt.core.Predicate.TYPE.IF);
-			} 
+			}
 		}
 		melt.core.Profile.add(1, false, melt.core.Predicate.TYPE.FOR);
 	}
 	
 	public void test2(byte a, byte b, byte c) {
+		a = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedByte(a, 1);
+		b = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedByte(b, 2);
+		c = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedByte(c, 4);
 		for (int i = 0; i < a; i++) {
 			melt.core.Profile.add(3, true, melt.core.Predicate.TYPE.FOR);
 			if (c > 0) {
@@ -38,7 +37,8 @@ public class TestAnalyzer {
 				if (c > 0) {
 					melt.core.Profile.add(6, true, melt.core.Predicate.TYPE.IF);
 				} else {
-					melt.core.Profile.add(6, false, melt.core.Predicate.TYPE.IF);
+					melt.core.Profile
+							.add(6, false, melt.core.Predicate.TYPE.IF);
 				} 
 			}
 			melt.core.Profile.add(5, false, melt.core.Predicate.TYPE.FOR);
@@ -61,7 +61,7 @@ public class TestAnalyzer {
 	}
 	
 	public static void main(String[] args) {
-		new TestAnalyzer().test((byte)1, (byte)1, (byte)1);
+		new BranchLearner().test2((byte)1, (byte)1, (byte)1);
 	}
 
 }

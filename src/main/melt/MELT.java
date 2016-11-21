@@ -94,7 +94,7 @@ public class MELT {
 						public void run() {
 							try {
 								TaintRunner.run(testCase.getTest());
-							} catch (ClassNotFoundException | IOException | InterruptedException e) {
+							} catch (IOException | InterruptedException e) {
 								e.printStackTrace();
 							}
 						}
@@ -268,7 +268,7 @@ public class MELT {
 		System.out.println("[melt] " + testSize + " tests run in " + testTime + " ms");
 		System.out.println("[melt] concolic testing in " + (t3 - t2) + " ms");
 	}
-	
+		
 	public static void main(String[] args) throws Exception {		
 		boolean inst = false;
 		

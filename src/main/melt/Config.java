@@ -1,7 +1,13 @@
 package melt;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -287,6 +293,29 @@ public class Config {
 			ENTRYMETHOD += pair[1] + ",";
 		}
 		ENTRYMETHOD = ENTRYMETHOD.substring(0, ENTRYMETHOD.length() - 1) + ")";
+		
+		// initialize the taint server with the information about the target program
+		initTaintServer1();
+	}
+	
+	public static void initTaintServer1() throws IOException {
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(System.getProperty("java.io.tmpdir") + "/taint-test")));
+		writer.write(Config.MAINCLASS + "\n");
+		writer.write(Config.METHOD + "\n");
+		for (int i = 0; i < Config.CLS.length; i++) {
+			writer.write(Config.CLS[i].toString() + " ");
+		}
+		writer.write("\n");
+		writer.flush();
+		writer.close();
+	}
+	
+	public static void initTaintServer2() throws FileNotFoundException, IOException, ClassNotFoundException, InterruptedException {
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(System.getProperty("java.io.tmpdir") + "/taint-test")));
+		oos.writeObject(Config.MAINCLASS);
+		oos.writeObject(Config.METHOD);
+		oos.writeObject(Config.CLS);
+		oos.close();
 	}
 	
 }

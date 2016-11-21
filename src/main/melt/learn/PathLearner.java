@@ -19,13 +19,10 @@ import melt.test.generation.search.TestVar;
 import melt.test.util.TestCase;
 
 public class PathLearner {
-
+	
+	// the possible traces from the root node to the target node
 	private PredicateNode root;
-	private PredicateNode target;
-	
-	private OneBranchLearner oneLearner = null;
-	private HashSet<TwoBranchLearner> twoLearners = new HashSet<TwoBranchLearner>();
-	
+	private PredicateNode target;	
 	private LinkedHashSet<ArrayList<Step>> traces;
 
 	public PathLearner(PredicateNode root, PredicateNode target) {
@@ -33,8 +30,8 @@ public class PathLearner {
 		this.target = target;
 		this.findSourceNodes(target);
 	}
-	
-	// find all prefix traces for a target branch
+
+	// find the possible traces from the root node to the target node
 	private void findSourceNodes(PredicateNode node) {
 		if (node.getLevel() > 0) {
 			Step ps = findSourceStep(node);
@@ -64,6 +61,7 @@ public class PathLearner {
 		}
 	}
 	
+	// find the previous step that reaches a node
 	private Step findSourceStep(PredicateNode node) {
 		LinkedList<PredicateArc> arcs = node.getTargetTrueBranches();
 		if (arcs != null) {
@@ -146,6 +144,25 @@ public class PathLearner {
 		}
 	}
 
+	private void addToTraces(Step step) {
+		if (traces == null) {
+			traces = new LinkedHashSet<ArrayList<Step>>();
+			traces.add(new ArrayList<Step>());
+		}
+		Iterator<ArrayList<Step>> iterator = traces.iterator();
+		while (iterator.hasNext()) {
+			iterator.next().add(step);
+		}
+	}
+	
+	public PredicateNode getTarget() {
+		return target;
+	}
+	
+	public HashSet<ArrayList<Step>> getTraces() {
+		return traces;
+	}
+	
 	public void attachConstraints(int testIndex, HashMap<Instruction, Expression<Boolean>> constraints) {
 		// collect the nodes that are related to the test
 		HashSet<PredicateNode> ns = new HashSet<PredicateNode>();
@@ -207,6 +224,9 @@ public class PathLearner {
 		String srcLoc = className + "." + p.getMethodName() + "(" + className.substring(className.lastIndexOf(".") + 1) + ".java:" + p.getLineNumber() + ")";
 		return srcLoc;
 	}
+	
+	private OneBranchLearner oneLearner = null;
+	private HashSet<TwoBranchLearner> twoLearners = new HashSet<TwoBranchLearner>();
 	
 	public boolean isValidTest(TestCase testCase) throws Exception {
 		// a valid test case cannot belong to the executed branch 
@@ -303,25 +323,6 @@ public class PathLearner {
 			}
 			testVar.addObjValue(objTarget);
 		}
-	}
-	
-	public HashSet<ArrayList<Step>> getTraces() {
-		return traces;
-	}
-
-	private void addToTraces(Step step) {
-		if (traces == null) {
-			traces = new LinkedHashSet<ArrayList<Step>>();
-			traces.add(new ArrayList<Step>());
-		}
-		Iterator<ArrayList<Step>> iterator = traces.iterator();
-		while (iterator.hasNext()) {
-			iterator.next().add(step);
-		}
-	}
-
-	public PredicateNode getTarget() {
-		return target;
 	}
 
 }
