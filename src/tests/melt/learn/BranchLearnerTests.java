@@ -141,6 +141,7 @@ public class BranchLearnerTests {
 		Config.loadProperties("/home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner.melt");
 		//melt.MELT.instrument();
 		test1();
+		
 	}
 
 }
