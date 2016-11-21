@@ -1,7 +1,7 @@
 MELT: Systematic Testing via Learning and Guiding
 ======
 
-MELT is a tool for systematic software testing via machine learning techniques.
+MELT is a tool for systematic software testing through machine learning and concolic execution.
 
 
 Running
