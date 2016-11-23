@@ -2,7 +2,7 @@ sourcepath = /home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLear
 
 classpath = /home/bhchen/workspace/testing/melt/build/tests
 mainclass = melt.learn.BranchLearner
-entrymethod = void test2(a:byte,b:byte,c:byte)
+entrymethod = void test2(a:int,b:int,c:int)
 
 jpfconfig = 
 
@@ -10,5 +10,5 @@ classification.model = randomforest
 max.attempts = 3
 tests.size = 10
 
-min.byte = -100
-max.byte = 100
+min.int = -100
+max.int = 100

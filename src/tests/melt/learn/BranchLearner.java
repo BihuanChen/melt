@@ -21,10 +21,10 @@ public class BranchLearner {
 		melt.core.Profile.add(1, false, melt.core.Predicate.TYPE.FOR);
 	}
 	
-	public void test2(byte a, byte b, byte c) {
-		a = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedByte(a, 1);
-		b = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedByte(b, 2);
-		c = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedByte(c, 4);
+	public void test2(int a, int b, int c) {
+		a = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(a, 1);
+		b = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(b, 2);
+		c = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(c, 4);
 		for (int i = 0; i < a; i++) {
 			melt.core.Profile.add(3, true, melt.core.Predicate.TYPE.FOR);
 			if (c > 0) {
@@ -46,7 +46,7 @@ public class BranchLearner {
 		melt.core.Profile.add(3, false, melt.core.Predicate.TYPE.FOR);
 	}
 	
-	public void test3(byte a, byte b, byte c) {
+	public void test3(byte a, byte b) {
 		int i = 0, j = 0;
 		do {
 			melt.core.Profile.add(7, true, melt.core.Predicate.TYPE.DO);
@@ -61,7 +61,7 @@ public class BranchLearner {
 	}
 	
 	public static void main(String[] args) {
-		new BranchLearner().test2((byte)1, (byte)1, (byte)1);
+		new BranchLearner().test2(1, 1, 1);
 	}
 
 }

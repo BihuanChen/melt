@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import melt.Config;
 import melt.core.Predicate;
@@ -13,22 +14,28 @@ import melt.core.ProfileAnalyzer;
 import melt.learn.OneBranchLearner;
 import melt.learn.PathLearner;
 import melt.learn.TwoBranchLearner;
+import melt.test.run.TaintRunner;
 import melt.test.run.TestRunner;
 import melt.test.util.TestCase;
 
 public class BranchLearnerTests {
 
+	// test the learning part for programs that do not have hidden nodes
 	@SuppressWarnings("unchecked")
 	public static void test1() throws Exception {
+		// obtain the branch information
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		Profile.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
 		Profile.printPredicates();
-		
+
+		// construct the profile analyzer
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
-		TestCase testInput1 = new TestCase(new Object[]{(byte)-1, (byte)1, (byte)1});
+		// run the first test case and build the branch execution tree
+		TestCase testInput1 = new TestCase(new Object[]{-1, 1, 1});
 		TestRunner.run(testInput1.getTest());
+		TaintRunner.run(testInput1.getTest());
 		Profile.tests.add(testInput1);
 		Profile.printExecutedPredicates();
 		analyzer.update();
@@ -38,8 +45,9 @@ public class BranchLearnerTests {
 		PathLearner pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 				
-		TestCase testInput2 = new TestCase(new Object[]{(byte)2, (byte)-1, (byte)1});
+		TestCase testInput2 = new TestCase(new Object[]{2, -1, 1});
 		TestRunner.run(testInput2.getTest());
+		TaintRunner.run(testInput2.getTest());
 		Profile.tests.add(testInput2);
 		Profile.printExecutedPredicates();
 		analyzer.update();
@@ -49,8 +57,9 @@ public class BranchLearnerTests {
 		pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 		
-		TestCase testInput3 = new TestCase(new Object[]{(byte)2, (byte)2, (byte)1});
+		TestCase testInput3 = new TestCase(new Object[]{2, 2, 1});
 		TestRunner.run(testInput3.getTest());
+		TaintRunner.run(testInput3.getTest());
 		Profile.tests.add(testInput3);
 		Profile.printExecutedPredicates();
 		analyzer.update();
@@ -60,17 +69,18 @@ public class BranchLearnerTests {
 		pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 
-		
+		// test the two-class classifier
 		TwoBranchLearner twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
 		double[] probs = twoLearner.classifiyInstance(new TestCase(new Object[]{3, 1, 4}));
-		System.out.println("[melt] " + probs[0] + ", " + probs[1]);
+		System.out.println("[melt] " + probs[0] + " vs. " + probs[1]);
+		// test if the two-class classifier will rebuild when no instance is added
 		twoLearner = analyzer.getNodes().get(3).getTwoBranchesLearner();
 		twoLearner.buildInstancesAndClassifier();
-
 		
-		TestCase testInput4 = new TestCase(new Object[]{(byte)3, (byte)3, (byte)-1});
+		TestCase testInput4 = new TestCase(new Object[]{3, 3, -1});
 		TestRunner.run(testInput4.getTest());
+		TaintRunner.run(testInput4.getTest());
 		Profile.tests.add(testInput4);
 		Profile.printExecutedPredicates();
 		analyzer.update();
@@ -79,22 +89,26 @@ public class BranchLearnerTests {
 		System.out.println("[melt] target branch found " + node);
 		pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
-	
-		// use TestAnalyzer.java
-		//pl = new PathLearner(analyzer.getRoot(), analyzer.getNodes().get(1));
-		//Iterator iterator = pl.getTraces().iterator();
-		//while (iterator.hasNext()) {
-		//	System.out.println("[melt] " + iterator.next());
-		//}
-	
+
+		// test if a new test case can reach the target node
 		System.out.println("[melt] valid test ? " + pl.isValidTest(new TestCase(new Object[]{3, 3, -1})));
 		
+		// test the one-class classifier
 		OneBranchLearner oneLearner = node.getOneBranchLearner();
 		oneLearner.buildInstancesAndClassifier();
-		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 3, -1}))[0]);
-		System.out.println(oneLearner.classifiyInstance(new TestCase(new Object[]{3, 1, -1}))[0]);
+		System.out.println("[melt] " + oneLearner.classifiyInstance(new TestCase(new Object[]{3, 3, -1}))[0]);
+		// test if the one-class classifier will rebuild when no instance is added
+		System.out.println("[melt] " + oneLearner.classifiyInstance(new TestCase(new Object[]{3, 1, -1}))[0]);
+		
+		// test the collecting of traces to a target branch
+		pl = new PathLearner(analyzer.getRoot(), analyzer.getNodes().get(1));
+		Iterator<ArrayList<Step>> iterator = pl.getTraces().iterator();
+		while (iterator.hasNext()) {
+			System.out.println("[melt] " + iterator.next());
+		}
 	}
 	
+	// test the learning part for programs that have hidden nodes
 	@SuppressWarnings("unchecked")
 	public static void test2() throws Exception {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
@@ -138,10 +152,13 @@ public class BranchLearnerTests {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.loadProperties("/home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner.melt");
+		// configuration for test1
+		//Config.loadProperties("/home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner.melt");
+		// configuration for test2
+		Config.loadProperties("");
 		//melt.MELT.instrument();
-		test1();
-		
+		//test1();
+		test2();
 	}
 
 }

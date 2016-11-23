@@ -91,7 +91,8 @@ public class OneBranchLearner {
 		if (changed1 || changed2 || changed3) {
 			// build the classifier if new tests data are available
 			classifier.buildClassifier(instances);
-			//System.out.println("[melt] instances \n" + classifier + "\n");
+			//System.out.println("[melt] " + classifier + "\n");
+			//System.out.println("[melt] " + instances + "\n");
 		}
 	}
 	

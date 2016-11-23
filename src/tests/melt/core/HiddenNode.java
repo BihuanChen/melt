@@ -13,9 +13,9 @@ public class HiddenNode {
 	
 	// test hidden node 2
 	public static void test2(int x, int y, int z) {
-		x = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedInt(x, 1);
-		y = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedInt(y, 2);
-		z = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedInt(z, 4);
+		x = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(x, 1);
+		y = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(y, 2);
+		z = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(z, 4);
 		if (func1(x) > 0 || z > 0 || func2(y) > 0) {
 			melt.core.Profile.add(1, true, melt.core.Predicate.TYPE.IF);
 		} else {

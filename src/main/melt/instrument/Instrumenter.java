@@ -402,7 +402,7 @@ public class Instrumenter implements Serializable {
 			private Statement createAssignmentStatement(String parameter, Class<?> cls, int tag) {
 			    MethodInvocation invocation = ast.newMethodInvocation();
 			    //TODO data-flow-enabled or control-flow-enabled taint analysis (using Tainter or MultiTainter respectively)
-			    QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "columbia", "cs", "psl", "phosphor", "runtime"}), ast.newSimpleName("Tainter"));
+			    QualifiedName qualifiedName = ast.newQualifiedName(ast.newName(new String[] {"edu", "columbia", "cs", "psl", "phosphor", "runtime"}), ast.newSimpleName("MultiTainter"));
 			    invocation.setExpression(qualifiedName);
 			    if (cls == byte.class) {
 				    invocation.setName(ast.newSimpleName("taintedByte"));

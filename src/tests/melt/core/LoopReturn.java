@@ -3,10 +3,10 @@ package melt.core;
 public class LoopReturn {
 
 	public static void test1(int a, int b, int c, int d) {
-		a = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedInt(a, 1);
-		b = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedInt(b, 2);
-		c = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedInt(c, 4);
-		d = edu.columbia.cs.psl.phosphor.runtime.Tainter.taintedInt(d, 8);
+		a = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(a, 1);
+		b = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(b, 2);
+		c = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(c, 4);
+		d = edu.columbia.cs.psl.phosphor.runtime.MultiTainter.taintedInt(d, 8);
 		for (int i = 0; i < a; i++) {
 			melt.core.Profile.add(0, true, melt.core.Predicate.TYPE.FOR);
 			if (b > 0) {

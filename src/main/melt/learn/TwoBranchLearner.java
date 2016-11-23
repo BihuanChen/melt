@@ -135,7 +135,8 @@ public class TwoBranchLearner {
 		if (changed1 || changed2 || changed3) {
 			// build the classifier if instances are changed
 			classifier.buildClassifier(instances);
-			//System.out.println("[melt] instances \n" + classifier + "\n");
+			//System.out.println("[melt] " + classifier + "\n");
+			//System.out.println("[melt] " + instances + "\n");
 		}
 	}
 	
