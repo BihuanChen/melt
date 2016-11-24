@@ -1,7 +1,7 @@
-sourcepath = /home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner.java
+sourcepath = /home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner1.java
 
 classpath = /home/bhchen/workspace/testing/melt/build/tests
-mainclass = melt.learn.BranchLearner
+mainclass = melt.learn.BranchLearner1
 entrymethod = void test2(a:int,b:int,c:int)
 
 jpfconfig = 

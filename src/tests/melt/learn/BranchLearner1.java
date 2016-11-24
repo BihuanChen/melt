@@ -1,6 +1,6 @@
 package melt.learn;
 
-public class BranchLearner {
+public class BranchLearner1 {
 	
 	public void test1(byte a, byte b, byte c) {
 		if (a > 0) {
@@ -61,7 +61,7 @@ public class BranchLearner {
 	}
 	
 	public static void main(String[] args) {
-		new BranchLearner().test2(1, 1, 1);
+		new BranchLearner1().test2(1, 1, 1);
 	}
 
 }

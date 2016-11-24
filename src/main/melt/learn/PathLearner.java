@@ -68,7 +68,9 @@ public class PathLearner {
 			Iterator<PredicateArc> iterator = arcs.iterator();
 			while (iterator.hasNext()) {
 				PredicateNode pn = iterator.next().getSource();
-				if (pn.getLevel() == node.getLevel() - 1) {
+				if (pn.getLevel() == -1) { // skip the hidden node
+					return findSourceStep(pn);
+				} else if (node.getLevel() == -1 || pn.getLevel() == node.getLevel() - 1) {
 					Step s = new Step(pn, true);
 					// branches that do not depend on input are not considered since they are always touched anyway
 					if (pn.getDepInputs() != null) {
@@ -83,7 +85,9 @@ public class PathLearner {
 			Iterator<PredicateArc> iterator = arcs.iterator();
 			while (iterator.hasNext()) {
 				PredicateNode pn = iterator.next().getSource();
-				if (pn.getLevel() == node.getLevel() - 1) {
+				if (pn.getLevel() == -1) { // skip the hidden node
+					return findSourceStep(pn);
+				} else if (node.getLevel() == -1 || pn.getLevel() == node.getLevel() - 1) {
 					Step s = new Step(pn, false);
 					// branches that do not depend on input are not considered since they are always touched anyway
 					if (pn.getDepInputs() != null) {
@@ -112,10 +116,10 @@ public class PathLearner {
 					trace.add(new Step(node, true));
 				}
 			}
-			if (tArc.getTarget().getLevel() > node.getLevel()) {
+			if (tArc.getTarget().getLevel() == -1 || tArc.getTarget().getLevel() > node.getLevel()) {
 				findTargetNodes(tArc.getTarget(), traces);
 			}
-			if (fArc.getTarget().getLevel() > node.getLevel()) {
+			if (fArc.getTarget().getLevel() == -1 || fArc.getTarget().getLevel() > node.getLevel()) {
 				findTargetNodes(fArc.getTarget(), newTraces);
 			}
 			if (length != traces.iterator().next().size() || length != newTraces.iterator().next().size()) {
@@ -128,7 +132,7 @@ public class PathLearner {
 					iterator.next().add(new Step(node, true));
 				}
 			}
-			if (tArc.getTarget().getLevel() > node.getLevel()) {
+			if (tArc.getTarget().getLevel() == -1 || tArc.getTarget().getLevel() > node.getLevel()) {
 				findTargetNodes(tArc.getTarget(), traces);
 			}
 		} else if (tArc == null && fArc != null) {
@@ -138,7 +142,7 @@ public class PathLearner {
 					iterator.next().add(new Step(node, false));
 				}
 			}
-			if (fArc.getTarget().getLevel() > node.getLevel()) {
+			if (fArc.getTarget().getLevel() == -1 || fArc.getTarget().getLevel() > node.getLevel()) {
 				findTargetNodes(fArc.getTarget(), traces);
 			}
 		}
@@ -186,18 +190,21 @@ public class PathLearner {
 	}
 	
 	private void collectNodes(PredicateNode node, int testIndex, HashSet<PredicateNode> set) {
-		if (node.getPredicate() != -1) {
+		if (node.getPredicate() == -2) { // for hidden nodes
+			collectNodes(node.getSourceTrueBranch().getTarget(), testIndex, set);
+			collectNodes(node.getSourceFalseBranch().getTarget(), testIndex, set);
+		} else if (node.getPredicate() != -1) {
 			PredicateArc arc = node.getSourceTrueBranch();
 			if (arc != null && arc.getTriggerTests().contains(testIndex)) {
 				set.add(node);
-				if (arc.getTarget().getLevel() > node.getLevel()) {
+				if (arc.getTarget().getLevel() == -1 || arc.getTarget().getLevel() > node.getLevel()) {
 					collectNodes(arc.getTarget(), testIndex, set);
 				}
 			}
 			arc = node.getSourceFalseBranch();
 			if (arc != null && arc.getTriggerTests().contains(testIndex)) {
 				set.add(node);
-				if (arc.getTarget().getLevel() > node.getLevel()) {
+				if (arc.getTarget().getLevel() == -1 || arc.getTarget().getLevel() > node.getLevel()) {
 					collectNodes(arc.getTarget(), testIndex, set);
 				}
 			}

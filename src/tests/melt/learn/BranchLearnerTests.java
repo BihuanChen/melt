@@ -107,10 +107,10 @@ public class BranchLearnerTests {
 			System.out.println("[melt] " + iterator.next());
 		}
 	}
-	
-	// test the learning part for programs that have hidden nodes
+		
+	// test the learning part for programs that have hidden nodes	
 	@SuppressWarnings("unchecked")
-	public static void test2() throws Exception {
+	public static void test2_1() throws Exception {
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
 		Profile.predicates.addAll((ArrayList<Predicate>)oin.readObject());
 		oin.close();
@@ -118,8 +118,9 @@ public class BranchLearnerTests {
 		
 		ProfileAnalyzer analyzer = new ProfileAnalyzer();
 		
-		TestCase test1 = new TestCase(new Object[]{1, -2});
+		TestCase test1 = new TestCase(new Object[]{3, 0, 0});
 		TestRunner.run(test1.getTest());
+		TaintRunner.run(test1.getTest());
 		Profile.tests.add(test1);
 		Profile.printExecutedPredicates();
 		analyzer.update();
@@ -129,8 +130,9 @@ public class BranchLearnerTests {
 		PathLearner pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 				
-		TestCase test2 = new TestCase(new Object[]{1, 2});
+		TestCase test2 = new TestCase(new Object[]{-3, 0, 3});
 		TestRunner.run(test2.getTest());
+		TaintRunner.run(test2.getTest());
 		Profile.tests.add(test2);
 		Profile.printExecutedPredicates();
 		analyzer.update();
@@ -140,25 +142,112 @@ public class BranchLearnerTests {
 		pl = new PathLearner(analyzer.getRoot(), node);
 		System.out.println("[melt] prefix traces found " + pl.getTraces());
 		
-		TwoBranchLearner twoLearner = analyzer.getNodes().get(1).getTwoBranchesLearner();
-		twoLearner.buildInstancesAndClassifier();
-		twoLearner = analyzer.getNodes().get(1).getTwoBranchesLearner();
-		twoLearner.buildInstancesAndClassifier();
+		TestCase test3 = new TestCase(new Object[]{-3, 3, -3});
+		TestRunner.run(test3.getTest());
+		TaintRunner.run(test3.getTest());
+		Profile.tests.add(test3);
+		Profile.printExecutedPredicates();
+		analyzer.update();
+		analyzer.printNodes();
+		node = analyzer.findUnexploredBranch();
+		System.out.println("[melt] target branch found " + node);
+		pl = new PathLearner(analyzer.getRoot(), node);
+		System.out.println("[melt] prefix traces found " + pl.getTraces());
 		
-		OneBranchLearner oneLearner = analyzer.getNodes().get(0).getOneBranchLearner();
-		oneLearner.buildInstancesAndClassifier();
-		oneLearner = analyzer.getNodes().get(0).getOneBranchLearner();
-		oneLearner.buildInstancesAndClassifier();
+		TestCase test4 = new TestCase(new Object[]{-3, -3, -3});
+		TestRunner.run(test4.getTest());
+		TaintRunner.run(test4.getTest());
+		Profile.tests.add(test4);
+		Profile.printExecutedPredicates();
+		analyzer.update();
+		analyzer.printNodes();
+		node = analyzer.findUnexploredBranch();
+		System.out.println("[melt] target branch found " + node);
+		pl = new PathLearner(analyzer.getRoot(), node);
+		System.out.println("[melt] prefix traces found " + pl.getTraces());
+		
+		// test the collecting of traces to a target branch
+		pl = new PathLearner(analyzer.getRoot(), analyzer.getNodes().get(7));
+		Iterator<ArrayList<Step>> iterator = pl.getTraces().iterator();
+		while (iterator.hasNext()) {
+			System.out.println("[melt] " + iterator.next());
+		}
+	}
+	
+	// test the learning part for programs that have hidden nodes	
+	@SuppressWarnings("unchecked")
+	public static void test2_2() throws Exception {
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
+		Profile.predicates.addAll((ArrayList<Predicate>)oin.readObject());
+		oin.close();
+		Profile.printPredicates();
+		
+		ProfileAnalyzer analyzer = new ProfileAnalyzer();
+		
+		TestCase test1 = new TestCase(new Object[]{3, 0, 0, 2});
+		TestRunner.run(test1.getTest());
+		TaintRunner.run(test1.getTest());
+		Profile.tests.add(test1);
+		Profile.printExecutedPredicates();
+		analyzer.update();
+		analyzer.printNodes();
+		PredicateNode node = analyzer.findUnexploredBranch();
+		System.out.println("[melt] target branch found " + node);
+		PathLearner pl = new PathLearner(analyzer.getRoot(), node);
+		System.out.println("[melt] prefix traces found " + pl.getTraces());
+				
+		TestCase test2 = new TestCase(new Object[]{-3, 0, 3, 2});
+		TestRunner.run(test2.getTest());
+		TaintRunner.run(test2.getTest());
+		Profile.tests.add(test2);
+		Profile.printExecutedPredicates();
+		analyzer.update();
+		analyzer.printNodes();
+		node = analyzer.findUnexploredBranch();
+		System.out.println("[melt] target branch found " + node);
+		pl = new PathLearner(analyzer.getRoot(), node);
+		System.out.println("[melt] prefix traces found " + pl.getTraces());
+		
+		TestCase test3 = new TestCase(new Object[]{-3, 3, -3, 2});
+		TestRunner.run(test3.getTest());
+		TaintRunner.run(test3.getTest());
+		Profile.tests.add(test3);
+		Profile.printExecutedPredicates();
+		analyzer.update();
+		analyzer.printNodes();
+		node = analyzer.findUnexploredBranch();
+		System.out.println("[melt] target branch found " + node);
+		pl = new PathLearner(analyzer.getRoot(), node);
+		System.out.println("[melt] prefix traces found " + pl.getTraces());
+		
+		TestCase test4 = new TestCase(new Object[]{-3, -3, -3, 2});
+		TestRunner.run(test4.getTest());
+		TaintRunner.run(test4.getTest());
+		Profile.tests.add(test4);
+		Profile.printExecutedPredicates();
+		analyzer.update();
+		analyzer.printNodes();
+		node = analyzer.findUnexploredBranch();
+		System.out.println("[melt] target branch found " + node);
+		pl = new PathLearner(analyzer.getRoot(), node);
+		System.out.println("[melt] prefix traces found " + pl.getTraces());
+		
+		// test the collecting of traces to a target branch
+		pl = new PathLearner(analyzer.getRoot(), analyzer.getNodes().get(3));
+		Iterator<ArrayList<Step>> iterator = pl.getTraces().iterator();
+		while (iterator.hasNext()) {
+			System.out.println("[melt] " + iterator.next());
+		}
 	}
 	
 	public static void main(String[] args) throws Exception {
 		// configuration for test1
-		//Config.loadProperties("/home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner.melt");
-		// configuration for test2
-		Config.loadProperties("");
+		//Config.loadProperties("/home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner1.melt");
+		// configuration for test2_1 and test2_2
+		Config.loadProperties("/home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner2.melt");
 		//melt.MELT.instrument();
 		//test1();
-		test2();
+		test2_2();
 	}
 
 }

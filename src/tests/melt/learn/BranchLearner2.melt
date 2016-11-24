@@ -1,0 +1,15 @@
+sourcepath = /home/bhchen/workspace/testing/melt/src/tests/melt/learn/BranchLearner2.java
+
+classpath = /home/bhchen/workspace/testing/melt/build/tests
+mainclass = melt.learn.BranchLearner2
+#entrymethod = void test1(x:int,y:int,z:int)
+entrymethod = void test2(x:int,y:int,z:int,l:int)
+
+jpfconfig = 
+
+classification.model = randomforest
+max.attempts = 3
+tests.size = 10
+
+min.int = -10000
+max.int = 10000
