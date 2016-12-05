@@ -22,7 +22,7 @@ public class Config {
 	// default configuration parameters of melt
 	public static int MAX_ATTEMPTS = 3; 			// the maximum number of attempts to cover an unexplored branch
 	public static Model MODEL = Model.RANDOMFOREST; // the applied classification model
-	public static int LEARN_THRESHOLD = 5;			// the threshold for re-learn the model
+	public static int LEARN_THRESHOLD = 10;			// the threshold for re-learn the model
 	public static int TESTS_SIZE = 10; 				// the number of test cases that need to be generated at a time
 
 	// configuration information of the target project for instrumentation

@@ -12,8 +12,7 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
-import javassist.expr.ExprEditor;
-import javassist.expr.MethodCall;
+import javassist.bytecode.BadBytecode;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -44,6 +43,8 @@ public class ConcolicExecution {
 	private JPFLogger logger;
 
 	private static ConcolicExecution instance;
+	
+	private boolean firstLoad = true;
 	
 	public ConcolicExecution(String prop) {
 		Config conf = JPF.createConfig(new String[]{prop});
@@ -76,7 +77,7 @@ public class ConcolicExecution {
 		return instance;
 	}
 	
-	public void run(Object[] test) throws NotFoundException, CannotCompileException, IOException {
+	public void run(Object[] test) throws NotFoundException, CannotCompileException, IOException, BadBytecode {
 		this.prepare(test);
 		if (ce.hasCurrentAnalysis()) {
 	    	ce.completeAnalysis();
@@ -92,7 +93,7 @@ public class ConcolicExecution {
 	    logger.info("Profiling:\n" + SimpleProfiler.getResults());
 	}
 	
-	public void run() throws NotFoundException, CannotCompileException, IOException {
+	public void run() throws NotFoundException, CannotCompileException, IOException, BadBytecode {
 		Object[] iniTest = Util.randomTest();
 		System.out.print("[FINER] Found: SAT : " + melt.Config.PARAMETERS[0] + ":=" + iniTest[0]);
 		for (int i = 1; i < melt.Config.PARAMETERS.length; i++) {
@@ -110,17 +111,20 @@ public class ConcolicExecution {
 	    logger.info("Profiling:\n" + SimpleProfiler.getResults());
 	}
 	
-	private void prepare(final Object[] test) throws NotFoundException, CannotCompileException, IOException {
+	private void prepare(final Object[] test) throws NotFoundException, CannotCompileException, IOException, BadBytecode {
 		String mainClass = jpfConf.getString("target");
 		final String methodName = jpfConf.getString("concolic.method");
 		ClassPool cp = ClassPool.getDefault();
-		cp.insertClassPath(jpfConf.getString("classpath").split(";")[0]);
+		if (firstLoad) {
+			cp.insertClassPath(jpfConf.getString("classpath").split(";")[0]);
+			firstLoad = false;
+		}
 		CtClass cc = cp.get(mainClass);
 		if (cc.isFrozen()) {
 			cc.defrost();
 		}
 		CtMethod cm = cc.getDeclaredMethod("main");
-		cm.instrument(new ExprEditor(){
+		/*cm.instrument(new ExprEditor(){
 
 			@Override
 			public void edit(MethodCall m) throws CannotCompileException {
@@ -146,7 +150,25 @@ public class ConcolicExecution {
 				}
 			}
 			
-		});
+		});*/
+		String args = "";
+		if (melt.Config.CLS[0] == float.class) {
+			args = test[0].toString() + "f";
+		} else if (melt.Config.CLS[0] == char.class) {
+			args = "(char)" + (int)(test[0].toString().charAt(0));
+		} else {
+			args = test[0].toString();
+		}
+		for (int i = 1; i < test.length; i++) {
+			if (melt.Config.CLS[i] == float.class) {
+				args += ", " + test[i].toString() + "f";
+			} else if (melt.Config.CLS[i] == char.class) {
+				args += ", (char)" + (int)(test[i].toString().charAt(0));
+			} else {
+				args += ", " + test[i].toString();
+			}
+		}
+		cm.setBody("new " + mainClass + "()." + methodName + "(" + args + ");");
 		cc.writeFile(jpfConf.getString("classpath").split(";")[0]);
 	}
 	

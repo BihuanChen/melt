@@ -29,10 +29,10 @@ public class TaintRunner {
 		}
 		String line = null;
 		while ((line = reader.readLine()) == null) {
-			Thread.sleep(10);
+			Thread.sleep(5);
 		}
 		do {
-			System.out.println(line);
+			//System.out.println(line);
 			String[] str = line.split(" ");
 			String srcLoc = str[0].replace("/", ".");
 			int tag = Integer.valueOf(str[1]);			

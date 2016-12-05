@@ -113,6 +113,8 @@ public class MELT {
 					}, null);
 					new Thread(task2).start();
 					while (!task1.isDone() || !task2.isDone()) {} 
+					// get the potential exception in task1 and task2
+					task1.get(); task2.get();
 					long delta = System.currentTimeMillis() - t;
 					testTime += delta;
 					Profile.tests.add(testCase);
@@ -273,11 +275,11 @@ public class MELT {
 		boolean inst = false;
 		
 		String algo = "MELT";
-		String[] program = {"Replace"};
-		long[] timeout = {60000};
+		String[] program = {"Schedule"};
+		long[] timeout = {85900};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/replace/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/schedule/" + program[k] + ".melt");
 			
 			// instrument the source code
 			if (inst) {

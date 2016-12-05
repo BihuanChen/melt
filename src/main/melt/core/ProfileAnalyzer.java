@@ -250,7 +250,9 @@ public class ProfileAnalyzer {
 	
 	public void computeCoverage(PredicateNode target) {
 		// coverage information of the target node
-		System.out.println("[melt] target branch " + (target.isCovered() ? "covered" : "not covered"));;
+		if (target != null) {
+			System.out.println("[melt] target branch " + (target.isCovered() ? "covered" : "not covered"));;
+		}
 		// coverage information of the whole program
 		Iterator<Integer> preIterator = predicatedNodes.keySet().iterator();
 		int coveredPre = 0;
