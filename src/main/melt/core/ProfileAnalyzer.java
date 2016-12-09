@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import melt.Config;
+import melt.core.Predicate.TYPE;
 import melt.test.util.Pair;
 import melt.test.util.PairArrayList;
 
@@ -121,9 +122,11 @@ public class ProfileAnalyzer {
 			
 			// attach the dynamic taint results
 			Predicate pd = Profile.predicates.get(index);
-			String key = pd.getClassName() + "@" + pd.getLineNumber();
-			HashSet<Integer> newDepInputs = Profile.taints.get(key);
-			current.addToDepInputs(newDepInputs);
+			//if (pd.getType() == TYPE.IF) {
+				String key = pd.getClassName() + "@" + pd.getLineNumber();
+				HashSet<Integer> newDepInputs = Profile.taints.get(key);
+				current.addToDepInputs(newDepInputs);
+			//}
 			
 			// check if the current branch is a loop branch;
 			// if yes, push the loop branch into the stack for later references

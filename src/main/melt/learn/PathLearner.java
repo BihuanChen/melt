@@ -40,7 +40,7 @@ public class PathLearner {
 				System.exit(0);
 			} else {
 				Predicate.TYPE type = Profile.predicates.get(ps.getNode().getPredicate()).getType();
-				PredicateArc arc = ps.getNode().getSourceTrueBranch();
+				/*PredicateArc arc = ps.getNode().getSourceTrueBranch();
 				if ((type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) && !ps.getBranch() && arc != null && ps.getNode().getDepInputs() != null) {
 					LinkedHashSet<ArrayList<Step>> newTraces = new LinkedHashSet<ArrayList<Step>>();
 					Iterator<ArrayList<Step>> iterator = traces.iterator();
@@ -55,6 +55,13 @@ public class PathLearner {
 						findTargetNodes(arc.getTarget(), newTraces);
 					}
 					traces.addAll(newTraces);
+				}*/
+				if ((type == Predicate.TYPE.FOR || type == Predicate.TYPE.FOREACH || type == Predicate.TYPE.DO || type == Predicate.TYPE.WHILE) && !ps.getBranch() && ps.getNode().getDepInputs() != null) {
+					Iterator<ArrayList<Step>> iterator = traces.iterator();
+					while (iterator.hasNext()) {
+						ArrayList<Step> trace = iterator.next();
+						trace.remove(trace.size() - 1);
+					}
 				}
 				findSourceNodes(ps.getNode());
 			}

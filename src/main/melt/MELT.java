@@ -275,11 +275,11 @@ public class MELT {
 		boolean inst = false;
 		
 		String algo = "MELT";
-		String[] program = {"Schedule"};
-		long[] timeout = {85900};
+		String[] program = {"Replace"};
+		long[] timeout = {71600};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/schedule/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/replace/" + program[k] + ".melt");
 			
 			// instrument the source code
 			if (inst) {
@@ -288,7 +288,7 @@ public class MELT {
 			}
 			
 			// run the testing tool
-			for (int i = 0; i <= 0; i++) {
+			for (int i = 4; i <= 10; i++) {
 				System.out.println("\n[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MELT.run();

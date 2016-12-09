@@ -52,7 +52,11 @@ public class TaintRunner {
 			writer = new BufferedWriter(new FileWriter(new File(System.getProperty("java.io.tmpdir") + "/taint-test"), true));
 		}
 		for (int i = 0; i < test.length; i++) {
-			writer.write(test[i] + " ");
+			if (Config.CLS[i] == char.class) {
+				writer.write((int)(char)test[i] + " ");
+			} else {
+				writer.write(test[i] + " ");
+			}
 		}
 		writer.write("\n");
 		writer.flush();
