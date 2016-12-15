@@ -28,6 +28,7 @@ public class PredicateNode {
 	private TwoBranchLearner twoBranchLearner;
 	
 	private boolean covered = false;
+	private boolean loopBodyNotExecuted = false;
 	
 	private LinkedHashMap<String, Expression<Boolean>> constraints;
 	private int conIndex; // the starting index of the to-be-modeled constraints as features in trainting
@@ -136,7 +137,7 @@ public class PredicateNode {
 					twoBranchLearner = new TwoBranchLearner(this);
 				}
 			} else {
-				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
+				if (sourceTrueBranch != null && sourceFalseBranch != null && loopBodyNotExecuted) {
 					twoBranchLearner = new TwoBranchLearner(this);
 				}
 			}
@@ -158,7 +159,7 @@ public class PredicateNode {
 	}
 	
 	// if there exists a test that only executes the false branch of a loop
-	private boolean isLoopBodyNotExecuted() {
+	/*private boolean isLoopBodyNotExecuted() {
 		if (sourceTrueBranch.getTriggerTests() != null) { 	// may be null for do loops
 			HashSet<Integer> tTests = new HashSet<Integer>(sourceTrueBranch.getTriggerTests());
 			Iterator<Integer> iterator = sourceFalseBranch.getTriggerTests().iterator();
@@ -170,7 +171,7 @@ public class PredicateNode {
 			}
 		}
 		return false;
-	}
+	}*/
 	
 	public OneBranchLearner getOneBranchLearner() throws Exception {
 		if (!isCovered() && oneBranchLearner == null) {
@@ -191,7 +192,7 @@ public class PredicateNode {
 					covered = true;
 				}
 			} else {
-				if (sourceTrueBranch != null && sourceFalseBranch != null && isLoopBodyNotExecuted()) {
+				if (sourceTrueBranch != null && sourceFalseBranch != null && loopBodyNotExecuted) {
 					covered = true;
 				}
 			}
@@ -199,6 +200,10 @@ public class PredicateNode {
 		return covered;
 	}
 
+	public void setLoopBodyNotExecuted() {
+		loopBodyNotExecuted = true;
+	}
+	
 	public LinkedHashMap<String, Expression<Boolean>> getConstraints() {
 		return constraints;
 	}

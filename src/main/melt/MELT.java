@@ -26,7 +26,7 @@ import melt.learn.PathLearner;
 import melt.test.generation.concolic.ConcolicExecution;
 import melt.test.generation.random.AdaptiveRandomTestGenerator;
 import melt.test.generation.random.PureRandomTestGenerator;
-import melt.test.generation.search.SearchBasedTestGenerator;
+import melt.test.generation.search2.SearchBasedTestGenerator;
 import melt.test.run.TaintRunner;
 import melt.test.run.TestRunner;
 import melt.test.util.TestCase;
@@ -85,7 +85,7 @@ public class MELT {
 			Iterator<TestCase> iterator = testCases.iterator();
 			while (iterator.hasNext()) {
 				final TestCase testCase = iterator.next();
-				System.out.println("[melt]" + testCase);
+				//System.out.println("[melt]" + testCase);
 				if (!Profile.testsSet.contains(testCase)) {
 					long t = System.currentTimeMillis();
 					// get taint results
@@ -275,11 +275,11 @@ public class MELT {
 		boolean inst = false;
 		
 		String algo = "MELT";
-		String[] program = {"Replace"};
-		long[] timeout = {71600};
+		String[] program = {"PrintTokens2"};
+		long[] timeout = {168000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/replace/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/printtokens2/" + program[k] + ".melt");
 			
 			// instrument the source code
 			if (inst) {
@@ -288,7 +288,7 @@ public class MELT {
 			}
 			
 			// run the testing tool
-			for (int i = 4; i <= 10; i++) {
+			for (int i = 0; i <= 0; i++) {
 				System.out.println("\n[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MELT.run();

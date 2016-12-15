@@ -3,11 +3,9 @@ package melt.test.run;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.HashSet;
 
 import melt.Config;
@@ -17,21 +15,20 @@ public class TaintRunner {
 	
 	private static BufferedReader reader;
 	private static BufferedWriter writer;
-	
-	private static ObjectOutputStream oos;
-	
+		
 	public static void run(Object[] test) throws IOException, InterruptedException {
 		// write the test to be taint-analyzed
-		setTest1(test);
+		setTest(test);
+		// be ready to read
+		File file = new File(System.getProperty("java.io.tmpdir") + "/taint-result-indicator");
+		while (!file.exists());
+		file.delete();
 		// read the taint results
 		if (reader == null) {
 			reader = new BufferedReader(new FileReader(new File(System.getProperty("java.io.tmpdir") + "/taint-result")));
 		}
 		String line = null;
-		while ((line = reader.readLine()) == null) {
-			Thread.sleep(5);
-		}
-		do {
+		while ((line = reader.readLine()) != null) {
 			//System.out.println(line);
 			String[] str = line.split(" ");
 			String srcLoc = str[0].replace("/", ".");
@@ -43,11 +40,11 @@ public class TaintRunner {
 					Profile.taints.get(srcLoc).add(j);
 				}
 			}
-		} while ((line = reader.readLine()) != null);
-		System.out.println();
+		};
+		//System.out.println();
 	}
 	
-	public static void setTest1(Object[] test) throws IOException {
+	public static void setTest(Object[] test) throws IOException {
 		if (writer == null) {
 			writer = new BufferedWriter(new FileWriter(new File(System.getProperty("java.io.tmpdir") + "/taint-test"), true));
 		}
@@ -60,14 +57,8 @@ public class TaintRunner {
 		}
 		writer.write("\n");
 		writer.flush();
-	}
-	
-	public static void setTest2(Object[] test) throws IOException {
-		if (oos == null) {
-			oos = new ObjectOutputStream(new FileOutputStream(new File(System.getProperty("java.io.tmpdir") + "/taint-test"), true));
-		}
-		oos.writeObject(test);
-		oos.flush();
+		File file = new File(System.getProperty("java.io.tmpdir") + "/taint-test-indicator");
+		file.createNewFile();
 	}
 	
 	public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {

@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import melt.Config;
-import melt.core.Predicate.TYPE;
 import melt.test.util.Pair;
 import melt.test.util.PairArrayList;
 
@@ -137,6 +136,10 @@ public class ProfileAnalyzer {
 				if (loopBranchStack.size() == 0 || loopBranchStack.peek().getPredicate() != index || loopRecursionLevelStack.peek() != recursionLevel) {
 					loopBranchStack.push(current);
 					loopRecursionLevelStack.push(recursionLevel);
+					// for loops that directly execute its false branch
+					if (!value) {
+						current.setLoopBodyNotExecuted();
+					}
 				}
 			}
 			
@@ -162,8 +165,7 @@ public class ProfileAnalyzer {
 				}
 			}
 			
-			// set either the true branch or the false branch
-			
+			// set either the true branch or the false branch	
 			if (value) {
 				if (current.getSourceTrueBranch() == null) {
 					if (next == null) {

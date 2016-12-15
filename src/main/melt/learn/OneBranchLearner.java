@@ -36,7 +36,8 @@ public class OneBranchLearner {
 		
 		classifier = new FilteredClassifier();
 		LibSVM svm = new LibSVM();
-		String[] options = Utils.splitOptions("-S 2 -K 2 -D 3 -G 0.5 -R 0.0 -N 0.5 -M 40.0 -C 1.0 -E 0.001 -P 0.1 -seed 1"); // one-class svm, radial basis
+		// -S 2 -K 2 -D 3 -G 0.5 -R 0.0 -N 0.5 -M 40.0 -C 1.0 -E 0.001 -P 0.1 -seed 1
+		String[] options = Utils.splitOptions("-S 2 -K 0"); // one-class svm, radial basis
 		svm.setOptions(options);
 		classifier.setClassifier(svm);
 	}
@@ -209,8 +210,8 @@ public class OneBranchLearner {
 			int counter = 0;
 			while (iterator.hasNext()) {
 				String str = iterator.next();
-				System.out.println(constraints.get(str));
-				System.out.println(testCase.getValuation());
+				//System.out.println(constraints.get(str));
+				//System.out.println(testCase.getValuation());
 				boolean b = constraints.get(str).evaluate(testCase.getValuation());
 				instance.setValue(test.length + 1 + counter, b ? "true" : "false");
 				counter++;

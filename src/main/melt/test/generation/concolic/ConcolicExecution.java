@@ -77,12 +77,14 @@ public class ConcolicExecution {
 		return instance;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void run(Object[] test) throws NotFoundException, CannotCompileException, IOException, BadBytecode {
 		this.prepare(test);
 		if (ce.hasCurrentAnalysis()) {
 	    	ce.completeAnalysis();
 	    }
     	ce.getCompletedAnalyses().clear();
+    	ce.getMethodExplorers().clear();
 	    // run jpf
 	    JPF jpf = new JPF(jpfConf);
 	    SimpleProfiler.start("JDART-run");

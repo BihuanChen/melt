@@ -16,11 +16,14 @@ import melt.test.generation.concolic.ConcolicExecution;
 public class ConcolicTests {
 
 	public static void test1() throws NotFoundException, CannotCompileException, IOException, BadBytecode {
+		melt.Config.CLS = new Class[2];
+		melt.Config.CLS[0] = double.class;
+		melt.Config.CLS[1] = char.class;
 		ConcolicExecution jdart = ConcolicExecution.getInstance("/home/bhchen/workspace/testing/jdart/src/examples/features/nested/test_bar.jpf");
-		Object[] obj = new Object[]{1.733};
+		Object[] obj = new Object[]{1.733, 'a'};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:33)", melt.Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:47)", melt.Config.TESTS_SIZE, cons);
 		System.out.println(vals);
 		System.out.println(cons);
 		jdart.statistics();
@@ -62,7 +65,7 @@ public class ConcolicTests {
 	}
 	
 	public static void main(String[] args) throws NotFoundException, CannotCompileException, IOException, BadBytecode {
-		ConcolicTests.test4();
+		ConcolicTests.test1();
 	}
 
 }

@@ -107,7 +107,7 @@ public class PathLearner {
 		return null;
 	}
 	
-	private void findTargetNodes(PredicateNode node, LinkedHashSet<ArrayList<Step>> traces) {
+	/*private void findTargetNodes(PredicateNode node, LinkedHashSet<ArrayList<Step>> traces) {
 		PredicateArc tArc = node.getSourceTrueBranch();
 		PredicateArc fArc = node.getSourceFalseBranch();
 		if (tArc != null && fArc != null) {
@@ -153,7 +153,7 @@ public class PathLearner {
 				findTargetNodes(fArc.getTarget(), traces);
 			}
 		}
-	}
+	}*/
 
 	private void addToTraces(Step step) {
 		if (traces == null) {
@@ -336,6 +336,62 @@ public class PathLearner {
 				testVar.addViolation(null);
 			}
 			testVar.addObjValue(objTarget);
+		}
+	}
+	
+	public void evaluateTest2(melt.test.generation.search2.TestVar testVar) throws Exception {
+		// one branch learner
+		if (oneLearner == null) {
+			oneLearner = target.getOneBranchLearner();
+			oneLearner.buildInstancesAndClassifier();
+		}
+		double objTarget = oneLearner.classifiyInstance(testVar.getTest())[0];
+		// two branch learner
+		if (traces != null) {
+			Iterator<ArrayList<Step>> iterator = traces.iterator();
+			while (iterator.hasNext()) {
+				ArrayList<Step> trace = iterator.next();
+				double objValue = objTarget;
+				HashSet<PredicateNode> violation = null;
+				int size = trace.size();
+				for (int i = 0 ; i < size; i++) {
+					Step step = trace.get(i);
+					TwoBranchLearner twoLearner = step.getNode().getTwoBranchesLearner();
+					if (twoLearner != null) {
+						if (!twoLearners.contains(twoLearner)) {
+							twoLearner.buildInstancesAndClassifier();
+							twoLearners.add(twoLearner);
+						}
+						double[] probs = twoLearner.classifiyInstance(testVar.getTest());
+						if (step.getBranch()) {
+							objValue += probs[0];
+						} else {
+							objValue += probs[1];
+						}
+						if ((probs[0] >= probs[1] && step.getBranch()) || (probs[0] < probs[1] && !step.getBranch())) {
+							if (violation == null) {
+								violation = new HashSet<PredicateNode>();
+							}
+							violation.add(step.getNode());
+						}
+					}
+				}
+				if (objTarget == 1.0) {
+					if (violation == null) {
+						violation = new HashSet<PredicateNode>(1);
+					}
+					violation.add(target);
+				}
+				testVar.setObjValue(objValue);
+				testVar.setViolations(violation);
+			}
+		} else {
+			if (objTarget == 1.0) {
+				HashSet<PredicateNode> violation = new HashSet<PredicateNode>(1);
+				violation.add(target);
+				testVar.setViolations(violation);
+			}
+			testVar.setObjValue(objTarget);
 		}
 	}
 
