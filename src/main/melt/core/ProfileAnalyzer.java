@@ -34,6 +34,7 @@ public class ProfileAnalyzer {
 		if (!Profile.consistant()) {
 			System.err.println("[melt] error during compressing executed predicates");
 			System.exit(0);
+			//Profile.reset();
 		}
 		
 		// get the list of compressed executed predicates

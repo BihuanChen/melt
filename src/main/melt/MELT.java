@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -207,7 +206,7 @@ public class MELT {
 		System.out.println("[melt] random testing in " + (t3 - t2) + " ms" + "\n");
 	}
 	
-	@SuppressWarnings("deprecation")
+	/*@SuppressWarnings("deprecation")
 	public static void runConcolic(long timeout) throws InterruptedException, ExecutionException {
 		FutureTask<?> task = new FutureTask<Void>(new Runnable() {
 			@Override
@@ -227,10 +226,10 @@ public class MELT {
 			System.out.println("[melt] timeout in concolic testing");
 		}
 		th.stop();
-	}
+	}*/
 	
-	@SuppressWarnings("unchecked")
-	private static void runConcolic() throws Exception {
+	@SuppressWarnings({ "unchecked", "deprecation" })
+	public static void runConcolic(long timeout) throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
 		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
@@ -247,8 +246,27 @@ public class MELT {
 		long testSize = 0;
 		
 		// generate and run tests, and analyze the branch profiles
-		ConcolicExecution jdart = new ConcolicExecution(Config.JPFCONFIG);
-		jdart.run();
+		final ConcolicExecution jdart = new ConcolicExecution(Config.JPFCONFIG);
+		
+		FutureTask<?> task = new FutureTask<Void>(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					jdart.run();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}, null);
+		Thread th = new Thread(task);
+		th.start();
+		try {
+			task.get(timeout, TimeUnit.MILLISECONDS);
+		} catch (TimeoutException e) {
+			th.stop();
+			System.out.println("[melt] timeout in concolic testing");
+		}
+		
 		HashSet<Valuation> vals = jdart.getValuations();
 		testSize += vals.size();
 		Iterator<Valuation> iterator = vals.iterator();
@@ -274,12 +292,12 @@ public class MELT {
 	public static void main(String[] args) throws Exception {		
 		boolean inst = false;
 		
-		String algo = "MELT";
-		String[] program = {"PrintTokens2"};
-		long[] timeout = {168000};
+		String algo = "CT";
+		String[] program = {"TSAFE"};
+		long[] timeout = {126000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark4-siemens/src/printtokens2/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tsafe/" + program[k] + ".melt");
 			
 			// instrument the source code
 			if (inst) {

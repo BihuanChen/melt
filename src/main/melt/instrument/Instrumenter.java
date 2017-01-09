@@ -189,7 +189,8 @@ public class Instrumenter implements Serializable {
 		JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
 		parser.setCompilerOptions(options);
 		parser.setUnitName(file.getName());
-		parser.setEnvironment(new String[]{"/usr/lib/jvm/java-8-oracle/jre/lib/rt.jar"}, new String[]{srcPath.substring(0, srcPath.lastIndexOf("src") + 3)}, new String[]{"UTF-8"}, true);
+		//TODO need to set the dependent libraries of the target program
+		parser.setEnvironment(new String[]{"/usr/lib/jvm/java-8-oracle/jre/lib/rt.jar", "/home/bhchen/workspace/testing/benchmark2-jpf/lib/cdx-utils.jar"}, new String[]{srcPath.substring(0, srcPath.lastIndexOf("src") + 3)}, new String[]{"UTF-8"}, true);
 		parser.setSource(document.get().toCharArray());
 
 		final CompilationUnit cu = (CompilationUnit)parser.createAST(null);
@@ -341,7 +342,7 @@ public class Instrumenter implements Serializable {
 			private Statement createBranchRecordStmt(Expression expression, Predicate.TYPE type, boolean branch) {
 				// add the branch predicate
 				if (branch) {
-					Predicate predicate = new Predicate(className, methodName, signature, 0, expression.toString(), type);
+					Predicate predicate = new Predicate(className, methodName, signature, 0, expression == null ? "" : expression.toString(), type);
 					predicates.add(predicate);
 				}
 				int index = predicates.size() - 1;

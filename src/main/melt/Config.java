@@ -142,6 +142,12 @@ public class Config {
 		}
 		System.out.println("[melt] max.attempts = " + MAX_ATTEMPTS);
 		
+		p = prop.getProperty("learn.threshold");
+		if (p != null) {
+			LEARN_THRESHOLD = Integer.valueOf(p);
+		}
+		System.out.println("[melt] learning.threshold = " + LEARN_THRESHOLD);
+		
 		p = prop.getProperty("tests.size");
 		if (p != null) {
 			TESTS_SIZE = Integer.valueOf(p);

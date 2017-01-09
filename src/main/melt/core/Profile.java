@@ -158,6 +158,16 @@ public class Profile {
 		return loopPairStack.isEmpty() && loopRecursionLevelStack.isEmpty() && recursionLevel == 0;
 	}
 	
+	public static void reset() {
+		while (!loopPairStack.isEmpty()) {
+			loopPairStack.pop();
+		}
+		while (!loopRecursionLevelStack.isEmpty()) {
+			loopRecursionLevelStack.pop();
+		}
+		recursionLevel = 0;
+	}
+	
 	public static void printPredicates() {
 		int size = predicates.size();
 		for (int i = 0; i < size; i++) {

@@ -18,11 +18,11 @@ public class TestSuiteGenProblem extends Problem {
 	private static final long serialVersionUID = 5419978931848602516L;
 
 	private PathLearner learner;
-	
+
 	public TestSuiteGenProblem(PathLearner pathLearner) {
 		learner = pathLearner;
 		numberOfVariables_ = 1;
-		numberOfObjectives_ = 1;
+		numberOfObjectives_ = 2;
 		numberOfConstraints_ = 0;
 		problemName_ = "single-path test suite generation";
 		solutionType_ = new TestVarSolutionType(this);
@@ -37,16 +37,17 @@ public class TestSuiteGenProblem extends Problem {
 			e.printStackTrace();
 		}
 		solution.setObjective(0, tv.getObjValue());
+		solution.setObjective(1, tv.getViolations() == null ? 0 : tv.getViolations().size());
 	}
 
-	@Override
+	/*@Override
 	public void evaluateConstraints(Solution solution) throws JMException {
 		int totalNumOfViolations = 0;
 		TestVar tv = (TestVar)solution.getDecisionVariables()[0];
 		totalNumOfViolations += tv.getViolations() == null ? 0 : tv.getViolations().size();
 		solution.setOverallConstraintViolation(-totalNumOfViolations);
 		solution.setNumberOfViolatedConstraint(totalNumOfViolations);
-	}
+	}*/
 
 	private ArrayList<TestCase> initialTests = null;
 	private static int initialTestsSize = 100;

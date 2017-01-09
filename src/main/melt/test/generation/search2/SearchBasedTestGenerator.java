@@ -31,9 +31,9 @@ public class SearchBasedTestGenerator extends TestGenerator {
 			long t = System.currentTimeMillis();
 			HashSet<TestCase> tcs = new ConcolicTestGenerator(pathLearner).generate();
 			ceTime += System.currentTimeMillis() - t;
-			if (tcs.size() == 0) {
-				return genSearchBasedTests();
-			}
+			//if (tcs.size() == 0) {
+			//	return genSearchBasedTests();
+			//}
 			return tcs;
 		} else if (pathLearner == null || pathLearner.getTraces() == null) {
 			return new PureRandomTestGenerator(pathLearner).generate();

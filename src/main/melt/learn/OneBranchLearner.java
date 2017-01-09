@@ -37,7 +37,7 @@ public class OneBranchLearner {
 		classifier = new FilteredClassifier();
 		LibSVM svm = new LibSVM();
 		// -S 2 -K 2 -D 3 -G 0.5 -R 0.0 -N 0.5 -M 40.0 -C 1.0 -E 0.001 -P 0.1 -seed 1
-		String[] options = Utils.splitOptions("-S 2 -K 0"); // one-class svm, radial basis
+		String[] options = Utils.splitOptions("-S 2 -K 2 -W 1 -H 0"); // one-class svm, linear
 		svm.setOptions(options);
 		classifier.setClassifier(svm);
 	}

@@ -20,6 +20,7 @@ public class TestVar extends Variable {
 	
 	public TestVar(TestCase test) {
 		this.test = test;
+		this.objValue = -1;
 	}
 
 	@Override

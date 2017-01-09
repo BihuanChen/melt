@@ -27,7 +27,7 @@
 	<classpathentry kind="lib" path="lib/jpf-jdart-annotations.jar"/>
 	<classpathentry kind="lib" path="lib/jpf-jdart-classes.jar"/>
 	<classpathentry kind="lib" path="lib/jpf-jdart.jar"/>
-	<classpathentry kind="lib" path="lib/jpf.jar"/>
+	<classpathentry kind="lib" path="lib/jpf.jar" sourcepath="/jdart/src/main"/>
 	<classpathentry kind="lib" path="lib/taint-0.0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

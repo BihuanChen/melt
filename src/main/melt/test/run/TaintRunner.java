@@ -58,7 +58,7 @@ public class TaintRunner {
 		writer.write("\n");
 		writer.flush();
 		File file = new File(System.getProperty("java.io.tmpdir") + "/taint-test-indicator");
-		file.createNewFile();
+		while(!file.createNewFile()) {}
 	}
 	
 	public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
