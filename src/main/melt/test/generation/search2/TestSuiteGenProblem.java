@@ -2,6 +2,7 @@ package melt.test.generation.search2;
 
 import java.util.ArrayList;
 
+import melt.Config;
 import melt.core.PredicateNode;
 import melt.core.Profile;
 import melt.learn.PathLearner;
@@ -50,7 +51,6 @@ public class TestSuiteGenProblem extends Problem {
 	}*/
 
 	private ArrayList<TestCase> initialTests = null;
-	private static int initialTestsSize = 100;
 	
 	// TODO more techniques to generate initial tests?
 	public Variable[] getInitialSolution() {
@@ -72,7 +72,7 @@ public class TestSuiteGenProblem extends Problem {
 				System.exit(0);
 			}
 			// add randomly generated test cases
-			for (int i = initialTests.size(); i < initialTestsSize; i++) {
+			for (int i = initialTests.size(); i < 10 * Config.TESTS_SIZE; i++) {
 				initialTests.add(new TestCase(Util.randomTest()));
 			}
 			// print the initial tests
@@ -87,6 +87,7 @@ public class TestSuiteGenProblem extends Problem {
 			int rdm = PseudoRandom.randInt(0, size - 1);
 			variables[i] = new TestVar(initialTests.get(rdm).deepCopy());
 		}
+		//System.err.println("Initial " + ((TestVar)variables[0]).getTest());
 		return variables;
 	}
 

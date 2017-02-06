@@ -15,7 +15,7 @@ import melt.core.Predicate;
 import melt.core.PredicateArc;
 import melt.core.PredicateNode;
 import melt.core.Profile;
-import melt.test.generation.search.TestVar;
+import melt.test.generation.search2.TestVar;
 import melt.test.util.TestCase;
 
 public class PathLearner {
@@ -281,7 +281,7 @@ public class PathLearner {
 		return true;
 	}
 	
-	public void evaluateTest(TestVar testVar) throws Exception {
+	/*public void evaluateTest(TestVar testVar) throws Exception {
 		// one branch learner
 		if (oneLearner == null) {
 			oneLearner = target.getOneBranchLearner();
@@ -337,9 +337,9 @@ public class PathLearner {
 			}
 			testVar.addObjValue(objTarget);
 		}
-	}
+	}*/
 	
-	public void evaluateTest2(melt.test.generation.search2.TestVar testVar) throws Exception {
+	public void evaluateTest2(TestVar testVar) throws Exception {
 		// one branch learner
 		if (oneLearner == null) {
 			oneLearner = target.getOneBranchLearner();

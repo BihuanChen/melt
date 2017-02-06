@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="build/main" path="src/main"/>
+	<classpathentry excluding="melt/test/generation/search/" kind="src" output="build/main" path="src/main"/>
 	<classpathentry kind="src" output="build/tests" path="src/tests"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.jdt.core_3.10.2.v20150120-1634.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.equinox.common_3.6.200.v20130402-1505.jar"/>

@@ -16,6 +16,9 @@ public class Config {
 
 	public enum Model {J48, NAIVEBAYES, LIBSVM, RANDOMFOREST}
 
+	// enable concolic execution or not
+	public static boolean CE_ENABLED = true;
+	
 	// default configuration parameters of melt
 	public static int MAX_ATTEMPTS = 3; 			// the maximum number of attempts to cover an unexplored branch
 	public static Model MODEL = Model.RANDOMFOREST; // the applied classification model

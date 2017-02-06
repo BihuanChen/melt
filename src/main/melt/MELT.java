@@ -124,7 +124,7 @@ public class MELT {
 				}
 			}
 			System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
-			System.out.println("[melt] finish the " + (++count) + " th set of tests");
+			System.out.println("[melt] finish the " + (++count) + " th set of tests (" + testCases.size() + ")");
 			//analyzer.printNodes();
 			analyzer.computeCoverage(targetNode);			
 			// find an partially explored branch to be covered
@@ -253,6 +253,7 @@ public class MELT {
 			public void run() {
 				try {
 					jdart.run();
+					jdart.statistics();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -293,11 +294,11 @@ public class MELT {
 		boolean inst = false;
 		
 		String algo = "CT";
-		String[] program = {"TSAFE"};
-		long[] timeout = {126000};
+		String[] program = {"tp300"};
+		long[] timeout = {10800000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tsafe/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tp300/" + program[k] + ".melt");
 			
 			// instrument the source code
 			if (inst) {

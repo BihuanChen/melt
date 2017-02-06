@@ -27,13 +27,10 @@ public class SearchBasedTestGenerator extends TestGenerator {
 
 	@Override
 	public HashSet<TestCase> generate() throws Exception {
-		if (pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
+		if (Config.CE_ENABLED && pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
 			long t = System.currentTimeMillis();
 			HashSet<TestCase> tcs = new ConcolicTestGenerator(pathLearner).generate();
 			ceTime += System.currentTimeMillis() - t;
-			//if (tcs.size() == 0) {
-			//	return genSearchBasedTests();
-			//}
 			return tcs;
 		} else if (pathLearner == null || pathLearner.getTraces() == null) {
 			return new PureRandomTestGenerator(pathLearner).generate();
@@ -56,7 +53,7 @@ public class SearchBasedTestGenerator extends TestGenerator {
 
 	    // Crossover operator 
 	    parameters = new HashMap<String, Object>();
-	    parameters.put("probability", 0.6);
+	    parameters.put("probability", 0.9);
 	    Operator crossover = new GuidedCrossover(parameters);                   
 
 	    // Mutation operator
@@ -83,6 +80,7 @@ public class SearchBasedTestGenerator extends TestGenerator {
 	    for (int i = 0; i < population.size(); i++) {
 	    	TestVar tv = (TestVar)population.get(i).getDecisionVariables()[0];
 	    	tests.add(tv.getTest());
+	    	//System.err.println(tv.getTest());
 	    }
 	    
 		return tests;

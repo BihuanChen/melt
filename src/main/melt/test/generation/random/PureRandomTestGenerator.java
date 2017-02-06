@@ -16,7 +16,7 @@ public class PureRandomTestGenerator extends TestGenerator {
 
 	@Override
 	public HashSet<TestCase> generate() throws Exception {
-		if (pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
+		if (Config.CE_ENABLED && pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
 			return new ConcolicTestGenerator(pathLearner).generate();
 		} else {
 			return genPureRandomTests();

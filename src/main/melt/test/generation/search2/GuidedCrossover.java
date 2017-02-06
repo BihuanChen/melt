@@ -12,13 +12,13 @@ public class GuidedCrossover extends Crossover {
 
 	private static final long serialVersionUID = -8399740883333248425L;
 
-	private Double crossoverProbability_ = null;
+	private Double crossoverProbability = null;
 			
 	public GuidedCrossover(HashMap<String, Object> parameters) {
 		super(parameters);
 		
 		if (parameters.get("probability") != null) {
-	  		crossoverProbability_ = (Double) parameters.get("probability");
+	  		crossoverProbability = (Double) parameters.get("probability");
 		}
 	}
 
@@ -44,31 +44,26 @@ public class GuidedCrossover extends Crossover {
 		//System.err.println(depInputs0);
 		//System.err.println(depInputs1);
 				
-		boolean flag0 = false;
-		boolean flag1 = false;
+		boolean flag = false;
 		for (int j = 0; j < c0.length; j++) {
-			if (depInputs0.contains(j)) {
-				if (PseudoRandom.randDouble() < crossoverProbability_) {
-					flag0 = true;
-					//System.err.println("crossed at " + j + " for c0");
-					c0[j] = p1[j];
-				}
-			} 
-			if (depInputs1.contains(j)) {
-				if (PseudoRandom.randDouble() < crossoverProbability_) {
-					flag1 = true;
-					//System.err.println("crossed at " + j + " for c1");
-					c1[j] = p0[j];
-				}
-			}
-				
-			if (flag0) {
-				((TestVar)offspring[0].getDecisionVariables()[0]).clear();
-			}
-			if (flag1) {
-				((TestVar)offspring[1].getDecisionVariables()[0]).clear();
+			if (depInputs0.contains(j) || depInputs1.contains(j)) {
+				flag = true;
+				//System.err.println("crossed at " + j);
+				c0[j] = p1[j];
+				c1[j] = p0[j];
+			} else if (PseudoRandom.randDouble() < crossoverProbability) {
+				flag = true;
+				//System.err.println("crossed at " + j);
+				c0[j] = p1[j];
+				c1[j] = p0[j];
 			}
 		}
+		
+		if (flag) {
+			((TestVar)offspring[0].getDecisionVariables()[0]).clear();
+			((TestVar)offspring[1].getDecisionVariables()[0]).clear();
+		}
+		
 		//printSolution(offspring[0]);
 		//printSolution(offspring[1]);
 		return offspring;
