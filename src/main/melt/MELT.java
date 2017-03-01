@@ -79,6 +79,7 @@ public class MELT {
 			// generate and run tests, and analyze the branch profiles
 			long s = System.currentTimeMillis();
 			HashSet<TestCase> testCases = new SearchBasedTestGenerator(learner).generate();
+			//HashSet<TestCase> testCases = new PureRandomTestGenerator(learner).generate();
 			geneTime += System.currentTimeMillis() - s;
 			testSize += testCases.size();
 			Iterator<TestCase> iterator = testCases.iterator();
@@ -293,12 +294,12 @@ public class MELT {
 	public static void main(String[] args) throws Exception {		
 		boolean inst = false;
 		
-		String algo = "CT";
-		String[] program = {"tp300"};
-		long[] timeout = {10800000};
+		String algo = "MELT";
+		String[] program = {"TSAFE"};
+		long[] timeout = {53000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tp300/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tsafe/" + program[k] + ".melt");
 			
 			// instrument the source code
 			if (inst) {

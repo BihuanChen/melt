@@ -33,7 +33,7 @@ public class Config {
 	public static String MAINCLASS = null;
 	public static String ENTRYMETHOD = null;
 	
-	// configuration file for concolic execution
+	// configuration file for concolic executionrue
 	public static String JPFCONFIG = null;
 	// skip branches that may have extremely long symbolic constraints
 	public static HashSet<String> SKIPPED_BRANCH = null;

@@ -122,11 +122,11 @@ public class ProfileAnalyzer {
 			
 			// attach the dynamic taint results
 			Predicate pd = Profile.predicates.get(index);
-			//if (pd.getType() == TYPE.IF) {
-				String key = pd.getClassName() + "@" + pd.getLineNumber();
-				HashSet<Integer> newDepInputs = Profile.taints.get(key);
-				current.addToDepInputs(newDepInputs);
-			//}
+			String key = pd.getClassName() + "@" + pd.getLineNumber();
+			HashSet<Integer> newDepInputs = Profile.taints.get(key);
+			current.addToDepInputs(newDepInputs);
+			// when taint analysis is disabled
+			//current.setDepAndNotdep();
 			
 			// check if the current branch is a loop branch;
 			// if yes, push the loop branch into the stack for later references

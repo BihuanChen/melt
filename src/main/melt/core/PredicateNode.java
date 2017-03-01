@@ -257,6 +257,19 @@ public class PredicateNode {
 			}
 		}
 	}
+	
+	// when taint analysis is disabled
+	public void setDepAndNotdep() {
+		if (depInputs == null) {
+			depInputs = new HashSet<Integer>();
+			for (int i = 0; i < Config.CLS.length; i++) {
+				depInputs.add(i);
+			}
+		}
+		if (notDepInputs == null) {
+			notDepInputs = new HashSet<Integer>();
+		}
+	}
 
 	public boolean isDepDirty() {
 		return depDirty;
