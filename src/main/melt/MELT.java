@@ -151,6 +151,100 @@ public class MELT {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public static void runHT(long timeout) throws Exception {
+		// deserialize the predicates
+		long t1 = System.currentTimeMillis();
+		ObjectInputStream oin = new ObjectInputStream(new FileInputStream(new File("./pred/" + Config.MAINCLASS + ".pred")));
+		Profile.predicates.addAll((ArrayList<Predicate>)oin.readObject());
+		oin.close();
+		System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
+		Profile.printPredicates();
+
+		// run hybrid testing
+		Config.DT_ENABLED = false;
+		long t2 = System.currentTimeMillis();
+		ProfileAnalyzer analyzer = new ProfileAnalyzer();
+		final ArrayList<PathLearner> learner = new ArrayList<PathLearner>(1);
+		learner.add(null);
+		PredicateNode targetNode = null;
+		
+		long testTime = 0;
+		long geneTime = 0;
+		int count = 0;
+		long testSize = 0;
+		int redundant = 0;
+		
+		long endTime = t2 + timeout;
+		while (true) {
+			// generate and run tests, and analyze the branch profiles
+			long s = System.currentTimeMillis();
+			
+			final HashSet<TestCase> testCases = new HashSet<TestCase>();
+			FutureTask<?> task = new FutureTask<Void>(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						testCases.addAll(new PureRandomTestGenerator(learner.get(0)).generate());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}, null);
+			Thread th = new Thread(task);
+			th.start();
+			try {
+				task.get(endTime - s, TimeUnit.MILLISECONDS);
+			} catch (TimeoutException e) {
+				th.stop();
+				System.out.println("[melt] timeout in concolic testing");
+			}
+			
+			geneTime += System.currentTimeMillis() - s;
+			testSize += testCases.size();
+			Iterator<TestCase> iterator = testCases.iterator();
+			while (iterator.hasNext()) {
+				final TestCase testCase = iterator.next();
+				//System.out.println("[melt]" + testCase);
+				if (!Profile.testsSet.contains(testCase)) {
+					long t = System.currentTimeMillis();
+					TestRunner.run(testCase.getTest());
+					long delta = System.currentTimeMillis() - t;
+					testTime += delta;
+					Profile.tests.add(testCase);
+					Profile.testsSet.add(testCase);
+					analyzer.update();
+				} else {
+					redundant++;
+				}
+			}
+			System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
+			System.out.println("[melt] finish the " + (++count) + " th set of tests (" + testCases.size() + ")");
+			//analyzer.printNodes();
+			analyzer.computeCoverage(targetNode);			
+			// find an partially explored branch to be covered
+			targetNode = analyzer.findUnexploredBranchwithoutContext();
+			System.out.println("[melt] " + Config.FORMAT.format(System.currentTimeMillis()));
+			if (targetNode == null) {
+				System.out.println("[melt] target branch not found \n");
+				break;
+			}
+			System.out.println("[melt] target branch found " + targetNode.getPredicate());
+			learner.set(0, new PathLearner(targetNode));
+			if (System.currentTimeMillis() > endTime) {
+				break;
+			}
+		}
+		
+		long t3 = System.currentTimeMillis();
+		System.out.println("[melt] " + Config.FORMAT.format(t3));
+		System.out.println("[melt] predicates deserialized in " + (t2 - t1) + " ms");
+		System.out.println("[melt] " + testSize + "(" + redundant + ") tests run in " + testTime + " ms");
+		System.out.println("[melt] " + testSize + "(" + redundant + ") tests generated in " + geneTime + " ms");
+		System.out.println("[melt] concolic execution in " + PureRandomTestGenerator.ceTime + " ms");
+		System.out.println("[melt] melt in " + (t3 - t2) + " ms");
+	}
+	
+	@SuppressWarnings("unchecked")
 	public static void runRandom(long timeout, String algo) throws Exception {
 		// deserialize the predicates
 		long t1 = System.currentTimeMillis();
@@ -295,11 +389,11 @@ public class MELT {
 		boolean inst = false;
 		
 		String algo = "MELT";
-		String[] program = {"TSAFE"};
-		long[] timeout = {53000};
+		String[] program = {"WBS"};
+		long[] timeout = {46000};
 		
 		for (int k = 0; k < program.length; k++) {
-			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/tsafe/" + program[k] + ".melt");
+			Config.loadProperties("/home/bhchen/workspace/testing/benchmark2-jpf/src/wbs/" + program[k] + ".melt");
 			
 			// instrument the source code
 			if (inst) {
@@ -308,10 +402,12 @@ public class MELT {
 			}
 			
 			// run the testing tool
-			for (int i = 0; i <= 0; i++) {
+			for (int i = 5; i <= 5; i++) {
 				System.out.println("\n[melt] the " + i + " th run");
 				if (algo.equals("MELT")) {
 					MELT.run();
+				} else if (algo.equals("HT")){
+					MELT.runHT(timeout[k]);
 				} else if (algo.equals("CT")) {
 					MELT.runConcolic(timeout[k]);
 				} else {
@@ -329,6 +425,7 @@ public class MELT {
 				Profile.tests.clear();
 				Profile.testsSet.clear();
 				SearchBasedTestGenerator.ceTime = 0;
+				PureRandomTestGenerator.ceTime = 0;
 			}
 		}
 	}

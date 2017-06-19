@@ -60,10 +60,12 @@ public class ConcolicTestGenerator extends TestGenerator {
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
 		//String solver = jdart.getJpfConf().getString("symbolic.dp");
 		//HashSet<Valuation> vals = jdart.getValuations(srcLoc, solver.equals("z3") ? 1 : Config.TESTS_SIZE, cons);
-		HashSet<Valuation> vals = jdart.getValuations(srcLoc, 1, cons);
+		HashSet<Valuation> vals = jdart.getValuations(srcLoc, 1, cons, pathLearner.getRoot() == null);
 		System.out.println("[melt] tests generated from concolic execution " + vals + "\n");
 		// attach constraints to corresponding nodes
-		pathLearner.attachConstraints(testIndex, cons);
+		if (pathLearner.getRoot() != null) { // except for simple hybrid testing
+			pathLearner.attachConstraints(testIndex, cons);
+		}
 		// convert valuations to tests
 		HashSet<TestCase> testCases = new HashSet<TestCase>();
 		Iterator<Valuation> iterator = vals.iterator();

@@ -25,6 +25,10 @@ public class PathLearner {
 	private PredicateNode target;	
 	private LinkedHashSet<ArrayList<Step>> traces;
 
+	public PathLearner(PredicateNode target) {
+		this.target = target;
+	}
+	
 	public PathLearner(PredicateNode root, PredicateNode target) {
 		this.root = root;
 		this.target = target;
@@ -168,6 +172,10 @@ public class PathLearner {
 	
 	public PredicateNode getTarget() {
 		return target;
+	}
+	
+	public PredicateNode getRoot() {
+		return root;
 	}
 	
 	public HashSet<ArrayList<Step>> getTraces() {

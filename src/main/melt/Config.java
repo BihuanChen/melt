@@ -18,6 +18,7 @@ public class Config {
 
 	// enable concolic execution or not
 	public static boolean CE_ENABLED = true;
+	public static boolean DT_ENABLED = true;
 	
 	// default configuration parameters of melt
 	public static int MAX_ATTEMPTS = 3; 			// the maximum number of attempts to cover an unexplored branch

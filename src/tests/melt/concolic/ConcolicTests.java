@@ -23,7 +23,7 @@ public class ConcolicTests {
 		Object[] obj = new Object[]{1.733, 'a'};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:47)", melt.Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations("features.nested.Input.foo(Input.java:47)", melt.Config.TESTS_SIZE, cons, true);
 		System.out.println(vals);
 		System.out.println(cons);
 		jdart.statistics();
@@ -34,7 +34,7 @@ public class ConcolicTests {
 		Object[] obj = new Object[]{7975, -5814.517874260192};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:25)", melt.Config.TESTS_SIZE, cons);
+		HashSet<Valuation> vals = jdart.getValuations("dt.original.Bessj.bessj(Bessj.java:25)", melt.Config.TESTS_SIZE, cons, true);
 		System.out.println(vals);
 		System.out.println(cons);
 		jdart.statistics();
@@ -58,7 +58,7 @@ public class ConcolicTests {
 		Object[] obj = new Object[]{26996336, -99741853, 93093590, 20404571};
 		jdart.run(obj);
 		HashMap<Instruction, Expression<Boolean>> cons = new HashMap<Instruction, Expression<Boolean>>();
-		HashSet<Valuation> vals = jdart.getValuations("schedule.Schedule.mainMethod(Schedule.java:76)", 1, cons);
+		HashSet<Valuation> vals = jdart.getValuations("schedule.Schedule.mainMethod(Schedule.java:76)", 1, cons, true);
 		System.out.println(vals);
 		System.out.println(cons);
 		jdart.statistics();

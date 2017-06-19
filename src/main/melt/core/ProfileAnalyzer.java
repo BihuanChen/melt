@@ -120,13 +120,16 @@ public class ProfileAnalyzer {
 				current = newNode;
 			}
 			
-			// attach the dynamic taint results
-			Predicate pd = Profile.predicates.get(index);
-			String key = pd.getClassName() + "@" + pd.getLineNumber();
-			HashSet<Integer> newDepInputs = Profile.taints.get(key);
-			current.addToDepInputs(newDepInputs);
-			// when taint analysis is disabled
-			//current.setDepAndNotdep();
+			if (Config.DT_ENABLED) {
+				// attach the dynamic taint results
+				Predicate pd = Profile.predicates.get(index);
+				String key = pd.getClassName() + "@" + pd.getLineNumber();
+				HashSet<Integer> newDepInputs = Profile.taints.get(key);
+				current.addToDepInputs(newDepInputs);
+			} else {
+				// when taint analysis is disabled
+				current.setDepAndNotdep();
+			}
 			
 			// check if the current branch is a loop branch;
 			// if yes, push the loop branch into the stack for later references
@@ -252,6 +255,48 @@ public class ProfileAnalyzer {
 			}
 		}
 		return null;
+	}
+	
+	
+	// used by simple hybrid testing
+	private HashSet<Integer> attempted = new HashSet<Integer>();
+	public PredicateNode findUnexploredBranchwithoutContext() {
+		Iterator<Integer> preIterator = predicatedNodes.keySet().iterator();
+		while (preIterator.hasNext()) {
+			Integer id = preIterator.next();
+			HashSet<Integer> brs = predicatedNodes.get(id);
+			if (attempted.contains(id) || isCoveredBranch(brs)) {
+				continue;
+			} else {
+				Iterator<Integer> iterator = brs.iterator();
+				while (iterator.hasNext()) {
+					PredicateNode node = nodes.get(iterator.next());
+					if (node.getDepInputs() != null) {
+						if (node.getAttempts() < Config.MAX_ATTEMPTS) {
+							if (!node.isCovered()) {
+								node.incAttempts();
+								if (node.getAttempts() == Config.MAX_ATTEMPTS) {
+									attempted.add(id);
+								}
+								return node;
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	private boolean isCoveredBranch(HashSet<Integer> brs) {
+		Iterator<Integer> iterator = brs.iterator();
+		while (iterator.hasNext()) {
+			PredicateNode node = nodes.get(iterator.next());
+			if (node.isCovered()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public void computeCoverage(PredicateNode target) {

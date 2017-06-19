@@ -10,6 +10,8 @@ import melt.test.util.TestCase;
 
 public class PureRandomTestGenerator extends TestGenerator {
 
+	public static long ceTime = 0;
+
 	public PureRandomTestGenerator(PathLearner pathLearner) {
 		super(pathLearner);
 	}
@@ -17,7 +19,10 @@ public class PureRandomTestGenerator extends TestGenerator {
 	@Override
 	public HashSet<TestCase> generate() throws Exception {
 		if (Config.CE_ENABLED && pathLearner != null && pathLearner.getTarget().getAttempts() == Config.MAX_ATTEMPTS) {
-			return new ConcolicTestGenerator(pathLearner).generate();
+			long t = System.currentTimeMillis();
+			HashSet<TestCase> tcs = new ConcolicTestGenerator(pathLearner).generate();
+			ceTime += System.currentTimeMillis() - t;
+			return tcs;
 		} else {
 			return genPureRandomTests();
 		}

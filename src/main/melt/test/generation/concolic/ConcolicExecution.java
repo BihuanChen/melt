@@ -174,8 +174,12 @@ public class ConcolicExecution {
 		cc.writeFile(jpfConf.getString("classpath").split(";")[0]);
 	}
 	
-	public HashSet<Valuation> getValuations(String srcLoc, int size, HashMap<Instruction, Expression<Boolean>> cons) {
-		return ce.getCurrentAnalysis().getInternalConstraintsTree().findValuations(srcLoc, size, cons);
+	public HashSet<Valuation> getValuations(String srcLoc, int size, HashMap<Instruction, Expression<Boolean>> cons, boolean isSimpleHybridTesting) {
+		if (!isSimpleHybridTesting) {
+			return ce.getCurrentAnalysis().getInternalConstraintsTree().findValuations(srcLoc, size, cons);
+		} else {
+			return ce.getCurrentAnalysis().getInternalConstraintsTree().findUnCoveredBranch(srcLoc);
+		}
 	}
 	
 	public HashSet<Valuation> getValuations() {
